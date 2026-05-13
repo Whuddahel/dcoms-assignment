@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "commit": "cz",
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
@@ -17,5 +19,24 @@
   "bugs": {
     "url": "https://github.com/Whuddahel/dcoms-assignment/issues"
   },
-  "homepage": "https://github.com/Whuddahel/dcoms-assignment#readme"
+  "homepage": "https://github.com/Whuddahel/dcoms-assignment#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^21.0.1",
+    "@commitlint/config-conventional": "^21.0.1",
+    "commitizen": "^4.3.1",
+    "cz-conventional-changelog": "^3.3.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.4",
+    "prettier": "^3.8.3"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
+  },
+  "lint-staged": {
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  }
 }
