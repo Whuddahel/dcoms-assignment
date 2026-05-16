@@ -8,7 +8,9 @@
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     application
-}
+    // Spotless formatter plugin, latest version as of 14th May 2025
+    id("com.diffplug.spotless") version "8.4.0"
+}   
 
 repositories {
     // Use Maven Central for resolving dependencies.
@@ -35,6 +37,13 @@ java {
 application {
     // Define the main class for the application.
     mainClass = "assignment.App"
+}
+
+spotless {
+    java {
+        // Uses the Google Java Style
+        googleJavaFormat() 
+    }
 }
 
 tasks.named<Test>("test") {
