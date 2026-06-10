@@ -18,3 +18,7 @@ nbproject/private/
 
 # Node
 node_modules/
+
+# Apache Derby 
+data/
+derby.log

@@ -25,6 +25,9 @@ dependencies {
 
     // This dependency is used by the application.
     implementation(libs.guava)
+
+    // Apache Derby
+    implementation("org.apache.derby:derby:10.17.1.0")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
