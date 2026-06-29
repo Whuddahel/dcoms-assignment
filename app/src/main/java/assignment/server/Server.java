@@ -7,9 +7,7 @@ public class Server {
   public static void main(String[] args) {
     try {
       DatabaseInitializer.initialize();
-
-      UserRepository.addUser("michael", "hash123", "admin");
-
+      UserRepository.listAllUsers();
     } catch (Exception e) {
       e.printStackTrace();
     }

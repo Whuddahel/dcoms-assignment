@@ -14,13 +14,17 @@ public final class DatabaseInitializer {
   public static void initialize() throws SQLException, IOException {
 
     try (Connection connection = DatabaseManager.getConnection()) {
+      System.out.println("Connected.");
 
       if (usersTableExists(connection)) {
+        System.out.println("Database exists.");
         return;
       }
 
+      System.out.println("Executing schema.sql.");
       executeSqlFile(connection, "db/schema.sql");
-
+      System.out.println("Executing seed.sql.");
+      executeSqlFile(connection, "db/seed.sql");
       System.out.println("Database initialized.");
     }
   }

@@ -2,6 +2,7 @@ package assignment.database;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class UserRepository {
@@ -21,6 +22,36 @@ public class UserRepository {
       ps.executeUpdate();
 
       System.out.println("User inserted: " + username);
+    }
+  }
+
+  public static void listAllUsers() throws SQLException {
+
+    String sql = "SELECT user_id, username, password_hash, role FROM users";
+
+    try (Connection conn = DatabaseManager.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery()) {
+
+      System.out.println("=== USERS IN DATABASE ===");
+
+      boolean empty = true;
+
+      while (rs.next()) {
+        empty = false;
+
+        int id = rs.getInt("user_id");
+        String username = rs.getString("username");
+        String role = rs.getString("role");
+        String passwordHash = rs.getString("password_hash");
+        System.out.println(id + " | " + username + " | " + role + " | " + passwordHash);
+      }
+
+      if (empty) {
+        System.out.println("(no users found)");
+      }
+
+      System.out.println("=========================");
     }
   }
 }
