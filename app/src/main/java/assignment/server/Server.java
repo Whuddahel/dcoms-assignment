@@ -8,6 +8,8 @@ public class Server {
     try {
       DatabaseInitializer.initialize();
       UserRepository.listAllUsers();
+
+      ServerRegistry.start();
     } catch (Exception e) {
       e.printStackTrace();
     }
