@@ -9,8 +9,7 @@ import java.sql.Statement;
 
 public final class DatabaseInitializer {
 
-  private DatabaseInitializer() {
-  }
+  private DatabaseInitializer() {}
 
   public static void initialize() throws SQLException, IOException {
 
@@ -44,7 +43,8 @@ public final class DatabaseInitializer {
   private static void executeSqlFile(Connection connection, String resourcePath)
       throws IOException, SQLException {
 
-    try (InputStream inputStream = DatabaseInitializer.class.getClassLoader().getResourceAsStream(resourcePath)) {
+    try (InputStream inputStream =
+        DatabaseInitializer.class.getClassLoader().getResourceAsStream(resourcePath)) {
 
       if (inputStream == null) {
         throw new IOException("SQL file not found: " + resourcePath);
