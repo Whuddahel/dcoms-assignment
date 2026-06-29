@@ -1,5 +1,6 @@
 package assignment.database;
 
+import assignment.shared.model.User;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -52,6 +53,27 @@ public class UserRepository {
       }
 
       System.out.println("=========================");
+    }
+  }
+
+  public static User getUserByUsername(String username) throws SQLException {
+    String sql = "SELECT user_id, username, password_hash, role FROM users WHERE username = ?";
+
+    try (Connection conn = DatabaseManager.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql); ) {
+
+      ps.setString(1, username);
+
+      try (ResultSet rs = ps.executeQuery()) {
+        if (rs.next()) {
+          return new User(
+              rs.getInt("user_id"),
+              rs.getString("username"),
+              rs.getString("password_hash"),
+              rs.getString("role"));
+        }
+        return null;
+      }
     }
   }
 }

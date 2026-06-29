@@ -31,6 +31,9 @@ dependencies {
 
     // Apache Derby (Remote)
     implementation("org.apache.derby:derbyclient:10.17.1.0")
+
+    // jBCrypt (Hashing Library)
+    implementation("org.mindrot:jbcrypt:0.4")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
