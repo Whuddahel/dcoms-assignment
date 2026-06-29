@@ -31,6 +31,9 @@ dependencies {
 
     // Apache Derby (Remote)
     implementation("org.apache.derby:derbyclient:10.17.1.0")
+
+    // Apache Derby (Server)
+    implementation("org.apache.derby:derbynet:10.17.1.0")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -38,6 +41,14 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
+}
+
+tasks.register<JavaExec>("startDerbyServer") {
+    group = "database"
+    description = "Starts the Apache Derby Network Server."
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("org.apache.derby.drda.NetworkServerControl")
+    args("start", "-h", "localhost", "-p", "1527")
 }
 
 application {
