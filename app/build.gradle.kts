@@ -43,12 +43,22 @@ java {
     }
 }
 
+// Command: .\gradlew.bat :app:startDerbyServer
 tasks.register<JavaExec>("startDerbyServer") {
     group = "database"
     description = "Starts the Apache Derby Network Server."
     classpath = sourceSets.main.get().runtimeClasspath
     mainClass.set("org.apache.derby.drda.NetworkServerControl")
     args("start", "-h", "localhost", "-p", "1527")
+}
+
+// Command: .\gradlew.bat :app:stopDerbyServer
+tasks.register<JavaExec>("stopDerbyServer") {
+    group = "database"
+    description = "Stops the Apache Derby Network Server."
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("org.apache.derby.drda.NetworkServerControl")
+    args("shutdown", "-h", "localhost", "-p", "1527")
 }
 
 application {
