@@ -28,6 +28,9 @@ public class AuthServiceImplementation extends UnicastRemoteObject implements Au
       }
 
       String token = SessionManager.createSession(user);
+
+      // TODO: Remove debug statement
+      SessionManager.printSessions();
       return token;
     } catch (SQLException e) {
       throw new RemoteException(AuthError.DB_ERROR.name(), e);
