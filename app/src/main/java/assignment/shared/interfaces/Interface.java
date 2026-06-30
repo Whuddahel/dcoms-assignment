@@ -1,4 +1,4 @@
-package assignment.shared;
+package assignment.shared.interfaces;
 
 import java.rmi.Remote;
 

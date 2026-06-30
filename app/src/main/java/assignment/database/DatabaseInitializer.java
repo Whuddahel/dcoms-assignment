@@ -9,8 +9,7 @@ import java.sql.Statement;
 
 public final class DatabaseInitializer {
 
-  private DatabaseInitializer() {
-  }
+  private DatabaseInitializer() {}
 
   public static void initialize() throws SQLException, IOException {
 
@@ -32,7 +31,7 @@ public final class DatabaseInitializer {
 
   private static boolean usersTableExists(Connection connection) {
 
-    try (var resultSet = connection.getMetaData().getTables(null, null, "USER", null)) {
+    try (var resultSet = connection.getMetaData().getTables(null, null, "USERS", null)) {
 
       return resultSet.next();
 
@@ -44,7 +43,8 @@ public final class DatabaseInitializer {
   private static void executeSqlFile(Connection connection, String resourcePath)
       throws IOException, SQLException {
 
-    try (InputStream inputStream = DatabaseInitializer.class.getClassLoader().getResourceAsStream(resourcePath)) {
+    try (InputStream inputStream =
+        DatabaseInitializer.class.getClassLoader().getResourceAsStream(resourcePath)) {
 
       if (inputStream == null) {
         throw new IOException("SQL file not found: " + resourcePath);
@@ -53,10 +53,13 @@ public final class DatabaseInitializer {
       String sql = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
 
       try (Statement statement = connection.createStatement()) {
-        for (String sqlStatement : sql.split(";")) {
-          String trimmed = sqlStatement.trim();
-          if (!trimmed.isEmpty()) {
-            statement.executeUpdate(trimmed);
+        String[] commands = sql.split(";");
+
+        for (String command : commands) {
+          command = command.trim();
+
+          if (!command.isEmpty()) {
+            statement.executeUpdate(command);
           }
         }
       }

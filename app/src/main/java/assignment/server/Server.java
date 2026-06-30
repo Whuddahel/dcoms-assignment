@@ -1,15 +1,13 @@
 package assignment.server;
 
-import assignment.database.DatabaseInitializer;
-import assignment.database.UserRepository;
-
 public class Server {
   public static void main(String[] args) {
     try {
-      DatabaseInitializer.initialize();
-      UserRepository.listAllUsers();
+      ServerRegistry.startRegistry();
     } catch (Exception e) {
       e.printStackTrace();
     }
+
+    System.out.println("Server running...");
   }
 }

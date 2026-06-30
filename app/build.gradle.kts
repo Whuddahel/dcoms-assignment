@@ -61,6 +61,32 @@ tasks.register<JavaExec>("stopDerbyServer") {
     args("shutdown", "-h", "localhost", "-p", "1527")
 }
 
+// Command: .\gradlew.bat :app:runDatabase
+tasks.register<JavaExec>("runDatabase") {
+    group = "application"
+    description = "Runs the Database Server."
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("assignment.database.Database")
+}
+
+// Command: .\gradlew.bat :app:runServer
+tasks.register<JavaExec>("runServer") {
+    group = "application"
+    description = "Runs the Application Server."
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("assignment.server.Server")
+}
+
+// Command: .\gradlew.bat :app:runClient
+tasks.register<JavaExec>("runClient") {
+    group = "application"
+    description = "Runs the RMI Client CLI."
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("assignment.client.Client")
+    standardInput = System.`in`
+}
+
+
 application {
     // Define the main class for the application.
     mainClass = "assignment.App"
