@@ -10,6 +10,11 @@ public class SessionManager {
 
   public SessionManager() {}
 
+  // TODO: Can remove this method if underuntilized
+  public static boolean hasSession(String token) {
+    return sessions.containsKey(token);
+  }
+
   public static String createSession(User user) {
     String token = UUID.randomUUID().toString();
     Session session = new Session(user);
@@ -17,9 +22,9 @@ public class SessionManager {
     return token;
   }
 
-  public static Session getUser(String token) {
+  public static Session getSession(String token) {
     Session session = sessions.get(token);
-    if (session != null) {
+    if (hasSession(token)) {
       session.refresh();
     }
     return session;
