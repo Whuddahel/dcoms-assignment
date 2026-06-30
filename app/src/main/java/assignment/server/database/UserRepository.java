@@ -1,5 +1,6 @@
 package assignment.server.database;
 
+import assignment.shared.auth.Role;
 import assignment.shared.model.User;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -70,7 +71,7 @@ public class UserRepository {
               rs.getInt("user_id"),
               rs.getString("username"),
               rs.getString("password_hash"),
-              rs.getString("role"));
+              Role.valueOf(rs.getString("role")));
         }
         return null;
       }
