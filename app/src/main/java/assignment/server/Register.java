@@ -1,11 +1,11 @@
 package assignment.server;
 
 import assignment.server.services.AuthServiceImplementation;
-import assignment.shared.AuthService;
+import assignment.shared.services.AuthService;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
-public class ServerRegistry {
+public class Register {
 
   public static void start() {
     try {

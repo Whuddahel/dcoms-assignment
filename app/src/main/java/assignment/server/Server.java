@@ -1,7 +1,7 @@
 package assignment.server;
 
-import assignment.database.DatabaseInitializer;
-import assignment.database.UserRepository;
+import assignment.server.database.DatabaseInitializer;
+import assignment.server.database.UserRepository;
 
 public class Server {
   public static void main(String[] args) {
@@ -9,7 +9,7 @@ public class Server {
       DatabaseInitializer.initialize();
       UserRepository.listAllUsers();
 
-      ServerRegistry.start();
+      Register.start();
     } catch (Exception e) {
       e.printStackTrace();
     }

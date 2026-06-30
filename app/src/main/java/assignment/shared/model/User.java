@@ -1,6 +1,9 @@
 package assignment.shared.model;
 
-public class User {
+import java.io.Serializable;
+
+// User objects may or may not be transferred over RMI. Implementing Serializable for now
+public class User implements Serializable {
   private final int userId;
   private final String username;
   private final String passwordHash;

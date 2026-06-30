@@ -1,4 +1,4 @@
-package assignment.shared;
+package assignment.shared.services;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

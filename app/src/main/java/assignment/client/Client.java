@@ -1,6 +1,6 @@
 package assignment.client;
 
-import assignment.shared.AuthService;
+import assignment.shared.services.AuthService;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import org.mindrot.jbcrypt.BCrypt;

@@ -1,4 +1,4 @@
-package assignment.database;
+package assignment.server.database;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

@@ -1,10 +1,10 @@
 package assignment.server.services;
 
-import assignment.database.UserRepository;
-import assignment.server.manager.SessionManager;
-import assignment.shared.AuthService;
+import assignment.server.auth.SessionManager;
+import assignment.server.database.UserRepository;
 import assignment.shared.error.AuthError;
 import assignment.shared.model.User;
+import assignment.shared.services.AuthService;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.SQLException;

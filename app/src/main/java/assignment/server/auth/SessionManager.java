@@ -1,4 +1,4 @@
-package assignment.server.manager;
+package assignment.server.auth;
 
 import assignment.shared.model.User;
 import java.util.HashMap;

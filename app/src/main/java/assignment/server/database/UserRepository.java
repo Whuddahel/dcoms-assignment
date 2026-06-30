@@ -1,4 +1,4 @@
-package assignment.database;
+package assignment.server.database;
 
 import assignment.shared.model.User;
 import java.sql.Connection;
