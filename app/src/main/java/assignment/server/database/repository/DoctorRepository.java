@@ -13,7 +13,8 @@ import java.util.List;
 public class DoctorRepository {
 
   public static boolean addDoctor(Doctor doctor) {
-    String insertUserSql = "INSERT INTO Users (firstName, lastName, userRole, icPassportNo, email, password) VALUES (?, ?, ?, ?, ?, ?)";
+    String insertUserSql =
+        "INSERT INTO Users (firstName, lastName, userRole, icPassportNo, email, password) VALUES (?, ?, ?, ?, ?, ?)";
     String insertDocSql = "INSERT INTO Doctor (userId, Specialization) VALUES (?, ?)";
 
     Connection conn = null;
@@ -22,7 +23,8 @@ public class DoctorRepository {
       conn.setAutoCommit(false);
 
       int userId;
-      try (PreparedStatement psUser = conn.prepareStatement(insertUserSql, Statement.RETURN_GENERATED_KEYS)) {
+      try (PreparedStatement psUser =
+          conn.prepareStatement(insertUserSql, Statement.RETURN_GENERATED_KEYS)) {
         psUser.setString(1, doctor.getFirstName());
         psUser.setString(2, doctor.getLastName());
         psUser.setString(3, doctor.getUserRole());
@@ -72,10 +74,11 @@ public class DoctorRepository {
   }
 
   public static Doctor getDoctorById(int doctorId) {
-    String sql = "SELECT d.doctorId, d.userId, d.Specialization, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.password "
-        + "FROM Doctor d "
-        + "JOIN Users u ON d.userId = u.userId "
-        + "WHERE d.doctorId = ?";
+    String sql =
+        "SELECT d.doctorId, d.userId, d.Specialization, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.password "
+            + "FROM Doctor d "
+            + "JOIN Users u ON d.userId = u.userId "
+            + "WHERE d.doctorId = ?";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -101,8 +104,9 @@ public class DoctorRepository {
   }
 
   public static boolean updateDoctor(Doctor doctor) {
-    String updateUserSql = "UPDATE Users SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? "
-        + "WHERE userId = (SELECT userId FROM Doctor WHERE doctorId = ?)";
+    String updateUserSql =
+        "UPDATE Users SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? "
+            + "WHERE userId = (SELECT userId FROM Doctor WHERE doctorId = ?)";
     String updateDocSql = "UPDATE Doctor SET Specialization = ? WHERE doctorId = ?";
 
     Connection conn = null;
@@ -212,9 +216,10 @@ public class DoctorRepository {
   }
 
   public static List<Doctor> listAllDoctors() throws SQLException {
-    String sql = "SELECT d.doctorId, d.userId, d.Specialization, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.password "
-        + "FROM Doctor d "
-        + "JOIN Users u ON d.userId = u.userId";
+    String sql =
+        "SELECT d.doctorId, d.userId, d.Specialization, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.password "
+            + "FROM Doctor d "
+            + "JOIN Users u ON d.userId = u.userId";
 
     List<Doctor> list = new ArrayList<>();
     try (Connection conn = DatabaseManager.getConnection();
@@ -225,16 +230,17 @@ public class DoctorRepository {
       boolean empty = true;
       while (rs.next()) {
         empty = false;
-        Doctor doctor = new Doctor(
-            rs.getInt("doctorId"),
-            rs.getInt("userId"),
-            rs.getString("firstName"),
-            rs.getString("lastName"),
-            rs.getString("userRole"),
-            rs.getString("icPassportNo"),
-            rs.getString("email"),
-            rs.getString("password"),
-            rs.getString("Specialization"));
+        Doctor doctor =
+            new Doctor(
+                rs.getInt("doctorId"),
+                rs.getInt("userId"),
+                rs.getString("firstName"),
+                rs.getString("lastName"),
+                rs.getString("userRole"),
+                rs.getString("icPassportNo"),
+                rs.getString("email"),
+                rs.getString("password"),
+                rs.getString("Specialization"));
         list.add(doctor);
         System.out.println(
             doctor.getDoctorId()

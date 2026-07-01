@@ -13,8 +13,10 @@ import java.util.List;
 public class PatientRepository {
 
   public static boolean addPatient(Patient patient) {
-    String insertUserSql = "INSERT INTO Users (firstName, lastName, userRole, icPassportNo, email, password) VALUES (?, ?, ?, ?, ?, ?)";
-    String insertPatSql = "INSERT INTO Patient (userId, medicalRecordId, contactNumber) VALUES (?, ?, ?)";
+    String insertUserSql =
+        "INSERT INTO Users (firstName, lastName, userRole, icPassportNo, email, password) VALUES (?, ?, ?, ?, ?, ?)";
+    String insertPatSql =
+        "INSERT INTO Patient (userId, medicalRecordId, contactNumber) VALUES (?, ?, ?)";
 
     Connection conn = null;
     try {
@@ -22,7 +24,8 @@ public class PatientRepository {
       conn.setAutoCommit(false);
 
       int userId;
-      try (PreparedStatement psUser = conn.prepareStatement(insertUserSql, Statement.RETURN_GENERATED_KEYS)) {
+      try (PreparedStatement psUser =
+          conn.prepareStatement(insertUserSql, Statement.RETURN_GENERATED_KEYS)) {
         psUser.setString(1, patient.getFirstName());
         psUser.setString(2, patient.getLastName());
         psUser.setString(3, patient.getUserRole());
@@ -73,10 +76,11 @@ public class PatientRepository {
   }
 
   public static Patient getPatientById(int patientId) {
-    String sql = "SELECT p.patientId, p.userId, p.medicalRecordId, p.contactNumber, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.password "
-        + "FROM Patient p "
-        + "JOIN Users u ON p.userId = u.userId "
-        + "WHERE p.patientId = ?";
+    String sql =
+        "SELECT p.patientId, p.userId, p.medicalRecordId, p.contactNumber, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.password "
+            + "FROM Patient p "
+            + "JOIN Users u ON p.userId = u.userId "
+            + "WHERE p.patientId = ?";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -103,9 +107,11 @@ public class PatientRepository {
   }
 
   public static boolean updatePatient(Patient patient) {
-    String updateUserSql = "UPDATE Users SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? "
-        + "WHERE userId = (SELECT userId FROM Patient WHERE patientId = ?)";
-    String updatePatSql = "UPDATE Patient SET medicalRecordId = ?, contactNumber = ? WHERE patientId = ?";
+    String updateUserSql =
+        "UPDATE Users SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? "
+            + "WHERE userId = (SELECT userId FROM Patient WHERE patientId = ?)";
+    String updatePatSql =
+        "UPDATE Patient SET medicalRecordId = ?, contactNumber = ? WHERE patientId = ?";
 
     Connection conn = null;
     try {
@@ -215,9 +221,10 @@ public class PatientRepository {
   }
 
   public static List<Patient> listAllPatients() throws SQLException {
-    String sql = "SELECT p.patientId, p.userId, p.medicalRecordId, p.contactNumber, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.password "
-        + "FROM Patient p "
-        + "JOIN Users u ON p.userId = u.userId";
+    String sql =
+        "SELECT p.patientId, p.userId, p.medicalRecordId, p.contactNumber, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.password "
+            + "FROM Patient p "
+            + "JOIN Users u ON p.userId = u.userId";
 
     List<Patient> list = new ArrayList<>();
     try (Connection conn = DatabaseManager.getConnection();
@@ -228,17 +235,18 @@ public class PatientRepository {
       boolean empty = true;
       while (rs.next()) {
         empty = false;
-        Patient patient = new Patient(
-            rs.getInt("patientId"),
-            rs.getInt("userId"),
-            rs.getString("firstName"),
-            rs.getString("lastName"),
-            rs.getString("userRole"),
-            rs.getString("icPassportNo"),
-            rs.getString("email"),
-            rs.getString("password"),
-            rs.getString("medicalRecordId"),
-            rs.getString("contactNumber"));
+        Patient patient =
+            new Patient(
+                rs.getInt("patientId"),
+                rs.getInt("userId"),
+                rs.getString("firstName"),
+                rs.getString("lastName"),
+                rs.getString("userRole"),
+                rs.getString("icPassportNo"),
+                rs.getString("email"),
+                rs.getString("password"),
+                rs.getString("medicalRecordId"),
+                rs.getString("contactNumber"));
         list.add(patient);
         System.out.println(
             patient.getPatientId()
