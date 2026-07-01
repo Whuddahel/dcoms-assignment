@@ -1,6 +1,6 @@
-package assignment.database.repository;
+package assignment.server.database.repository;
 
-import assignment.database.DatabaseManager;
+import assignment.server.database.DatabaseManager;
 import assignment.shared.model.Schedule;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -30,8 +30,7 @@ public class ScheduleRepository {
   }
 
   public static Schedule getScheduleById(int scheduleId) {
-    String sql =
-        "SELECT scheduleId, doctorId, day, startTime, endTime FROM Schedule WHERE scheduleId = ?";
+    String sql = "SELECT scheduleId, doctorId, day, startTime, endTime FROM Schedule WHERE scheduleId = ?";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -53,8 +52,7 @@ public class ScheduleRepository {
   }
 
   public static boolean updateSchedule(Schedule schedule) {
-    String sql =
-        "UPDATE Schedule SET doctorId = ?, day = ?, startTime = ?, endTime = ? WHERE scheduleId = ?";
+    String sql = "UPDATE Schedule SET doctorId = ?, day = ?, startTime = ?, endTime = ? WHERE scheduleId = ?";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -99,13 +97,12 @@ public class ScheduleRepository {
       boolean empty = true;
       while (rs.next()) {
         empty = false;
-        Schedule schedule =
-            new Schedule(
-                rs.getInt("scheduleId"),
-                rs.getInt("doctorId"),
-                rs.getString("day"),
-                rs.getTime("startTime"),
-                rs.getTime("endTime"));
+        Schedule schedule = new Schedule(
+            rs.getInt("scheduleId"),
+            rs.getInt("doctorId"),
+            rs.getString("day"),
+            rs.getTime("startTime"),
+            rs.getTime("endTime"));
         list.add(schedule);
         System.out.println(
             schedule.getScheduleId()
