@@ -1,4 +1,4 @@
-package assignment.database;
+package assignment.server.database;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,7 +53,15 @@ public final class DatabaseInitializer {
       String sql = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
 
       try (Statement statement = connection.createStatement()) {
-        statement.executeUpdate(sql);
+        String[] commands = sql.split(";");
+
+        for (String command : commands) {
+          command = command.trim();
+
+          if (!command.isEmpty()) {
+            statement.executeUpdate(command);
+          }
+        }
       }
     }
   }
