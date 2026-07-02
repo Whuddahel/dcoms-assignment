@@ -16,16 +16,30 @@ public final class DatabaseInitializer {
     try (Connection connection = DatabaseManager.getConnection()) {
       System.out.println("Connected.");
 
-      if (usersTableExists(connection)) {
+      if (!usersTableExists(connection)) {
+        System.out.println("Executing schema.sql.");
+        executeSqlFile(connection, "db/schema.sql");
+        System.out.println("Executing seed.sql.");
+        executeSqlFile(connection, "db/seed.sql");
+        System.out.println("Database initialized.");
+      } else {
         System.out.println("Database exists.");
-        return;
+        if (!seedUserExists(connection)) {
+          System.out.println("Seed user not found. Executing seed.sql.");
+          executeSqlFile(connection, "db/seed.sql");
+        }
       }
+    }
+  }
 
-      System.out.println("Executing schema.sql.");
-      executeSqlFile(connection, "db/schema.sql");
-      System.out.println("Executing seed.sql.");
-      executeSqlFile(connection, "db/seed.sql");
-      System.out.println("Database initialized.");
+  private static boolean seedUserExists(Connection connection) {
+    String sql =
+        "SELECT 1 FROM Users WHERE firstName = 'Michael' AND icPassportNo = '010101100101'";
+    try (Statement stmt = connection.createStatement();
+        var rs = stmt.executeQuery(sql)) {
+      return rs.next();
+    } catch (SQLException e) {
+      return false;
     }
   }
 

@@ -6,6 +6,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserRepository {
 
@@ -34,7 +36,7 @@ public class UserRepository {
 
   public static Users getUserById(int userId) {
     String sql =
-        "SELECT userId, firstName, lastName, userRole, icPassportNo, email, password FROM Users WHERE userId = ?";
+        "SELECT userId, firstName, lastName, userRole, icPassportNo, email FROM Users WHERE userId = ?";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -48,7 +50,7 @@ public class UserRepository {
               rs.getString("userRole"),
               rs.getString("icPassportNo"),
               rs.getString("email"),
-              rs.getString("password"));
+              null);
         }
       }
     } catch (SQLException e) {
@@ -137,5 +139,27 @@ public class UserRepository {
 
       System.out.println("=========================");
     }
+  }
+
+  public static List<Users> getAllUsers() throws SQLException {
+    String sql = "SELECT userId, firstName, lastName, userRole, icPassportNo, email FROM Users";
+
+    List<Users> list = new ArrayList<>();
+    try (Connection conn = DatabaseManager.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery()) {
+      while (rs.next()) {
+        list.add(
+            new Users(
+                rs.getInt("userId"),
+                rs.getString("firstName"),
+                rs.getString("lastName"),
+                rs.getString("userRole"),
+                rs.getString("icPassportNo"),
+                rs.getString("email"),
+                null));
+      }
+    }
+    return list;
   }
 }

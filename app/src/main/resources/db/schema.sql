@@ -45,11 +45,13 @@ CREATE INDEX idx_doctor_userId         ON Doctor(userId);
 CREATE INDEX idx_doctor_Specialization ON Doctor(Specialization);
 
 
+CREATE SEQUENCE medical_record_seq START WITH 1;
+
 -- Patient
 CREATE TABLE Patient (
     patientId       INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     userId          INT NOT NULL UNIQUE,
-    medicalRecordId VARCHAR(100) NOT NULL,
+    medicalRecordId INT NOT NULL UNIQUE,
     contactNumber   VARCHAR(20)  NOT NULL,
     FOREIGN KEY (userId) REFERENCES Users(userId)
 );
@@ -81,7 +83,7 @@ CREATE TABLE Appointment (
     createdAt       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     cancelledBy     INT,
     FOREIGN KEY (doctorId)        REFERENCES Doctor(doctorId),
-    FOREIGN KEY (medicalRecordId) REFERENCES Patient(patientId),
+    FOREIGN KEY (medicalRecordId) REFERENCES Patient(medicalRecordId),
     FOREIGN KEY (scheduleId)      REFERENCES Schedule(scheduleId)
 );
 

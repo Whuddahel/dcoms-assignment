@@ -16,7 +16,7 @@ public class PatientRepository {
     String insertUserSql =
         "INSERT INTO Users (firstName, lastName, userRole, icPassportNo, email, password) VALUES (?, ?, ?, ?, ?, ?)";
     String insertPatSql =
-        "INSERT INTO Patient (userId, medicalRecordId, contactNumber) VALUES (?, ?, ?)";
+        "INSERT INTO Patient (userId, medicalRecordId, contactNumber) VALUES (?, NEXT VALUE FOR medical_record_seq, ?)";
 
     Connection conn = null;
     try {
@@ -45,8 +45,7 @@ public class PatientRepository {
 
       try (PreparedStatement psPat = conn.prepareStatement(insertPatSql)) {
         psPat.setInt(1, userId);
-        psPat.setString(2, patient.getMedicalRecordId());
-        psPat.setString(3, patient.getContactNumber());
+        psPat.setString(2, patient.getContactNumber());
         psPat.executeUpdate();
       }
 
@@ -77,7 +76,7 @@ public class PatientRepository {
 
   public static Patient getPatientById(int patientId) {
     String sql =
-        "SELECT p.patientId, p.userId, p.medicalRecordId, p.contactNumber, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.password "
+        "SELECT p.patientId, p.userId, p.medicalRecordId, p.contactNumber, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
             + "FROM Patient p "
             + "JOIN Users u ON p.userId = u.userId "
             + "WHERE p.patientId = ?";
@@ -95,8 +94,8 @@ public class PatientRepository {
               rs.getString("userRole"),
               rs.getString("icPassportNo"),
               rs.getString("email"),
-              rs.getString("password"),
-              rs.getString("medicalRecordId"),
+              null,
+              rs.getInt("medicalRecordId"),
               rs.getString("contactNumber"));
         }
       }
@@ -110,8 +109,7 @@ public class PatientRepository {
     String updateUserSql =
         "UPDATE Users SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? "
             + "WHERE userId = (SELECT userId FROM Patient WHERE patientId = ?)";
-    String updatePatSql =
-        "UPDATE Patient SET medicalRecordId = ?, contactNumber = ? WHERE patientId = ?";
+    String updatePatSql = "UPDATE Patient SET contactNumber = ? WHERE patientId = ?";
 
     Connection conn = null;
     try {
@@ -130,9 +128,8 @@ public class PatientRepository {
       }
 
       try (PreparedStatement psPat = conn.prepareStatement(updatePatSql)) {
-        psPat.setString(1, patient.getMedicalRecordId());
-        psPat.setString(2, patient.getContactNumber());
-        psPat.setInt(3, patient.getPatientId());
+        psPat.setString(1, patient.getContactNumber());
+        psPat.setInt(2, patient.getPatientId());
         psPat.executeUpdate();
       }
 
@@ -222,7 +219,7 @@ public class PatientRepository {
 
   public static List<Patient> listAllPatients() throws SQLException {
     String sql =
-        "SELECT p.patientId, p.userId, p.medicalRecordId, p.contactNumber, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.password "
+        "SELECT p.patientId, p.userId, p.medicalRecordId, p.contactNumber, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
             + "FROM Patient p "
             + "JOIN Users u ON p.userId = u.userId";
 
@@ -244,8 +241,8 @@ public class PatientRepository {
                 rs.getString("userRole"),
                 rs.getString("icPassportNo"),
                 rs.getString("email"),
-                rs.getString("password"),
-                rs.getString("medicalRecordId"),
+                null,
+                rs.getInt("medicalRecordId"),
                 rs.getString("contactNumber"));
         list.add(patient);
         System.out.println(
@@ -261,6 +258,34 @@ public class PatientRepository {
         System.out.println("(no patients found)");
       }
       System.out.println("============================");
+    }
+    return list;
+  }
+
+  public static List<Patient> getAllPatients() throws SQLException {
+    String sql =
+        "SELECT p.patientId, p.userId, p.medicalRecordId, p.contactNumber, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
+            + "FROM Patient p "
+            + "JOIN Users u ON p.userId = u.userId";
+
+    List<Patient> list = new ArrayList<>();
+    try (Connection conn = DatabaseManager.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery()) {
+      while (rs.next()) {
+        list.add(
+            new Patient(
+                rs.getInt("patientId"),
+                rs.getInt("userId"),
+                rs.getString("firstName"),
+                rs.getString("lastName"),
+                rs.getString("userRole"),
+                rs.getString("icPassportNo"),
+                rs.getString("email"),
+                null,
+                rs.getInt("medicalRecordId"),
+                rs.getString("contactNumber")));
+      }
     }
     return list;
   }

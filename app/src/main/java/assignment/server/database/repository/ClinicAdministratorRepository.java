@@ -74,7 +74,7 @@ public class ClinicAdministratorRepository {
 
   public static ClinicAdministrator getClinicAdministratorById(int adminId) {
     String sql =
-        "SELECT a.adminId, a.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.password "
+        "SELECT a.adminId, a.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
             + "FROM ClinicAdministrator a "
             + "JOIN Users u ON a.userId = u.userId "
             + "WHERE a.adminId = ?";
@@ -92,7 +92,7 @@ public class ClinicAdministratorRepository {
               rs.getString("userRole"),
               rs.getString("icPassportNo"),
               rs.getString("email"),
-              rs.getString("password"));
+              null);
         }
       }
     } catch (SQLException e) {
@@ -185,7 +185,7 @@ public class ClinicAdministratorRepository {
 
   public static List<ClinicAdministrator> listAllClinicAdministrators() throws SQLException {
     String sql =
-        "SELECT a.adminId, a.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.password "
+        "SELECT a.adminId, a.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
             + "FROM ClinicAdministrator a "
             + "JOIN Users u ON a.userId = u.userId";
 
@@ -207,7 +207,7 @@ public class ClinicAdministratorRepository {
                 rs.getString("userRole"),
                 rs.getString("icPassportNo"),
                 rs.getString("email"),
-                rs.getString("password"));
+                null);
         list.add(admin);
         System.out.println(
             admin.getAdminId() + " | " + admin.getFullName() + " | " + admin.getEmail());
@@ -216,6 +216,32 @@ public class ClinicAdministratorRepository {
         System.out.println("(no administrators found)");
       }
       System.out.println("=========================================");
+    }
+    return list;
+  }
+
+  public static List<ClinicAdministrator> getAllClinicAdministrators() throws SQLException {
+    String sql =
+        "SELECT a.adminId, a.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
+            + "FROM ClinicAdministrator a "
+            + "JOIN Users u ON a.userId = u.userId";
+
+    List<ClinicAdministrator> list = new ArrayList<>();
+    try (Connection conn = DatabaseManager.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery()) {
+      while (rs.next()) {
+        list.add(
+            new ClinicAdministrator(
+                rs.getInt("adminId"),
+                rs.getInt("userId"),
+                rs.getString("firstName"),
+                rs.getString("lastName"),
+                rs.getString("userRole"),
+                rs.getString("icPassportNo"),
+                rs.getString("email"),
+                null));
+      }
     }
     return list;
   }

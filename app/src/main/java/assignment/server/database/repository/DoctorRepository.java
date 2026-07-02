@@ -75,7 +75,7 @@ public class DoctorRepository {
 
   public static Doctor getDoctorById(int doctorId) {
     String sql =
-        "SELECT d.doctorId, d.userId, d.Specialization, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.password "
+        "SELECT d.doctorId, d.userId, d.Specialization, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
             + "FROM Doctor d "
             + "JOIN Users u ON d.userId = u.userId "
             + "WHERE d.doctorId = ?";
@@ -93,7 +93,7 @@ public class DoctorRepository {
               rs.getString("userRole"),
               rs.getString("icPassportNo"),
               rs.getString("email"),
-              rs.getString("password"),
+              null,
               rs.getString("Specialization"));
         }
       }
@@ -217,7 +217,7 @@ public class DoctorRepository {
 
   public static List<Doctor> listAllDoctors() throws SQLException {
     String sql =
-        "SELECT d.doctorId, d.userId, d.Specialization, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.password "
+        "SELECT d.doctorId, d.userId, d.Specialization, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
             + "FROM Doctor d "
             + "JOIN Users u ON d.userId = u.userId";
 
@@ -239,7 +239,7 @@ public class DoctorRepository {
                 rs.getString("userRole"),
                 rs.getString("icPassportNo"),
                 rs.getString("email"),
-                rs.getString("password"),
+                null,
                 rs.getString("Specialization"));
         list.add(doctor);
         System.out.println(
@@ -255,6 +255,33 @@ public class DoctorRepository {
         System.out.println("(no doctors found)");
       }
       System.out.println("===========================");
+    }
+    return list;
+  }
+
+  public static List<Doctor> getAllDoctors() throws SQLException {
+    String sql =
+        "SELECT d.doctorId, d.userId, d.Specialization, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
+            + "FROM Doctor d "
+            + "JOIN Users u ON d.userId = u.userId";
+
+    List<Doctor> list = new ArrayList<>();
+    try (Connection conn = DatabaseManager.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery()) {
+      while (rs.next()) {
+        list.add(
+            new Doctor(
+                rs.getInt("doctorId"),
+                rs.getInt("userId"),
+                rs.getString("firstName"),
+                rs.getString("lastName"),
+                rs.getString("userRole"),
+                rs.getString("icPassportNo"),
+                rs.getString("email"),
+                null,
+                rs.getString("Specialization")));
+      }
     }
     return list;
   }

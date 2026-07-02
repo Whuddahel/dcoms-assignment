@@ -69,7 +69,7 @@ tasks.register<JavaExec>("runDatabase") {
     group = "application"
     description = "Runs the Database Server."
     classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("assignment.database.Database")
+    mainClass.set("assignment.server.database.Database")
 }
 
 // Command: .\gradlew.bat :app:runServer

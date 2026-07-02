@@ -2,7 +2,7 @@ package assignment.shared.model;
 
 public class Patient extends Users {
   private final int patientId;
-  private final String medicalRecordId;
+  private final int medicalRecordId;
   private final String contactNumber;
 
   public Patient(
@@ -14,7 +14,7 @@ public class Patient extends Users {
       String icPassportNo,
       String email,
       String password,
-      String medicalRecordId,
+      int medicalRecordId,
       String contactNumber) {
     super(userId, firstName, lastName, userRole, icPassportNo, email, password);
     this.patientId = patientId;
@@ -29,7 +29,7 @@ public class Patient extends Users {
       String icPassportNo,
       String email,
       String password,
-      String medicalRecordId,
+      int medicalRecordId,
       String contactNumber) {
     super(0, firstName, lastName, userRole, icPassportNo, email, password);
     this.patientId = 0;
@@ -41,7 +41,7 @@ public class Patient extends Users {
     return patientId;
   }
 
-  public String getMedicalRecordId() {
+  public int getMedicalRecordId() {
     return medicalRecordId;
   }
 
@@ -52,7 +52,7 @@ public class Patient extends Users {
   @Override
   public String toString() {
     return String.format(
-        "Patient [patientId=%d, medicalRecordId=%s, contactNumber=%s, %s]",
+        "Patient [patientId=%d, medicalRecordId=%d, contactNumber=%s, %s]",
         patientId, medicalRecordId, contactNumber, super.toString());
   }
 }

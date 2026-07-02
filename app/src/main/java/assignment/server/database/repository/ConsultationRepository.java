@@ -121,4 +121,24 @@ public class ConsultationRepository {
     }
     return list;
   }
+
+  public static List<Consultation> getAllConsultations() throws SQLException {
+    String sql = "SELECT consultationId, appointmentId, content, fee, createdAt FROM Consultation";
+
+    List<Consultation> list = new ArrayList<>();
+    try (Connection conn = DatabaseManager.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery()) {
+      while (rs.next()) {
+        list.add(
+            new Consultation(
+                rs.getInt("consultationId"),
+                rs.getInt("appointmentId"),
+                rs.getString("content"),
+                rs.getDouble("fee"),
+                rs.getTimestamp("createdAt")));
+      }
+    }
+    return list;
+  }
 }

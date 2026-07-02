@@ -3,7 +3,7 @@
  */
 package assignment;
 
-import assignment.database.DatabaseInitializer;
+import assignment.server.database.DatabaseInitializer;
 
 public class App {
   public String getGreeting() {

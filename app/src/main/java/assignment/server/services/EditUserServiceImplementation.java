@@ -5,11 +5,13 @@ import assignment.shared.model.ClinicAdministrator;
 import assignment.shared.model.Doctor;
 import assignment.shared.model.Patient;
 import assignment.shared.model.Receptionist;
+import assignment.shared.model.Users;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.List;
 
 public class EditUserServiceImplementation extends UnicastRemoteObject implements EditUserService {
   public EditUserServiceImplementation() throws RemoteException {
@@ -57,6 +59,17 @@ public class EditUserServiceImplementation extends UnicastRemoteObject implement
     } catch (MalformedURLException | NotBoundException e) {
       e.printStackTrace();
       return false;
+    }
+  }
+
+  @Override
+  public List<Users> getAllUsers() throws RemoteException {
+    try {
+      EditUserService editUser = (EditUserService) Naming.lookup("rmi://localhost:1040/editUser");
+      return editUser.getAllUsers();
+    } catch (MalformedURLException | NotBoundException e) {
+      e.printStackTrace();
+      throw new RemoteException("Database server connection failed", e);
     }
   }
 }

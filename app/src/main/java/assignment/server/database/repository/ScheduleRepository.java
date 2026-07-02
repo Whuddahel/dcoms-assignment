@@ -126,4 +126,24 @@ public class ScheduleRepository {
     }
     return list;
   }
+
+  public static List<Schedule> getAllSchedules() throws SQLException {
+    String sql = "SELECT scheduleId, doctorId, day, startTime, endTime FROM Schedule";
+
+    List<Schedule> list = new ArrayList<>();
+    try (Connection conn = DatabaseManager.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery()) {
+      while (rs.next()) {
+        list.add(
+            new Schedule(
+                rs.getInt("scheduleId"),
+                rs.getInt("doctorId"),
+                rs.getString("day"),
+                rs.getTime("startTime"),
+                rs.getTime("endTime")));
+      }
+    }
+    return list;
+  }
 }

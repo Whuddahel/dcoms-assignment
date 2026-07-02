@@ -141,4 +141,28 @@ public class AppointmentRepository {
     }
     return list;
   }
+
+  public static List<Appointment> getAllAppointments() throws SQLException {
+    String sql =
+        "SELECT appointmentId, doctorId, medicalRecordId, scheduleId, createdAt, cancelledBy FROM Appointment";
+
+    List<Appointment> list = new ArrayList<>();
+    try (Connection conn = DatabaseManager.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery()) {
+      while (rs.next()) {
+        int cancelledByVal = rs.getInt("cancelledBy");
+        Integer cancelledBy = rs.wasNull() ? null : cancelledByVal;
+        list.add(
+            new Appointment(
+                rs.getInt("appointmentId"),
+                rs.getInt("doctorId"),
+                rs.getInt("medicalRecordId"),
+                rs.getInt("scheduleId"),
+                rs.getTimestamp("createdAt"),
+                cancelledBy));
+      }
+    }
+    return list;
+  }
 }

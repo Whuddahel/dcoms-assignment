@@ -1,5 +1,6 @@
 package assignment.server.database.services;
 
+import assignment.server.database.UserRepository;
 import assignment.server.database.repository.ClinicAdministratorRepository;
 import assignment.server.database.repository.DoctorRepository;
 import assignment.server.database.repository.PatientRepository;
@@ -9,8 +10,11 @@ import assignment.shared.model.ClinicAdministrator;
 import assignment.shared.model.Doctor;
 import assignment.shared.model.Patient;
 import assignment.shared.model.Receptionist;
+import assignment.shared.model.Users;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.sql.SQLException;
+import java.util.List;
 
 public class EditUserServiceImplementation extends UnicastRemoteObject implements EditUserService {
   public EditUserServiceImplementation() throws RemoteException {
@@ -35,5 +39,15 @@ public class EditUserServiceImplementation extends UnicastRemoteObject implement
   @Override
   public boolean editUser(Receptionist receptionist) throws RemoteException {
     return ReceptionistRepository.updateReceptionist(receptionist);
+  }
+
+  @Override
+  public List<Users> getAllUsers() throws RemoteException {
+    try {
+      return UserRepository.getAllUsersWithRoles();
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new RemoteException("Database error in getAllUsers", e);
+    }
   }
 }

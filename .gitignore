@@ -24,3 +24,4 @@ data/
 derby.log
 appdb/
 lib/
+bin/

@@ -74,7 +74,7 @@ public class ReceptionistRepository {
 
   public static Receptionist getReceptionistById(int receptionistId) {
     String sql =
-        "SELECT r.receptionistId, r.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.password "
+        "SELECT r.receptionistId, r.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
             + "FROM Receptionist r "
             + "JOIN Users u ON r.userId = u.userId "
             + "WHERE r.receptionistId = ?";
@@ -92,7 +92,7 @@ public class ReceptionistRepository {
               rs.getString("userRole"),
               rs.getString("icPassportNo"),
               rs.getString("email"),
-              rs.getString("password"));
+              null);
         }
       }
     } catch (SQLException e) {
@@ -185,7 +185,7 @@ public class ReceptionistRepository {
 
   public static List<Receptionist> listAllReceptionists() throws SQLException {
     String sql =
-        "SELECT r.receptionistId, r.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.password "
+        "SELECT r.receptionistId, r.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
             + "FROM Receptionist r "
             + "JOIN Users u ON r.userId = u.userId";
 
@@ -207,7 +207,7 @@ public class ReceptionistRepository {
                 rs.getString("userRole"),
                 rs.getString("icPassportNo"),
                 rs.getString("email"),
-                rs.getString("password"));
+                null);
         list.add(receptionist);
         System.out.println(
             receptionist.getReceptionistId()
@@ -220,6 +220,32 @@ public class ReceptionistRepository {
         System.out.println("(no receptionists found)");
       }
       System.out.println("=================================");
+    }
+    return list;
+  }
+
+  public static List<Receptionist> getAllReceptionists() throws SQLException {
+    String sql =
+        "SELECT r.receptionistId, r.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
+            + "FROM Receptionist r "
+            + "JOIN Users u ON r.userId = u.userId";
+
+    List<Receptionist> list = new ArrayList<>();
+    try (Connection conn = DatabaseManager.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery()) {
+      while (rs.next()) {
+        list.add(
+            new Receptionist(
+                rs.getInt("receptionistId"),
+                rs.getInt("userId"),
+                rs.getString("firstName"),
+                rs.getString("lastName"),
+                rs.getString("userRole"),
+                rs.getString("icPassportNo"),
+                rs.getString("email"),
+                null));
+      }
     }
     return list;
   }

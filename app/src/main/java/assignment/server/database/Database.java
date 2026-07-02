@@ -1,4 +1,4 @@
-package assignment.database;
+package assignment.server.database;
 
 import java.io.IOException;
 import java.sql.SQLException;
