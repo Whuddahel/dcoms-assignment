@@ -1,7 +1,7 @@
-package assignment.database;
+package assignment.server.database;
 
-import assignment.database.services.EditUserServiceImplementation;
-import assignment.database.services.RegisterUserServiceImplementation;
+import assignment.server.database.services.EditUserServiceImplementation;
+import assignment.server.database.services.RegisterUserServiceImplementation;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;

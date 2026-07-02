@@ -1,6 +1,6 @@
-package assignment.database.repository;
+package assignment.server.database.repository;
 
-import assignment.database.DatabaseManager;
+import assignment.server.database.DatabaseManager;
 import assignment.shared.model.Appointment;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

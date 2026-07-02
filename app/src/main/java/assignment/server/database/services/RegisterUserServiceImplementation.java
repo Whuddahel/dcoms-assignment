@@ -1,9 +1,9 @@
-package assignment.database.services;
+package assignment.server.database.services;
 
-import assignment.database.repository.ClinicAdministratorRepository;
-import assignment.database.repository.DoctorRepository;
-import assignment.database.repository.PatientRepository;
-import assignment.database.repository.ReceptionistRepository;
+import assignment.server.database.repository.ClinicAdministratorRepository;
+import assignment.server.database.repository.DoctorRepository;
+import assignment.server.database.repository.PatientRepository;
+import assignment.server.database.repository.ReceptionistRepository;
 import assignment.shared.interfaces.RegisterUserService;
 import assignment.shared.model.ClinicAdministrator;
 import assignment.shared.model.Doctor;
