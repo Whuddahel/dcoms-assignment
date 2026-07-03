@@ -91,7 +91,7 @@ public final class InputHandler {
       try {
         return Double.parseDouble(scanner.nextLine().trim());
       } catch (NumberFormatException e) {
-        System.out.println("Invalid input. Please enter a number.");
+        System.out.println("Invalid input. Please enter a number with decimals (eg: 10.0).");
       }
     }
   }
