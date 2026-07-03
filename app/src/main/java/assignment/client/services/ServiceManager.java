@@ -1,6 +1,7 @@
-package assignment.client;
+package assignment.client.services;
 
 import assignment.shared.config.Config;
+import assignment.shared.dto.LoginResponse;
 import assignment.shared.interfaces.EditUserService;
 import assignment.shared.interfaces.RegisterUserService;
 import assignment.shared.model.Users;
@@ -10,26 +11,26 @@ import java.rmi.registry.Registry;
 import java.util.List;
 
 /**
- * ClinicClient acts as the central client coordinator. It connects to the RMI server registry once
+ * ServiceManager acts as the central client coordinator. It connects to the RMI server registry once
  * and pre-loads all shared services, delegating service calls to avoid initializing registries
  * repeatedly.
  */
-public class ClinicClient {
+public class ServiceManager {
   private final AuthService authService;
   private final RegisterUserService registerUserService;
   private final EditUserService editUserService;
 
-  public ClinicClient() throws Exception {
+  public ServiceManager() throws Exception {
     Registry registry = LocateRegistry.getRegistry(Config.SERVER_HOST, Config.SERVER_REGISTRY_PORT);
     this.authService = (AuthService) registry.lookup("AuthService");
-    this.registerUserService = (RegisterUserService) registry.lookup("RegisterUser");
-    this.editUserService = (EditUserService) registry.lookup("EditUser");
+    this.registerUserService = (RegisterUserService) registry.lookup("RegisterUserService");
+    this.editUserService = (EditUserService) registry.lookup("EditUserService");
   }
 
   // ==========================================
   // AuthService Delegation
   // ==========================================
-  public String login(String username, String password) throws Exception {
+  public LoginResponse login(String username, String password) throws Exception {
     return authService.login(username, password);
   }
 

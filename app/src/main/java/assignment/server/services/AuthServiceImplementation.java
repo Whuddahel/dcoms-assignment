@@ -1,7 +1,9 @@
 package assignment.server.services;
 
+import assignment.server.auth.Session;
 import assignment.server.auth.SessionManager;
 import assignment.server.database.UserRepository;
+import assignment.shared.dto.LoginResponse;
 import assignment.shared.error.AuthError;
 import assignment.shared.model.User;
 import assignment.shared.services.AuthService;
@@ -17,7 +19,7 @@ public class AuthServiceImplementation extends UnicastRemoteObject implements Au
   }
 
   @Override
-  public String login(String email, String password) throws RemoteException {
+  public LoginResponse login(String email, String password) throws RemoteException {
     try {
       User user = UserRepository.getUserByEmail(email);
       if (user == null) throw new RemoteException(AuthError.INVALID_CREDENTIALS.name());
@@ -36,7 +38,7 @@ public class AuthServiceImplementation extends UnicastRemoteObject implements Au
 
       // TODO: Remove debug statement
       SessionManager.printSessions();
-      return token;
+      return new LoginResponse(token, user.getEmail(), user.getFirstName(), user.getLastName(), user.getUserId(), user.getRole(), user.getIcPassportNo());
     } catch (SQLException e) {
       throw new RemoteException(AuthError.DB_ERROR.name(), e);
     }

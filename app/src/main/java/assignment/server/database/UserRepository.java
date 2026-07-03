@@ -75,21 +75,27 @@ public class UserRepository {
   }
 
   public static User getUserByEmail(String email) throws SQLException {
-    String sql = "SELECT userId, email, password, userRole FROM Users WHERE email = ?";
+    // 1. Updated the query string to pull every field required by the new User constructor
+    String sql = "SELECT userId, firstName, lastName, userRole, icPassportNo, email, password FROM Users WHERE email = ?";
 
     try (Connection conn = DatabaseManager.getConnection();
-        PreparedStatement ps = conn.prepareStatement(sql); ) {
+         PreparedStatement ps = conn.prepareStatement(sql); ) {
 
       ps.setString(1, email);
 
       try (ResultSet rs = ps.executeQuery()) {
         if (rs.next()) {
           String dbRole = rs.getString("userRole");
+
           return new User(
-              rs.getInt("userId"),
-              rs.getString("email"),
-              rs.getString("password"),
-              Role.valueOf(dbRole.toUpperCase()));
+                  rs.getInt("userId"),
+                  rs.getString("firstName"),
+                  rs.getString("lastName"),
+                  Role.valueOf(dbRole.toUpperCase()),
+                  rs.getString("icPassportNo"),
+                  rs.getString("email"),
+                  rs.getString("password")
+          );
         }
         return null;
       }
