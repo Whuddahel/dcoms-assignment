@@ -1,47 +1,21 @@
-package assignment.client.ui;
+package assignment.client.ui.screens;
 
-import assignment.shared.interfaces.EditUserService;
-import assignment.shared.interfaces.RegisterUserService;
+import assignment.client.ClinicClient;
+import assignment.client.ui.InputHandler;
 import assignment.shared.model.ClinicAdministrator;
 import assignment.shared.model.Doctor;
 import assignment.shared.model.Patient;
 import assignment.shared.model.Receptionist;
 import assignment.shared.model.Users;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.List;
-import org.mindrot.jbcrypt.BCrypt;
 
-public class ClinicAdministratorMenu {
+/** EditUserScreen handles the workflow for viewing, searching, and editing existing users. */
+public class EditUserScreen {
 
-  public static void displayMenu() {
-    while (true) {
-      System.out.println("\n=== Clinic Administrator Menu ===");
-      System.out.println("[1]. Register User");
-      System.out.println("[2]. Edit User");
-      System.out.println("[3]. Exit");
-
-      int choice = InputHandler.readInt("Select an option: ");
-      if (choice == 1) {
-        registerUserFlow();
-      } else if (choice == 2) {
-        editUserFlow();
-      } else if (choice == 3) {
-        System.out.println("Exiting Clinic Administrator Menu...");
-        break;
-      } else {
-        System.out.println("Invalid option. Please try again.");
-      }
-    }
-  }
-
-  private static void editUserFlow() {
+  public static void display(ClinicClient client) {
     try {
-      Registry registry = LocateRegistry.getRegistry("localhost", 1099);
-      EditUserService editService = (EditUserService) registry.lookup("EditUser");
-
-      List<Users> users = editService.getAllUsers();
+      List<Users> users = client.getAllUsers();
       if (users == null || users.isEmpty()) {
         System.out.println("No users found in the system.");
         return;
@@ -88,7 +62,7 @@ public class ClinicAdministratorMenu {
           if (matches.isEmpty()) {
             System.out.println("No matching user found.");
           } else if (matches.size() == 1) {
-            editUserFields(editService, matches.get(0), users);
+            editUserFields(client, matches.get(0), users);
             inSearchMode = false; // exit search mode after select
           } else {
             System.out.println("\nMultiple users found:");
@@ -103,7 +77,7 @@ public class ClinicAdministratorMenu {
               try {
                 int matchChoice = Integer.parseInt(matchChoiceStr);
                 if (matchChoice >= 1 && matchChoice <= matches.size()) {
-                  editUserFields(editService, matches.get(matchChoice - 1), users);
+                  editUserFields(client, matches.get(matchChoice - 1), users);
                   inSearchMode = false;
                 } else {
                   System.out.println("Invalid selection.");
@@ -163,7 +137,7 @@ public class ClinicAdministratorMenu {
             int pageChoice = Integer.parseInt(input);
             int selectedIndex = startIdx + (pageChoice - 1);
             if (selectedIndex >= startIdx && selectedIndex < endIdx) {
-              editUserFields(editService, users.get(selectedIndex), users);
+              editUserFields(client, users.get(selectedIndex), users);
             } else {
               System.out.println("Invalid index. Please try again.");
             }
@@ -173,7 +147,7 @@ public class ClinicAdministratorMenu {
         }
       }
     } catch (Exception e) {
-      System.err.println("Error calling editUser RPC: " + e.getMessage());
+      System.err.println("Error calling editUser: " + e.getMessage());
       e.printStackTrace();
     }
   }
@@ -208,8 +182,7 @@ public class ClinicAdministratorMenu {
     System.out.println("=================================================");
   }
 
-  private static void editUserFields(
-      EditUserService editService, Users user, List<Users> allUsers) {
+  private static void editUserFields(ClinicClient client, Users user, List<Users> allUsers) {
     while (true) {
       displayProfile(user);
 
@@ -225,7 +198,7 @@ public class ClinicAdministratorMenu {
           if (choice == 4) {
             return;
           } else if (choice == 1 || choice == 2) {
-            user = handleNameEdit(editService, allUsers, user, choice);
+            user = handleNameEdit(client, allUsers, user, choice);
           } else if (choice == 3) {
             String val = InputHandler.readLine("Enter new Specialization: ", true);
             if (val.isEmpty()) {
@@ -242,7 +215,7 @@ public class ClinicAdministratorMenu {
                       doc.getEmail(),
                       doc.getPasswordHash(),
                       val);
-              user = executeEdit(editService, updated, allUsers, user);
+              user = executeEdit(client, updated, allUsers, user);
             }
           } else {
             System.out.println("Invalid choice.");
@@ -258,7 +231,7 @@ public class ClinicAdministratorMenu {
           if (choice == 4) {
             return;
           } else if (choice == 1 || choice == 2) {
-            user = handleNameEdit(editService, allUsers, user, choice);
+            user = handleNameEdit(client, allUsers, user, choice);
           } else if (choice == 3) {
             String val = InputHandler.readLine("Enter new Contact Number: ", true);
             if (val.isEmpty()) {
@@ -276,7 +249,7 @@ public class ClinicAdministratorMenu {
                       pat.getPasswordHash(),
                       pat.getMedicalRecordId(),
                       val);
-              user = executeEdit(editService, updated, allUsers, user);
+              user = executeEdit(client, updated, allUsers, user);
             }
           } else {
             System.out.println("Invalid choice.");
@@ -291,7 +264,7 @@ public class ClinicAdministratorMenu {
           if (choice == 3) {
             return;
           } else if (choice == 1 || choice == 2) {
-            user = handleNameEdit(editService, allUsers, user, choice);
+            user = handleNameEdit(client, allUsers, user, choice);
           } else {
             System.out.println("Invalid choice.");
           }
@@ -305,7 +278,7 @@ public class ClinicAdministratorMenu {
           if (choice == 3) {
             return;
           } else if (choice == 1 || choice == 2) {
-            user = handleNameEdit(editService, allUsers, user, choice);
+            user = handleNameEdit(client, allUsers, user, choice);
           } else {
             System.out.println("Invalid choice.");
           }
@@ -319,7 +292,7 @@ public class ClinicAdministratorMenu {
   }
 
   private static Users handleNameEdit(
-      EditUserService editService, List<Users> allUsers, Users currentUser, int choice) {
+      ClinicClient client, List<Users> allUsers, Users currentUser, int choice) {
     String fieldName = choice == 1 ? "First Name" : "Last Name";
     String val = InputHandler.readLine("Enter new " + fieldName + ": ", true);
     if (val.isEmpty()) {
@@ -383,20 +356,20 @@ public class ClinicAdministratorMenu {
     }
 
     if (updated != null) {
-      return executeEdit(editService, updated, allUsers, currentUser);
+      return executeEdit(client, updated, allUsers, currentUser);
     }
     return currentUser;
   }
 
   private static Users executeEdit(
-      EditUserService editService, Users updatedUser, List<Users> allUsers, Users currentUser) {
+      ClinicClient client, Users updatedUser, List<Users> allUsers, Users currentUser) {
     try {
       boolean success = false;
       switch (updatedUser) {
-        case Doctor doc -> success = editService.editUser(doc);
-        case Patient pat -> success = editService.editUser(pat);
-        case ClinicAdministrator admin -> success = editService.editUser(admin);
-        case Receptionist recep -> success = editService.editUser(recep);
+        case Doctor doc -> success = client.editUser(doc);
+        case Patient pat -> success = client.editUser(pat);
+        case ClinicAdministrator admin -> success = client.editUser(admin);
+        case Receptionist recep -> success = client.editUser(recep);
         default -> {}
       }
       if (success) {
@@ -418,89 +391,6 @@ public class ClinicAdministratorMenu {
         allUsers.set(i, updatedUser);
         break;
       }
-    }
-  }
-
-  private static void registerUserFlow() {
-    System.out.println("\nSelect user role to register:");
-    System.out.println("1. Doctor");
-    System.out.println("2. Patient");
-    System.out.println("3. Clinic Administrator");
-    System.out.println("4. Receptionist");
-
-    int roleChoice = InputHandler.readInt("Select an option: ");
-    String role = "";
-    switch (roleChoice) {
-      case 1:
-        role = "doctor";
-        break;
-      case 2:
-        role = "patient";
-        break;
-      case 3:
-        role = "admin";
-        break;
-      case 4:
-        role = "receptionist";
-        break;
-      default:
-        System.out.println("Invalid choice. Returning to main menu.");
-        return;
-    }
-
-    System.out.println("\n--- Enter User Info ---");
-    String firstName = InputHandler.readLine("First Name: ");
-    String lastName = InputHandler.readLine("Last Name: ");
-    String icPassportNo = InputHandler.readLine("IC/Passport Number: ");
-    String email = InputHandler.readLine("Email: ");
-    String password = InputHandler.readLine("Password: ");
-
-    // Hash the password with BCrypt
-    String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
-
-    try {
-      // Connect to the server RMI registry at port 1099
-      Registry registry = LocateRegistry.getRegistry("localhost", 1099);
-      RegisterUserService registerService = (RegisterUserService) registry.lookup("RegisterUser");
-
-      boolean success = false;
-      switch (role) {
-        case "doctor":
-          String specialization = InputHandler.readLine("Specialization: ");
-          Doctor doctor =
-              new Doctor(
-                  firstName, lastName, role, icPassportNo, email, hashedPassword, specialization);
-          success = registerService.registerUser(doctor);
-          break;
-        case "patient":
-          String contactNumber = InputHandler.readLine("Contact Number: ");
-          Patient patient =
-              new Patient(
-                  firstName, lastName, role, icPassportNo, email, hashedPassword, 0, contactNumber);
-          success = registerService.registerUser(patient);
-          break;
-        case "admin":
-          ClinicAdministrator admin =
-              new ClinicAdministrator(
-                  firstName, lastName, role, icPassportNo, email, hashedPassword);
-          success = registerService.registerUser(admin);
-          break;
-        case "receptionist":
-          Receptionist receptionist =
-              new Receptionist(firstName, lastName, role, icPassportNo, email, hashedPassword);
-          success = registerService.registerUser(receptionist);
-          break;
-      }
-
-      if (success) {
-        System.out.println("User successfully registered!");
-      } else {
-        System.out.println("Failed to register user. Please check server logs.");
-      }
-
-    } catch (Exception e) {
-      System.err.println("Error calling registerUser RPC: " + e.getMessage());
-      e.printStackTrace();
     }
   }
 }
