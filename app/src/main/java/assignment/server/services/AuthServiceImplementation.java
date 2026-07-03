@@ -17,9 +17,9 @@ public class AuthServiceImplementation extends UnicastRemoteObject implements Au
   }
 
   @Override
-  public String login(String username, String password) throws RemoteException {
+  public String login(String email, String password) throws RemoteException {
     try {
-      User user = UserRepository.getUserByUsername(username);
+      User user = UserRepository.getUserByEmail(email);
       if (user == null) throw new RemoteException(AuthError.INVALID_CREDENTIALS.name());
 
       String storedHash = user.getPasswordHash();

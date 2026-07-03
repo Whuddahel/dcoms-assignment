@@ -9,7 +9,9 @@ public enum Role {
 
   DOCTOR(EnumSet.of(Permission.USER_READ)),
 
-  RECEPTIONIST(EnumSet.of(Permission.USER_READ));
+  RECEPTIONIST(EnumSet.of(Permission.USER_READ)),
+
+  PATIENT(EnumSet.of(Permission.USER_READ));
 
   private final Set<Permission> permissions;
 

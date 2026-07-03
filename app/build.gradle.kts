@@ -32,6 +32,9 @@ dependencies {
     // Apache Derby (Remote)
     implementation("org.apache.derby:derbyclient:10.17.1.0")
 
+    // Apache Derby (Server)
+    implementation("org.apache.derby:derbynet:10.17.1.0")
+
     // jBCrypt (Hashing Library)
     implementation("org.mindrot:jbcrypt:0.4")
 }
@@ -42,6 +45,50 @@ java {
         languageVersion = JavaLanguageVersion.of(21)
     }
 }
+
+// Command: .\gradlew.bat :app:startDerbyServer
+tasks.register<JavaExec>("startDerbyServer") {
+    group = "database"
+    description = "Starts the Apache Derby Network Server."
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("org.apache.derby.drda.NetworkServerControl")
+    args("start", "-h", "localhost", "-p", "1527")
+}
+
+// Command: .\gradlew.bat :app:stopDerbyServer
+tasks.register<JavaExec>("stopDerbyServer") {
+    group = "database"
+    description = "Stops the Apache Derby Network Server."
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("org.apache.derby.drda.NetworkServerControl")
+    args("shutdown", "-h", "localhost", "-p", "1527")
+}
+
+// Command: .\gradlew.bat :app:runDatabase
+tasks.register<JavaExec>("runDatabase") {
+    group = "application"
+    description = "Runs the Database Server."
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("assignment.server.database.Database")
+}
+
+// Command: .\gradlew.bat :app:runServer
+tasks.register<JavaExec>("runServer") {
+    group = "application"
+    description = "Runs the Application Server."
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("assignment.server.Server")
+}
+
+// Command: .\gradlew.bat :app:runClient
+tasks.register<JavaExec>("runClient") {
+    group = "application"
+    description = "Runs the RMI Client CLI."
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("assignment.client.Client")
+    standardInput = System.`in`
+}
+
 
 application {
     // Define the main class for the application.
