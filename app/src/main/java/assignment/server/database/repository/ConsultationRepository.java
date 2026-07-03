@@ -11,7 +11,7 @@ import java.util.List;
 
 public class ConsultationRepository {
 
-  public static boolean addConsultation(Consultation con) {
+  public static boolean addConsultation(Consultation con) throws SQLException {
     String sql = "INSERT INTO Consultation (appointmentId, content, fee) VALUES (?, ?, ?)";
 
     try (Connection conn = DatabaseManager.getConnection();
@@ -21,13 +21,10 @@ public class ConsultationRepository {
       ps.setDouble(3, con.getFee());
       int rows = ps.executeUpdate();
       return rows > 0;
-    } catch (SQLException e) {
-      e.printStackTrace();
-      return false;
     }
   }
 
-  public static Consultation getConsultationById(int consultationId) {
+  public static Consultation getConsultationById(int consultationId) throws SQLException {
     String sql =
         "SELECT consultationId, appointmentId, content, fee, createdAt FROM Consultation WHERE consultationId = ?";
 
@@ -44,13 +41,11 @@ public class ConsultationRepository {
               rs.getTimestamp("createdAt"));
         }
       }
-    } catch (SQLException e) {
-      e.printStackTrace();
     }
     return null;
   }
 
-  public static boolean updateConsultation(Consultation con) {
+  public static boolean updateConsultation(Consultation con) throws SQLException {
     String sql =
         "UPDATE Consultation SET appointmentId = ?, content = ?, fee = ? WHERE consultationId = ?";
 
@@ -62,13 +57,10 @@ public class ConsultationRepository {
       ps.setInt(4, con.getConsultationId());
       int rows = ps.executeUpdate();
       return rows > 0;
-    } catch (SQLException e) {
-      e.printStackTrace();
-      return false;
     }
   }
 
-  public static boolean deleteConsultation(int consultationId) {
+  public static boolean deleteConsultation(int consultationId) throws SQLException {
     String sql = "DELETE FROM Consultation WHERE consultationId = ?";
 
     try (Connection conn = DatabaseManager.getConnection();
@@ -76,12 +68,10 @@ public class ConsultationRepository {
       ps.setInt(1, consultationId);
       int rows = ps.executeUpdate();
       return rows > 0;
-    } catch (SQLException e) {
-      e.printStackTrace();
-      return false;
     }
   }
 
+  // TODO: Remove before submission
   public static List<Consultation> listAllConsultations() throws SQLException {
     String sql = "SELECT consultationId, appointmentId, content, fee, createdAt FROM Consultation";
 

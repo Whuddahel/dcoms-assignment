@@ -22,23 +22,42 @@ public class EditUserServiceImplementation extends UnicastRemoteObject implement
   }
 
   @Override
-  public boolean editUser(Doctor doctor) throws RemoteException {
-    return DoctorRepository.updateDoctor(doctor);
-  }
-
-  @Override
-  public boolean editUser(Patient patient) throws RemoteException {
-    return PatientRepository.updatePatient(patient);
-  }
-
-  @Override
-  public boolean editUser(ClinicAdministrator admin) throws RemoteException {
-    return ClinicAdministratorRepository.updateClinicAdministrator(admin);
-  }
-
-  @Override
-  public boolean editUser(Receptionist receptionist) throws RemoteException {
-    return ReceptionistRepository.updateReceptionist(receptionist);
+  public boolean editUser(Users user) throws RemoteException {
+    if (user == null) {
+      return false;
+    }
+    try {
+      switch (user.getUserRole().toLowerCase()) {
+        case "doctor":
+          if (user instanceof Doctor) {
+            return DoctorRepository.updateDoctor((Doctor) user);
+          }
+          break;
+        case "patient":
+          if (user instanceof Patient) {
+            return PatientRepository.updatePatient((Patient) user);
+          }
+          break;
+        case "admin":
+          if (user instanceof ClinicAdministrator) {
+            return ClinicAdministratorRepository.updateClinicAdministrator(
+                (ClinicAdministrator) user);
+          }
+          break;
+        case "receptionist":
+          if (user instanceof Receptionist) {
+            return ReceptionistRepository.updateReceptionist((Receptionist) user);
+          }
+          break;
+        default:
+          System.err.println("Unknown user role for edit: " + user.getUserRole());
+          return false;
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new RemoteException("Database error occurred while editing user", e);
+    }
+    return false;
   }
 
   @Override

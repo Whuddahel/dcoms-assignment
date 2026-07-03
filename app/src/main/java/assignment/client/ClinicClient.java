@@ -3,10 +3,6 @@ package assignment.client;
 import assignment.shared.config.Config;
 import assignment.shared.interfaces.EditUserService;
 import assignment.shared.interfaces.RegisterUserService;
-import assignment.shared.model.ClinicAdministrator;
-import assignment.shared.model.Doctor;
-import assignment.shared.model.Patient;
-import assignment.shared.model.Receptionist;
 import assignment.shared.model.Users;
 import assignment.shared.services.AuthService;
 import java.rmi.registry.LocateRegistry;
@@ -40,39 +36,15 @@ public class ClinicClient {
   // ==========================================
   // RegisterUserService Delegation
   // ==========================================
-  public boolean registerUser(Doctor doctor) throws Exception {
-    return registerUserService.registerUser(doctor);
-  }
-
-  public boolean registerUser(Patient patient) throws Exception {
-    return registerUserService.registerUser(patient);
-  }
-
-  public boolean registerUser(ClinicAdministrator admin) throws Exception {
-    return registerUserService.registerUser(admin);
-  }
-
-  public boolean registerUser(Receptionist receptionist) throws Exception {
-    return registerUserService.registerUser(receptionist);
+  public boolean registerUser(Users user) throws Exception {
+    return registerUserService.registerUser(user);
   }
 
   // ==========================================
   // EditUserService Delegation
   // ==========================================
-  public boolean editUser(Doctor doctor) throws Exception {
-    return editUserService.editUser(doctor);
-  }
-
-  public boolean editUser(Patient patient) throws Exception {
-    return editUserService.editUser(patient);
-  }
-
-  public boolean editUser(ClinicAdministrator admin) throws Exception {
-    return editUserService.editUser(admin);
-  }
-
-  public boolean editUser(Receptionist receptionist) throws Exception {
-    return editUserService.editUser(receptionist);
+  public boolean editUser(Users user) throws Exception {
+    return editUserService.editUser(user);
   }
 
   public List<Users> getAllUsers() throws Exception {

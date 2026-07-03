@@ -364,14 +364,7 @@ public class EditUserScreen {
   private static Users executeEdit(
       ClinicClient client, Users updatedUser, List<Users> allUsers, Users currentUser) {
     try {
-      boolean success = false;
-      switch (updatedUser) {
-        case Doctor doc -> success = client.editUser(doc);
-        case Patient pat -> success = client.editUser(pat);
-        case ClinicAdministrator admin -> success = client.editUser(admin);
-        case Receptionist recep -> success = client.editUser(recep);
-        default -> {}
-      }
+      boolean success = client.editUser(updatedUser);
       if (success) {
         System.out.println("Edit successful!");
         updateLocalUser(allUsers, updatedUser);

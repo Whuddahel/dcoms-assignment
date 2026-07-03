@@ -11,7 +11,7 @@ import java.util.List;
 
 public class UserRepository {
 
-  public static boolean addUser(Users user) {
+  public static boolean addUser(Users user) throws SQLException {
     String sql =
         "INSERT INTO Users (firstName, lastName, userRole, icPassportNo, email, password) VALUES (?, ?, ?, ?, ?, ?)";
 
@@ -27,13 +27,10 @@ public class UserRepository {
 
       int rows = ps.executeUpdate();
       return rows > 0;
-    } catch (SQLException e) {
-      e.printStackTrace();
-      return false;
     }
   }
 
-  public static Users getUserById(int userId) {
+  public static Users getUserById(int userId) throws SQLException {
     String sql =
         "SELECT userId, firstName, lastName, userRole, icPassportNo, email FROM Users WHERE userId = ?";
 
@@ -52,13 +49,11 @@ public class UserRepository {
               null);
         }
       }
-    } catch (SQLException e) {
-      e.printStackTrace();
     }
     return null;
   }
 
-  public static boolean updateUser(Users user) {
+  public static boolean updateUser(Users user) throws SQLException {
     String sql =
         "UPDATE Users SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? WHERE userId = ?";
 
@@ -75,13 +70,10 @@ public class UserRepository {
 
       int rows = ps.executeUpdate();
       return rows > 0;
-    } catch (SQLException e) {
-      e.printStackTrace();
-      return false;
     }
   }
 
-  public static boolean deleteUser(int userId) {
+  public static boolean deleteUser(int userId) throws SQLException {
     String sql = "DELETE FROM Users WHERE userId = ?";
 
     try (Connection conn = DatabaseManager.getConnection();
@@ -89,12 +81,10 @@ public class UserRepository {
       ps.setInt(1, userId);
       int rows = ps.executeUpdate();
       return rows > 0;
-    } catch (SQLException e) {
-      e.printStackTrace();
-      return false;
     }
   }
 
+  // TODO: Remove before submission
   public static void listAllUsers() throws SQLException {
 
     String sql = "SELECT userId, firstName, lastName, userRole, icPassportNo, email FROM Users";

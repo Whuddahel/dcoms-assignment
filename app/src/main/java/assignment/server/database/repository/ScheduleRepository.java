@@ -11,7 +11,7 @@ import java.util.List;
 
 public class ScheduleRepository {
 
-  public static boolean addSchedule(Schedule schedule) {
+  public static boolean addSchedule(Schedule schedule) throws SQLException {
     String sql = "INSERT INTO Schedule (doctorId, day, startTime, endTime) VALUES (?, ?, ?, ?)";
 
     try (Connection conn = DatabaseManager.getConnection();
@@ -22,13 +22,10 @@ public class ScheduleRepository {
       ps.setTime(4, schedule.getEndTime());
       int rows = ps.executeUpdate();
       return rows > 0;
-    } catch (SQLException e) {
-      e.printStackTrace();
-      return false;
     }
   }
 
-  public static Schedule getScheduleById(int scheduleId) {
+  public static Schedule getScheduleById(int scheduleId) throws SQLException {
     String sql =
         "SELECT scheduleId, doctorId, day, startTime, endTime FROM Schedule WHERE scheduleId = ?";
 
@@ -45,13 +42,11 @@ public class ScheduleRepository {
               rs.getTime("endTime"));
         }
       }
-    } catch (SQLException e) {
-      e.printStackTrace();
     }
     return null;
   }
 
-  public static boolean updateSchedule(Schedule schedule) {
+  public static boolean updateSchedule(Schedule schedule) throws SQLException {
     String sql =
         "UPDATE Schedule SET doctorId = ?, day = ?, startTime = ?, endTime = ? WHERE scheduleId = ?";
 
@@ -64,13 +59,10 @@ public class ScheduleRepository {
       ps.setInt(5, schedule.getScheduleId());
       int rows = ps.executeUpdate();
       return rows > 0;
-    } catch (SQLException e) {
-      e.printStackTrace();
-      return false;
     }
   }
 
-  public static boolean deleteSchedule(int scheduleId) {
+  public static boolean deleteSchedule(int scheduleId) throws SQLException {
     String sql = "DELETE FROM Schedule WHERE scheduleId = ?";
 
     try (Connection conn = DatabaseManager.getConnection();
@@ -78,12 +70,10 @@ public class ScheduleRepository {
       ps.setInt(1, scheduleId);
       int rows = ps.executeUpdate();
       return rows > 0;
-    } catch (SQLException e) {
-      e.printStackTrace();
-      return false;
     }
   }
 
+  // TODO: Remove before submission
   public static List<Schedule> listAllSchedules() throws SQLException {
     String sql = "SELECT scheduleId, doctorId, day, startTime, endTime FROM Schedule";
 

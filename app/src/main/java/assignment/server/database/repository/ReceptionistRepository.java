@@ -12,7 +12,7 @@ import java.util.List;
 
 public class ReceptionistRepository {
 
-  public static boolean addReceptionist(Receptionist receptionist) {
+  public static boolean addReceptionist(Receptionist receptionist) throws SQLException {
     String insertUserSql =
         "INSERT INTO Users (firstName, lastName, userRole, icPassportNo, email, password) VALUES (?, ?, ?, ?, ?, ?)";
     String insertRecSql = "INSERT INTO Receptionist (userId) VALUES (?)";
@@ -51,13 +51,10 @@ public class ReceptionistRepository {
         conn.rollback();
         throw e;
       }
-    } catch (SQLException e) {
-      e.printStackTrace();
-      return false;
     }
   }
 
-  public static Receptionist getReceptionistById(int receptionistId) {
+  public static Receptionist getReceptionistById(int receptionistId) throws SQLException {
     String sql =
         "SELECT r.receptionistId, r.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
             + "FROM Receptionist r "
@@ -80,13 +77,11 @@ public class ReceptionistRepository {
               null);
         }
       }
-    } catch (SQLException e) {
-      e.printStackTrace();
     }
     return null;
   }
 
-  public static boolean updateReceptionist(Receptionist receptionist) {
+  public static boolean updateReceptionist(Receptionist receptionist) throws SQLException {
     String sql =
         "UPDATE Users SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? "
             + "WHERE userId = (SELECT userId FROM Receptionist WHERE receptionistId = ?)";
@@ -102,13 +97,10 @@ public class ReceptionistRepository {
       ps.setInt(7, receptionist.getReceptionistId());
       int rows = ps.executeUpdate();
       return rows > 0;
-    } catch (SQLException e) {
-      e.printStackTrace();
-      return false;
     }
   }
 
-  public static boolean deleteReceptionist(int receptionistId) {
+  public static boolean deleteReceptionist(int receptionistId) throws SQLException {
     String selectSql = "SELECT userId FROM Receptionist WHERE receptionistId = ?";
     String deleteRecSql = "DELETE FROM Receptionist WHERE receptionistId = ?";
     String deleteUserSql = "DELETE FROM Users WHERE userId = ?";
@@ -146,12 +138,10 @@ public class ReceptionistRepository {
         conn.rollback();
         throw e;
       }
-    } catch (SQLException e) {
-      e.printStackTrace();
-      return false;
     }
   }
 
+  // TODO: Remove before submission
   public static List<Receptionist> listAllReceptionists() throws SQLException {
     String sql =
         "SELECT r.receptionistId, r.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "

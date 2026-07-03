@@ -12,7 +12,7 @@ import java.util.List;
 
 public class ClinicAdministratorRepository {
 
-  public static boolean addClinicAdministrator(ClinicAdministrator admin) {
+  public static boolean addClinicAdministrator(ClinicAdministrator admin) throws SQLException {
     String insertUserSql =
         "INSERT INTO Users (firstName, lastName, userRole, icPassportNo, email, password) VALUES (?, ?, ?, ?, ?, ?)";
     String insertAdminSql = "INSERT INTO ClinicAdministrator (userId) VALUES (?)";
@@ -51,13 +51,10 @@ public class ClinicAdministratorRepository {
         conn.rollback();
         throw e;
       }
-    } catch (SQLException e) {
-      e.printStackTrace();
-      return false;
     }
   }
 
-  public static ClinicAdministrator getClinicAdministratorById(int adminId) {
+  public static ClinicAdministrator getClinicAdministratorById(int adminId) throws SQLException {
     String sql =
         "SELECT a.adminId, a.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
             + "FROM ClinicAdministrator a "
@@ -80,13 +77,11 @@ public class ClinicAdministratorRepository {
               null);
         }
       }
-    } catch (SQLException e) {
-      e.printStackTrace();
     }
     return null;
   }
 
-  public static boolean updateClinicAdministrator(ClinicAdministrator admin) {
+  public static boolean updateClinicAdministrator(ClinicAdministrator admin) throws SQLException {
     String sql =
         "UPDATE Users SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? "
             + "WHERE userId = (SELECT userId FROM ClinicAdministrator WHERE adminId = ?)";
@@ -102,13 +97,10 @@ public class ClinicAdministratorRepository {
       ps.setInt(7, admin.getAdminId());
       int rows = ps.executeUpdate();
       return rows > 0;
-    } catch (SQLException e) {
-      e.printStackTrace();
-      return false;
     }
   }
 
-  public static boolean deleteClinicAdministrator(int adminId) {
+  public static boolean deleteClinicAdministrator(int adminId) throws SQLException {
     String selectSql = "SELECT userId FROM ClinicAdministrator WHERE adminId = ?";
     String deleteAdminSql = "DELETE FROM ClinicAdministrator WHERE adminId = ?";
     String deleteUserSql = "DELETE FROM Users WHERE userId = ?";
@@ -146,12 +138,10 @@ public class ClinicAdministratorRepository {
         conn.rollback();
         throw e;
       }
-    } catch (SQLException e) {
-      e.printStackTrace();
-      return false;
     }
   }
 
+  // TODO: Remove before submission
   public static List<ClinicAdministrator> listAllClinicAdministrators() throws SQLException {
     String sql =
         "SELECT a.adminId, a.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "

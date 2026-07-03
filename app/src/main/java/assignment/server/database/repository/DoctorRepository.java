@@ -12,7 +12,7 @@ import java.util.List;
 
 public class DoctorRepository {
 
-  public static boolean addDoctor(Doctor doctor) {
+  public static boolean addDoctor(Doctor doctor) throws SQLException {
     String insertUserSql =
         "INSERT INTO Users (firstName, lastName, userRole, icPassportNo, email, password) VALUES (?, ?, ?, ?, ?, ?)";
     String insertDocSql = "INSERT INTO Doctor (userId, Specialization) VALUES (?, ?)";
@@ -52,13 +52,10 @@ public class DoctorRepository {
         conn.rollback();
         throw e;
       }
-    } catch (SQLException e) {
-      e.printStackTrace();
-      return false;
     }
   }
 
-  public static Doctor getDoctorById(int doctorId) {
+  public static Doctor getDoctorById(int doctorId) throws SQLException {
     String sql =
         "SELECT d.doctorId, d.userId, d.Specialization, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
             + "FROM Doctor d "
@@ -82,13 +79,11 @@ public class DoctorRepository {
               rs.getString("Specialization"));
         }
       }
-    } catch (SQLException e) {
-      e.printStackTrace();
     }
     return null;
   }
 
-  public static boolean updateDoctor(Doctor doctor) {
+  public static boolean updateDoctor(Doctor doctor) throws SQLException {
     String updateUserSql =
         "UPDATE Users SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? "
             + "WHERE userId = (SELECT userId FROM Doctor WHERE doctorId = ?)";
@@ -120,13 +115,10 @@ public class DoctorRepository {
         conn.rollback();
         throw e;
       }
-    } catch (SQLException e) {
-      e.printStackTrace();
-      return false;
     }
   }
 
-  public static boolean deleteDoctor(int doctorId) {
+  public static boolean deleteDoctor(int doctorId) throws SQLException {
     String selectSql = "SELECT userId FROM Doctor WHERE doctorId = ?";
     String deleteDocSql = "DELETE FROM Doctor WHERE doctorId = ?";
     String deleteUserSql = "DELETE FROM Users WHERE userId = ?";
@@ -164,12 +156,10 @@ public class DoctorRepository {
         conn.rollback();
         throw e;
       }
-    } catch (SQLException e) {
-      e.printStackTrace();
-      return false;
     }
   }
 
+  // TODO: Remove before submission
   public static List<Doctor> listAllDoctors() throws SQLException {
     String sql =
         "SELECT d.doctorId, d.userId, d.Specialization, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "

@@ -12,7 +12,7 @@ import java.util.List;
 
 public class PatientRepository {
 
-  public static boolean addPatient(Patient patient) {
+  public static boolean addPatient(Patient patient) throws SQLException {
     String insertUserSql =
         "INSERT INTO Users (firstName, lastName, userRole, icPassportNo, email, password) VALUES (?, ?, ?, ?, ?, ?)";
     String insertPatSql =
@@ -53,13 +53,10 @@ public class PatientRepository {
         conn.rollback();
         throw e;
       }
-    } catch (SQLException e) {
-      e.printStackTrace();
-      return false;
     }
   }
 
-  public static Patient getPatientById(int patientId) {
+  public static Patient getPatientById(int patientId) throws SQLException {
     String sql =
         "SELECT p.patientId, p.userId, p.medicalRecordId, p.contactNumber, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
             + "FROM Patient p "
@@ -84,13 +81,11 @@ public class PatientRepository {
               rs.getString("contactNumber"));
         }
       }
-    } catch (SQLException e) {
-      e.printStackTrace();
     }
     return null;
   }
 
-  public static boolean updatePatient(Patient patient) {
+  public static boolean updatePatient(Patient patient) throws SQLException {
     String updateUserSql =
         "UPDATE Users SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? "
             + "WHERE userId = (SELECT userId FROM Patient WHERE patientId = ?)";
@@ -122,13 +117,10 @@ public class PatientRepository {
         conn.rollback();
         throw e;
       }
-    } catch (SQLException e) {
-      e.printStackTrace();
-      return false;
     }
   }
 
-  public static boolean deletePatient(int patientId) {
+  public static boolean deletePatient(int patientId) throws SQLException {
     String selectSql = "SELECT userId FROM Patient WHERE patientId = ?";
     String deletePatSql = "DELETE FROM Patient WHERE patientId = ?";
     String deleteUserSql = "DELETE FROM Users WHERE userId = ?";
@@ -166,12 +158,10 @@ public class PatientRepository {
         conn.rollback();
         throw e;
       }
-    } catch (SQLException e) {
-      e.printStackTrace();
-      return false;
     }
   }
 
+  // TODO: Remove before submission
   public static List<Patient> listAllPatients() throws SQLException {
     String sql =
         "SELECT p.patientId, p.userId, p.medicalRecordId, p.contactNumber, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "

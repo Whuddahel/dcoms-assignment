@@ -78,17 +78,17 @@ CREATE INDEX idx_schedule_day      ON Schedule(day);
 CREATE TABLE Appointment (
     appointmentId   INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     doctorId        INT      NOT NULL,
-    medicalRecordId INT      NOT NULL,
+    patientId       INT      NOT NULL,
     scheduleId      INT      NOT NULL,
     createdAt       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    cancelledBy     INT,
+    cancelledByUserId     INT,
     FOREIGN KEY (doctorId)        REFERENCES Doctor(doctorId),
-    FOREIGN KEY (medicalRecordId) REFERENCES Patient(medicalRecordId),
+    FOREIGN KEY (patientId)       REFERENCES Patient(patientId),
     FOREIGN KEY (scheduleId)      REFERENCES Schedule(scheduleId)
 );
 
 CREATE INDEX idx_appointment_doctorId        ON Appointment(doctorId);
-CREATE INDEX idx_appointment_medicalRecordId ON Appointment(medicalRecordId);
+CREATE INDEX idx_appointment_patientId       ON Appointment(patientId);
 CREATE INDEX idx_appointment_scheduleId      ON Appointment(scheduleId);
 CREATE INDEX idx_appointment_createdAt       ON Appointment(createdAt);
 

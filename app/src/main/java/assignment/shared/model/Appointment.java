@@ -6,36 +6,36 @@ import java.sql.Timestamp;
 public class Appointment implements Serializable {
   private final int appointmentId;
   private final int doctorId;
-  private final int medicalRecordId;
+  private final int patientId;
   private final int scheduleId;
   private final Timestamp createdAt;
-  private final Integer cancelledBy;
+  private final Integer cancelledByUserId;
 
   public Appointment(
       int appointmentId,
       int doctorId,
-      int medicalRecordId,
+      int patientId,
       int scheduleId,
       Timestamp createdAt,
-      Integer cancelledBy) {
+      Integer cancelledByUserId) {
     this.appointmentId = appointmentId;
     this.doctorId = doctorId;
-    this.medicalRecordId = medicalRecordId;
+    this.patientId = patientId;
     this.scheduleId = scheduleId;
     this.createdAt = createdAt;
-    this.cancelledBy = cancelledBy;
+    this.cancelledByUserId = cancelledByUserId;
   }
 
   public Appointment(
-      int doctorId, int medicalRecordId, int scheduleId, Timestamp createdAt, Integer cancelledBy) {
-    this(0, doctorId, medicalRecordId, scheduleId, createdAt, cancelledBy);
+      int doctorId, int patientId, int scheduleId, Timestamp createdAt, Integer cancelledByUserId) {
+    this(0, doctorId, patientId, scheduleId, createdAt, cancelledByUserId);
   }
 
-  public Appointment(int doctorId, int medicalRecordId, int scheduleId) {
+  public Appointment(int doctorId, int patientId, int scheduleId) {
     this(
         0,
         doctorId,
-        medicalRecordId,
+        patientId,
         scheduleId,
         new java.sql.Timestamp(System.currentTimeMillis()),
         null);
@@ -49,8 +49,8 @@ public class Appointment implements Serializable {
     return doctorId;
   }
 
-  public int getMedicalRecordId() {
-    return medicalRecordId;
+  public int getPatientId() {
+    return patientId;
   }
 
   public int getScheduleId() {
@@ -61,14 +61,14 @@ public class Appointment implements Serializable {
     return createdAt;
   }
 
-  public Integer getCancelledBy() {
-    return cancelledBy;
+  public Integer getcancelledByUserId() {
+    return cancelledByUserId;
   }
 
   @Override
   public String toString() {
     return String.format(
-        "Appointment [appointmentId=%d, doctorId=%d, medicalRecordId=%d, scheduleId=%d, createdAt=%s, cancelledBy=%d]",
-        appointmentId, doctorId, medicalRecordId, scheduleId, createdAt, cancelledBy);
+        "Appointment [appointmentId=%d, doctorId=%d, patientId=%d, scheduleId=%d, createdAt=%s, cancelledByUserId=%d]",
+        appointmentId, doctorId, patientId, scheduleId, createdAt, cancelledByUserId);
   }
 }
