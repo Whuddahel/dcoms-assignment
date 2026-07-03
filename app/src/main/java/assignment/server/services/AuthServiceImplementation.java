@@ -21,6 +21,11 @@ public class AuthServiceImplementation extends UnicastRemoteObject implements Au
     try {
       User user = UserRepository.getUserByEmail(email);
       if (user == null) throw new RemoteException(AuthError.INVALID_CREDENTIALS.name());
+      System.out.println(user.getPasswordHash());
+      System.out.println(user.getUsername());
+      System.out.println(user.getRole());
+      System.out.println(email);
+      System.out.println(password);
 
       String storedHash = user.getPasswordHash();
       if (!BCrypt.checkpw(password, storedHash)) {
