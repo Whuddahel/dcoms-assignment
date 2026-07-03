@@ -1,7 +1,7 @@
 package assignment.server.services;
 
 import assignment.server.auth.SessionManager;
-import assignment.server.database.UserRepository;
+import assignment.server.database.repository.UserRepository;
 import assignment.shared.error.AuthError;
 import assignment.shared.model.User;
 import assignment.shared.services.AuthService;

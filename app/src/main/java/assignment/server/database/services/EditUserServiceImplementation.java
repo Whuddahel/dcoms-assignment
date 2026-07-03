@@ -1,10 +1,10 @@
 package assignment.server.database.services;
 
-import assignment.server.database.UserRepository;
 import assignment.server.database.repository.ClinicAdministratorRepository;
 import assignment.server.database.repository.DoctorRepository;
 import assignment.server.database.repository.PatientRepository;
 import assignment.server.database.repository.ReceptionistRepository;
+import assignment.server.database.repository.UserRepository;
 import assignment.shared.interfaces.EditUserService;
 import assignment.shared.model.ClinicAdministrator;
 import assignment.shared.model.Doctor;
