@@ -66,7 +66,7 @@ public class Users implements Serializable {
     return email;
   }
 
-  public String getPassword() {
+  public String getPasswordHash() {
     return password;
   }
 

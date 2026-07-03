@@ -21,7 +21,6 @@ public class ScheduleRepository {
       ps.setTime(3, schedule.getStartTime());
       ps.setTime(4, schedule.getEndTime());
       int rows = ps.executeUpdate();
-      System.out.println("Schedule inserted successfully.");
       return rows > 0;
     } catch (SQLException e) {
       e.printStackTrace();
@@ -64,7 +63,6 @@ public class ScheduleRepository {
       ps.setTime(4, schedule.getEndTime());
       ps.setInt(5, schedule.getScheduleId());
       int rows = ps.executeUpdate();
-      System.out.println("Schedule updated successfully.");
       return rows > 0;
     } catch (SQLException e) {
       e.printStackTrace();
@@ -79,7 +77,6 @@ public class ScheduleRepository {
         PreparedStatement ps = conn.prepareStatement(sql)) {
       ps.setInt(1, scheduleId);
       int rows = ps.executeUpdate();
-      System.out.println("Schedule deleted successfully.");
       return rows > 0;
     } catch (SQLException e) {
       e.printStackTrace();

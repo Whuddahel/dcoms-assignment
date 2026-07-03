@@ -9,8 +9,8 @@ import java.rmi.registry.Registry;
 public class ServerRegistry {
   public static void startRegistry() throws RemoteException {
     Registry serverReg = LocateRegistry.createRegistry(1099);
-    serverReg.rebind("registerUser", new RegisterUserServiceImplementation());
-    serverReg.rebind("editUser", new EditUserServiceImplementation());
+    serverReg.rebind("RegisterUser", new RegisterUserServiceImplementation());
+    serverReg.rebind("EditUser", new EditUserServiceImplementation());
     System.out.println("Server Registry started on port 1099");
   }
 }

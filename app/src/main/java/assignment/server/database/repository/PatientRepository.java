@@ -18,59 +18,44 @@ public class PatientRepository {
     String insertPatSql =
         "INSERT INTO Patient (userId, medicalRecordId, contactNumber) VALUES (?, NEXT VALUE FOR medical_record_seq, ?)";
 
-    Connection conn = null;
-    try {
-      conn = DatabaseManager.getConnection();
+    try (Connection conn = DatabaseManager.getConnection()) {
       conn.setAutoCommit(false);
+      try {
+        int userId;
+        try (PreparedStatement psUser =
+            conn.prepareStatement(insertUserSql, Statement.RETURN_GENERATED_KEYS)) {
+          psUser.setString(1, patient.getFirstName());
+          psUser.setString(2, patient.getLastName());
+          psUser.setString(3, patient.getUserRole());
+          psUser.setString(4, patient.getIcPassportNo());
+          psUser.setString(5, patient.getEmail());
+          psUser.setString(6, patient.getPasswordHash());
+          psUser.executeUpdate();
 
-      int userId;
-      try (PreparedStatement psUser =
-          conn.prepareStatement(insertUserSql, Statement.RETURN_GENERATED_KEYS)) {
-        psUser.setString(1, patient.getFirstName());
-        psUser.setString(2, patient.getLastName());
-        psUser.setString(3, patient.getUserRole());
-        psUser.setString(4, patient.getIcPassportNo());
-        psUser.setString(5, patient.getEmail());
-        psUser.setString(6, patient.getPassword());
-        psUser.executeUpdate();
-
-        try (ResultSet rs = psUser.getGeneratedKeys()) {
-          if (rs.next()) {
-            userId = rs.getInt(1);
-          } else {
-            throw new SQLException("Failed to retrieve generated userId.");
+          try (ResultSet rs = psUser.getGeneratedKeys()) {
+            if (rs.next()) {
+              userId = rs.getInt(1);
+            } else {
+              throw new SQLException("Failed to retrieve generated userId.");
+            }
           }
         }
-      }
 
-      try (PreparedStatement psPat = conn.prepareStatement(insertPatSql)) {
-        psPat.setInt(1, userId);
-        psPat.setString(2, patient.getContactNumber());
-        psPat.executeUpdate();
-      }
+        try (PreparedStatement psPat = conn.prepareStatement(insertPatSql)) {
+          psPat.setInt(1, userId);
+          psPat.setString(2, patient.getContactNumber());
+          psPat.executeUpdate();
+        }
 
-      conn.commit();
-      System.out.println("Patient inserted successfully.");
-      return true;
+        conn.commit();
+        return true;
+      } catch (SQLException e) {
+        conn.rollback();
+        throw e;
+      }
     } catch (SQLException e) {
       e.printStackTrace();
-      if (conn != null) {
-        try {
-          conn.rollback();
-        } catch (SQLException ex) {
-          ex.printStackTrace();
-        }
-      }
       return false;
-    } finally {
-      if (conn != null) {
-        try {
-          conn.setAutoCommit(true);
-          conn.close();
-        } catch (SQLException ex) {
-          ex.printStackTrace();
-        }
-      }
     }
   }
 
@@ -111,50 +96,35 @@ public class PatientRepository {
             + "WHERE userId = (SELECT userId FROM Patient WHERE patientId = ?)";
     String updatePatSql = "UPDATE Patient SET contactNumber = ? WHERE patientId = ?";
 
-    Connection conn = null;
-    try {
-      conn = DatabaseManager.getConnection();
+    try (Connection conn = DatabaseManager.getConnection()) {
       conn.setAutoCommit(false);
+      try {
+        try (PreparedStatement psUser = conn.prepareStatement(updateUserSql)) {
+          psUser.setString(1, patient.getFirstName());
+          psUser.setString(2, patient.getLastName());
+          psUser.setString(3, patient.getUserRole());
+          psUser.setString(4, patient.getIcPassportNo());
+          psUser.setString(5, patient.getEmail());
+          psUser.setString(6, patient.getPasswordHash());
+          psUser.setInt(7, patient.getPatientId());
+          psUser.executeUpdate();
+        }
 
-      try (PreparedStatement psUser = conn.prepareStatement(updateUserSql)) {
-        psUser.setString(1, patient.getFirstName());
-        psUser.setString(2, patient.getLastName());
-        psUser.setString(3, patient.getUserRole());
-        psUser.setString(4, patient.getIcPassportNo());
-        psUser.setString(5, patient.getEmail());
-        psUser.setString(6, patient.getPassword());
-        psUser.setInt(7, patient.getPatientId());
-        psUser.executeUpdate();
+        try (PreparedStatement psPat = conn.prepareStatement(updatePatSql)) {
+          psPat.setString(1, patient.getContactNumber());
+          psPat.setInt(2, patient.getPatientId());
+          psPat.executeUpdate();
+        }
+
+        conn.commit();
+        return true;
+      } catch (SQLException e) {
+        conn.rollback();
+        throw e;
       }
-
-      try (PreparedStatement psPat = conn.prepareStatement(updatePatSql)) {
-        psPat.setString(1, patient.getContactNumber());
-        psPat.setInt(2, patient.getPatientId());
-        psPat.executeUpdate();
-      }
-
-      conn.commit();
-      System.out.println("Patient updated successfully.");
-      return true;
     } catch (SQLException e) {
       e.printStackTrace();
-      if (conn != null) {
-        try {
-          conn.rollback();
-        } catch (SQLException ex) {
-          ex.printStackTrace();
-        }
-      }
       return false;
-    } finally {
-      if (conn != null) {
-        try {
-          conn.setAutoCommit(true);
-          conn.close();
-        } catch (SQLException ex) {
-          ex.printStackTrace();
-        }
-      }
     }
   }
 
@@ -163,57 +133,42 @@ public class PatientRepository {
     String deletePatSql = "DELETE FROM Patient WHERE patientId = ?";
     String deleteUserSql = "DELETE FROM Users WHERE userId = ?";
 
-    Connection conn = null;
-    try {
-      conn = DatabaseManager.getConnection();
+    try (Connection conn = DatabaseManager.getConnection()) {
       conn.setAutoCommit(false);
-
-      int userId = -1;
-      try (PreparedStatement psSelect = conn.prepareStatement(selectSql)) {
-        psSelect.setInt(1, patientId);
-        try (ResultSet rs = psSelect.executeQuery()) {
-          if (rs.next()) {
-            userId = rs.getInt("userId");
+      try {
+        int userId = -1;
+        try (PreparedStatement psSelect = conn.prepareStatement(selectSql)) {
+          psSelect.setInt(1, patientId);
+          try (ResultSet rs = psSelect.executeQuery()) {
+            if (rs.next()) {
+              userId = rs.getInt("userId");
+            }
           }
         }
-      }
 
-      if (userId == -1) {
-        throw new SQLException("Patient not found with patientId: " + patientId);
-      }
+        if (userId == -1) {
+          throw new SQLException("Patient not found with patientId: " + patientId);
+        }
 
-      try (PreparedStatement psPat = conn.prepareStatement(deletePatSql)) {
-        psPat.setInt(1, patientId);
-        psPat.executeUpdate();
-      }
+        try (PreparedStatement psPat = conn.prepareStatement(deletePatSql)) {
+          psPat.setInt(1, patientId);
+          psPat.executeUpdate();
+        }
 
-      try (PreparedStatement psUser = conn.prepareStatement(deleteUserSql)) {
-        psUser.setInt(1, userId);
-        psUser.executeUpdate();
-      }
+        try (PreparedStatement psUser = conn.prepareStatement(deleteUserSql)) {
+          psUser.setInt(1, userId);
+          psUser.executeUpdate();
+        }
 
-      conn.commit();
-      System.out.println("Patient deleted successfully.");
-      return true;
+        conn.commit();
+        return true;
+      } catch (SQLException e) {
+        conn.rollback();
+        throw e;
+      }
     } catch (SQLException e) {
       e.printStackTrace();
-      if (conn != null) {
-        try {
-          conn.rollback();
-        } catch (SQLException ex) {
-          ex.printStackTrace();
-        }
-      }
       return false;
-    } finally {
-      if (conn != null) {
-        try {
-          conn.setAutoCommit(true);
-          conn.close();
-        } catch (SQLException ex) {
-          ex.printStackTrace();
-        }
-      }
     }
   }
 

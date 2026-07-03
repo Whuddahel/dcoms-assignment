@@ -17,58 +17,43 @@ public class ClinicAdministratorRepository {
         "INSERT INTO Users (firstName, lastName, userRole, icPassportNo, email, password) VALUES (?, ?, ?, ?, ?, ?)";
     String insertAdminSql = "INSERT INTO ClinicAdministrator (userId) VALUES (?)";
 
-    Connection conn = null;
-    try {
-      conn = DatabaseManager.getConnection();
+    try (Connection conn = DatabaseManager.getConnection()) {
       conn.setAutoCommit(false);
+      try {
+        int userId;
+        try (PreparedStatement psUser =
+            conn.prepareStatement(insertUserSql, Statement.RETURN_GENERATED_KEYS)) {
+          psUser.setString(1, admin.getFirstName());
+          psUser.setString(2, admin.getLastName());
+          psUser.setString(3, admin.getUserRole());
+          psUser.setString(4, admin.getIcPassportNo());
+          psUser.setString(5, admin.getEmail());
+          psUser.setString(6, admin.getPasswordHash());
+          psUser.executeUpdate();
 
-      int userId;
-      try (PreparedStatement psUser =
-          conn.prepareStatement(insertUserSql, Statement.RETURN_GENERATED_KEYS)) {
-        psUser.setString(1, admin.getFirstName());
-        psUser.setString(2, admin.getLastName());
-        psUser.setString(3, admin.getUserRole());
-        psUser.setString(4, admin.getIcPassportNo());
-        psUser.setString(5, admin.getEmail());
-        psUser.setString(6, admin.getPassword());
-        psUser.executeUpdate();
-
-        try (ResultSet rs = psUser.getGeneratedKeys()) {
-          if (rs.next()) {
-            userId = rs.getInt(1);
-          } else {
-            throw new SQLException("Failed to retrieve generated userId.");
+          try (ResultSet rs = psUser.getGeneratedKeys()) {
+            if (rs.next()) {
+              userId = rs.getInt(1);
+            } else {
+              throw new SQLException("Failed to retrieve generated userId.");
+            }
           }
         }
-      }
 
-      try (PreparedStatement psAdmin = conn.prepareStatement(insertAdminSql)) {
-        psAdmin.setInt(1, userId);
-        psAdmin.executeUpdate();
-      }
+        try (PreparedStatement psAdmin = conn.prepareStatement(insertAdminSql)) {
+          psAdmin.setInt(1, userId);
+          psAdmin.executeUpdate();
+        }
 
-      conn.commit();
-      System.out.println("ClinicAdministrator inserted successfully.");
-      return true;
+        conn.commit();
+        return true;
+      } catch (SQLException e) {
+        conn.rollback();
+        throw e;
+      }
     } catch (SQLException e) {
       e.printStackTrace();
-      if (conn != null) {
-        try {
-          conn.rollback();
-        } catch (SQLException ex) {
-          ex.printStackTrace();
-        }
-      }
       return false;
-    } finally {
-      if (conn != null) {
-        try {
-          conn.setAutoCommit(true);
-          conn.close();
-        } catch (SQLException ex) {
-          ex.printStackTrace();
-        }
-      }
     }
   }
 
@@ -113,10 +98,9 @@ public class ClinicAdministratorRepository {
       ps.setString(3, admin.getUserRole());
       ps.setString(4, admin.getIcPassportNo());
       ps.setString(5, admin.getEmail());
-      ps.setString(6, admin.getPassword());
+      ps.setString(6, admin.getPasswordHash());
       ps.setInt(7, admin.getAdminId());
       int rows = ps.executeUpdate();
-      System.out.println("ClinicAdministrator updated successfully.");
       return rows > 0;
     } catch (SQLException e) {
       e.printStackTrace();
@@ -129,57 +113,42 @@ public class ClinicAdministratorRepository {
     String deleteAdminSql = "DELETE FROM ClinicAdministrator WHERE adminId = ?";
     String deleteUserSql = "DELETE FROM Users WHERE userId = ?";
 
-    Connection conn = null;
-    try {
-      conn = DatabaseManager.getConnection();
+    try (Connection conn = DatabaseManager.getConnection()) {
       conn.setAutoCommit(false);
-
-      int userId = -1;
-      try (PreparedStatement psSelect = conn.prepareStatement(selectSql)) {
-        psSelect.setInt(1, adminId);
-        try (ResultSet rs = psSelect.executeQuery()) {
-          if (rs.next()) {
-            userId = rs.getInt("userId");
+      try {
+        int userId = -1;
+        try (PreparedStatement psSelect = conn.prepareStatement(selectSql)) {
+          psSelect.setInt(1, adminId);
+          try (ResultSet rs = psSelect.executeQuery()) {
+            if (rs.next()) {
+              userId = rs.getInt("userId");
+            }
           }
         }
-      }
 
-      if (userId == -1) {
-        throw new SQLException("ClinicAdministrator not found with adminId: " + adminId);
-      }
+        if (userId == -1) {
+          throw new SQLException("ClinicAdministrator not found with adminId: " + adminId);
+        }
 
-      try (PreparedStatement psAdmin = conn.prepareStatement(deleteAdminSql)) {
-        psAdmin.setInt(1, adminId);
-        psAdmin.executeUpdate();
-      }
+        try (PreparedStatement psAdmin = conn.prepareStatement(deleteAdminSql)) {
+          psAdmin.setInt(1, adminId);
+          psAdmin.executeUpdate();
+        }
 
-      try (PreparedStatement psUser = conn.prepareStatement(deleteUserSql)) {
-        psUser.setInt(1, userId);
-        psUser.executeUpdate();
-      }
+        try (PreparedStatement psUser = conn.prepareStatement(deleteUserSql)) {
+          psUser.setInt(1, userId);
+          psUser.executeUpdate();
+        }
 
-      conn.commit();
-      System.out.println("ClinicAdministrator deleted successfully.");
-      return true;
+        conn.commit();
+        return true;
+      } catch (SQLException e) {
+        conn.rollback();
+        throw e;
+      }
     } catch (SQLException e) {
       e.printStackTrace();
-      if (conn != null) {
-        try {
-          conn.rollback();
-        } catch (SQLException ex) {
-          ex.printStackTrace();
-        }
-      }
       return false;
-    } finally {
-      if (conn != null) {
-        try {
-          conn.setAutoCommit(true);
-          conn.close();
-        } catch (SQLException ex) {
-          ex.printStackTrace();
-        }
-      }
     }
   }
 

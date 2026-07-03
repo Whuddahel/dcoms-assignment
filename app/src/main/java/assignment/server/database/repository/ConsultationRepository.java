@@ -20,7 +20,6 @@ public class ConsultationRepository {
       ps.setString(2, con.getContent());
       ps.setDouble(3, con.getFee());
       int rows = ps.executeUpdate();
-      System.out.println("Consultation inserted successfully.");
       return rows > 0;
     } catch (SQLException e) {
       e.printStackTrace();
@@ -62,7 +61,6 @@ public class ConsultationRepository {
       ps.setDouble(3, con.getFee());
       ps.setInt(4, con.getConsultationId());
       int rows = ps.executeUpdate();
-      System.out.println("Consultation updated successfully.");
       return rows > 0;
     } catch (SQLException e) {
       e.printStackTrace();
@@ -77,7 +75,6 @@ public class ConsultationRepository {
         PreparedStatement ps = conn.prepareStatement(sql)) {
       ps.setInt(1, consultationId);
       int rows = ps.executeUpdate();
-      System.out.println("Consultation deleted successfully.");
       return rows > 0;
     } catch (SQLException e) {
       e.printStackTrace();

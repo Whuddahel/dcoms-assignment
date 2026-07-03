@@ -26,7 +26,6 @@ public class AppointmentRepository {
         ps.setNull(4, java.sql.Types.INTEGER);
       }
       int rows = ps.executeUpdate();
-      System.out.println("Appointment inserted successfully.");
       return rows > 0;
     } catch (SQLException e) {
       e.printStackTrace();
@@ -76,7 +75,6 @@ public class AppointmentRepository {
       }
       ps.setInt(5, app.getAppointmentId());
       int rows = ps.executeUpdate();
-      System.out.println("Appointment updated successfully.");
       return rows > 0;
     } catch (SQLException e) {
       e.printStackTrace();
@@ -91,7 +89,6 @@ public class AppointmentRepository {
         PreparedStatement ps = conn.prepareStatement(sql)) {
       ps.setInt(1, appointmentId);
       int rows = ps.executeUpdate();
-      System.out.println("Appointment deleted successfully.");
       return rows > 0;
     } catch (SQLException e) {
       e.printStackTrace();

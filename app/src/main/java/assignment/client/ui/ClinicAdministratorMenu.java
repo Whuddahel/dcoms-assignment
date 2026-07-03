@@ -42,7 +42,7 @@ public class ClinicAdministratorMenu {
   private static void editUserFlow(Scanner scanner) {
     try {
       Registry registry = LocateRegistry.getRegistry("localhost", 1099);
-      EditUserService editService = (EditUserService) registry.lookup("editUser");
+      EditUserService editService = (EditUserService) registry.lookup("EditUser");
 
       List<Users> users = editService.getAllUsers();
       if (users == null || users.isEmpty()) {
@@ -245,7 +245,7 @@ public class ClinicAdministratorMenu {
                       doc.getUserRole(),
                       doc.getIcPassportNo(),
                       doc.getEmail(),
-                      doc.getPassword(),
+                      doc.getPasswordHash(),
                       val);
               user = executeEdit(editService, updated, allUsers, user);
             }
@@ -280,7 +280,7 @@ public class ClinicAdministratorMenu {
                       pat.getUserRole(),
                       pat.getIcPassportNo(),
                       pat.getEmail(),
-                      pat.getPassword(),
+                      pat.getPasswordHash(),
                       pat.getMedicalRecordId(),
                       val);
               user = executeEdit(editService, updated, allUsers, user);
@@ -356,7 +356,7 @@ public class ClinicAdministratorMenu {
                   doc.getUserRole(),
                   doc.getIcPassportNo(),
                   doc.getEmail(),
-                  doc.getPassword(),
+                  doc.getPasswordHash(),
                   doc.getSpecialization());
       case Patient pat ->
           updated =
@@ -368,7 +368,7 @@ public class ClinicAdministratorMenu {
                   pat.getUserRole(),
                   pat.getIcPassportNo(),
                   pat.getEmail(),
-                  pat.getPassword(),
+                  pat.getPasswordHash(),
                   pat.getMedicalRecordId(),
                   pat.getContactNumber());
       case ClinicAdministrator admin ->
@@ -381,7 +381,7 @@ public class ClinicAdministratorMenu {
                   admin.getUserRole(),
                   admin.getIcPassportNo(),
                   admin.getEmail(),
-                  admin.getPassword());
+                  admin.getPasswordHash());
       case Receptionist recep ->
           updated =
               new Receptionist(
@@ -392,7 +392,7 @@ public class ClinicAdministratorMenu {
                   recep.getUserRole(),
                   recep.getIcPassportNo(),
                   recep.getEmail(),
-                  recep.getPassword());
+                  recep.getPasswordHash());
       default -> {}
     }
 
@@ -485,7 +485,7 @@ public class ClinicAdministratorMenu {
     try {
       // Connect to the server RMI registry at port 1099
       Registry registry = LocateRegistry.getRegistry("localhost", 1099);
-      RegisterUserService registerService = (RegisterUserService) registry.lookup("registerUser");
+      RegisterUserService registerService = (RegisterUserService) registry.lookup("RegisterUser");
 
       boolean success = false;
       switch (role) {

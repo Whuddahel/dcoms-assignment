@@ -17,59 +17,44 @@ public class DoctorRepository {
         "INSERT INTO Users (firstName, lastName, userRole, icPassportNo, email, password) VALUES (?, ?, ?, ?, ?, ?)";
     String insertDocSql = "INSERT INTO Doctor (userId, Specialization) VALUES (?, ?)";
 
-    Connection conn = null;
-    try {
-      conn = DatabaseManager.getConnection();
+    try (Connection conn = DatabaseManager.getConnection()) {
       conn.setAutoCommit(false);
+      try {
+        int userId;
+        try (PreparedStatement psUser =
+            conn.prepareStatement(insertUserSql, Statement.RETURN_GENERATED_KEYS)) {
+          psUser.setString(1, doctor.getFirstName());
+          psUser.setString(2, doctor.getLastName());
+          psUser.setString(3, doctor.getUserRole());
+          psUser.setString(4, doctor.getIcPassportNo());
+          psUser.setString(5, doctor.getEmail());
+          psUser.setString(6, doctor.getPasswordHash());
+          psUser.executeUpdate();
 
-      int userId;
-      try (PreparedStatement psUser =
-          conn.prepareStatement(insertUserSql, Statement.RETURN_GENERATED_KEYS)) {
-        psUser.setString(1, doctor.getFirstName());
-        psUser.setString(2, doctor.getLastName());
-        psUser.setString(3, doctor.getUserRole());
-        psUser.setString(4, doctor.getIcPassportNo());
-        psUser.setString(5, doctor.getEmail());
-        psUser.setString(6, doctor.getPassword());
-        psUser.executeUpdate();
-
-        try (ResultSet rs = psUser.getGeneratedKeys()) {
-          if (rs.next()) {
-            userId = rs.getInt(1);
-          } else {
-            throw new SQLException("Failed to retrieve generated userId.");
+          try (ResultSet rs = psUser.getGeneratedKeys()) {
+            if (rs.next()) {
+              userId = rs.getInt(1);
+            } else {
+              throw new SQLException("Failed to retrieve generated userId.");
+            }
           }
         }
-      }
 
-      try (PreparedStatement psDoc = conn.prepareStatement(insertDocSql)) {
-        psDoc.setInt(1, userId);
-        psDoc.setString(2, doctor.getSpecialization());
-        psDoc.executeUpdate();
-      }
+        try (PreparedStatement psDoc = conn.prepareStatement(insertDocSql)) {
+          psDoc.setInt(1, userId);
+          psDoc.setString(2, doctor.getSpecialization());
+          psDoc.executeUpdate();
+        }
 
-      conn.commit();
-      System.out.println("Doctor inserted successfully.");
-      return true;
+        conn.commit();
+        return true;
+      } catch (SQLException e) {
+        conn.rollback();
+        throw e;
+      }
     } catch (SQLException e) {
       e.printStackTrace();
-      if (conn != null) {
-        try {
-          conn.rollback();
-        } catch (SQLException ex) {
-          ex.printStackTrace();
-        }
-      }
       return false;
-    } finally {
-      if (conn != null) {
-        try {
-          conn.setAutoCommit(true);
-          conn.close();
-        } catch (SQLException ex) {
-          ex.printStackTrace();
-        }
-      }
     }
   }
 
@@ -109,50 +94,35 @@ public class DoctorRepository {
             + "WHERE userId = (SELECT userId FROM Doctor WHERE doctorId = ?)";
     String updateDocSql = "UPDATE Doctor SET Specialization = ? WHERE doctorId = ?";
 
-    Connection conn = null;
-    try {
-      conn = DatabaseManager.getConnection();
+    try (Connection conn = DatabaseManager.getConnection()) {
       conn.setAutoCommit(false);
+      try {
+        try (PreparedStatement psUser = conn.prepareStatement(updateUserSql)) {
+          psUser.setString(1, doctor.getFirstName());
+          psUser.setString(2, doctor.getLastName());
+          psUser.setString(3, doctor.getUserRole());
+          psUser.setString(4, doctor.getIcPassportNo());
+          psUser.setString(5, doctor.getEmail());
+          psUser.setString(6, doctor.getPasswordHash());
+          psUser.setInt(7, doctor.getDoctorId());
+          psUser.executeUpdate();
+        }
 
-      try (PreparedStatement psUser = conn.prepareStatement(updateUserSql)) {
-        psUser.setString(1, doctor.getFirstName());
-        psUser.setString(2, doctor.getLastName());
-        psUser.setString(3, doctor.getUserRole());
-        psUser.setString(4, doctor.getIcPassportNo());
-        psUser.setString(5, doctor.getEmail());
-        psUser.setString(6, doctor.getPassword());
-        psUser.setInt(7, doctor.getDoctorId());
-        psUser.executeUpdate();
+        try (PreparedStatement psDoc = conn.prepareStatement(updateDocSql)) {
+          psDoc.setString(1, doctor.getSpecialization());
+          psDoc.setInt(2, doctor.getDoctorId());
+          psDoc.executeUpdate();
+        }
+
+        conn.commit();
+        return true;
+      } catch (SQLException e) {
+        conn.rollback();
+        throw e;
       }
-
-      try (PreparedStatement psDoc = conn.prepareStatement(updateDocSql)) {
-        psDoc.setString(1, doctor.getSpecialization());
-        psDoc.setInt(2, doctor.getDoctorId());
-        psDoc.executeUpdate();
-      }
-
-      conn.commit();
-      System.out.println("Doctor updated successfully.");
-      return true;
     } catch (SQLException e) {
       e.printStackTrace();
-      if (conn != null) {
-        try {
-          conn.rollback();
-        } catch (SQLException ex) {
-          ex.printStackTrace();
-        }
-      }
       return false;
-    } finally {
-      if (conn != null) {
-        try {
-          conn.setAutoCommit(true);
-          conn.close();
-        } catch (SQLException ex) {
-          ex.printStackTrace();
-        }
-      }
     }
   }
 
@@ -161,57 +131,42 @@ public class DoctorRepository {
     String deleteDocSql = "DELETE FROM Doctor WHERE doctorId = ?";
     String deleteUserSql = "DELETE FROM Users WHERE userId = ?";
 
-    Connection conn = null;
-    try {
-      conn = DatabaseManager.getConnection();
+    try (Connection conn = DatabaseManager.getConnection()) {
       conn.setAutoCommit(false);
-
-      int userId = -1;
-      try (PreparedStatement psSelect = conn.prepareStatement(selectSql)) {
-        psSelect.setInt(1, doctorId);
-        try (ResultSet rs = psSelect.executeQuery()) {
-          if (rs.next()) {
-            userId = rs.getInt("userId");
+      try {
+        int userId = -1;
+        try (PreparedStatement psSelect = conn.prepareStatement(selectSql)) {
+          psSelect.setInt(1, doctorId);
+          try (ResultSet rs = psSelect.executeQuery()) {
+            if (rs.next()) {
+              userId = rs.getInt("userId");
+            }
           }
         }
-      }
 
-      if (userId == -1) {
-        throw new SQLException("Doctor not found with doctorId: " + doctorId);
-      }
+        if (userId == -1) {
+          throw new SQLException("Doctor not found with doctorId: " + doctorId);
+        }
 
-      try (PreparedStatement psDoc = conn.prepareStatement(deleteDocSql)) {
-        psDoc.setInt(1, doctorId);
-        psDoc.executeUpdate();
-      }
+        try (PreparedStatement psDoc = conn.prepareStatement(deleteDocSql)) {
+          psDoc.setInt(1, doctorId);
+          psDoc.executeUpdate();
+        }
 
-      try (PreparedStatement psUser = conn.prepareStatement(deleteUserSql)) {
-        psUser.setInt(1, userId);
-        psUser.executeUpdate();
-      }
+        try (PreparedStatement psUser = conn.prepareStatement(deleteUserSql)) {
+          psUser.setInt(1, userId);
+          psUser.executeUpdate();
+        }
 
-      conn.commit();
-      System.out.println("Doctor deleted successfully.");
-      return true;
+        conn.commit();
+        return true;
+      } catch (SQLException e) {
+        conn.rollback();
+        throw e;
+      }
     } catch (SQLException e) {
       e.printStackTrace();
-      if (conn != null) {
-        try {
-          conn.rollback();
-        } catch (SQLException ex) {
-          ex.printStackTrace();
-        }
-      }
       return false;
-    } finally {
-      if (conn != null) {
-        try {
-          conn.setAutoCommit(true);
-          conn.close();
-        } catch (SQLException ex) {
-          ex.printStackTrace();
-        }
-      }
     }
   }
 

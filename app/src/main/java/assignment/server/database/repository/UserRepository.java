@@ -23,10 +23,9 @@ public class UserRepository {
       ps.setString(3, user.getUserRole());
       ps.setString(4, user.getIcPassportNo());
       ps.setString(5, user.getEmail());
-      ps.setString(6, user.getPassword());
+      ps.setString(6, user.getPasswordHash());
 
       int rows = ps.executeUpdate();
-      System.out.println("User inserted: " + user.getFullName());
       return rows > 0;
     } catch (SQLException e) {
       e.printStackTrace();
@@ -71,11 +70,10 @@ public class UserRepository {
       ps.setString(3, user.getUserRole());
       ps.setString(4, user.getIcPassportNo());
       ps.setString(5, user.getEmail());
-      ps.setString(6, user.getPassword());
+      ps.setString(6, user.getPasswordHash());
       ps.setInt(7, user.getUserId());
 
       int rows = ps.executeUpdate();
-      System.out.println("User updated: " + user.getFullName());
       return rows > 0;
     } catch (SQLException e) {
       e.printStackTrace();
@@ -90,7 +88,6 @@ public class UserRepository {
         PreparedStatement ps = conn.prepareStatement(sql)) {
       ps.setInt(1, userId);
       int rows = ps.executeUpdate();
-      System.out.println("User deleted with ID: " + userId);
       return rows > 0;
     } catch (SQLException e) {
       e.printStackTrace();

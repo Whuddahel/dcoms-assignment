@@ -17,58 +17,43 @@ public class ReceptionistRepository {
         "INSERT INTO Users (firstName, lastName, userRole, icPassportNo, email, password) VALUES (?, ?, ?, ?, ?, ?)";
     String insertRecSql = "INSERT INTO Receptionist (userId) VALUES (?)";
 
-    Connection conn = null;
-    try {
-      conn = DatabaseManager.getConnection();
+    try (Connection conn = DatabaseManager.getConnection()) {
       conn.setAutoCommit(false);
+      try {
+        int userId;
+        try (PreparedStatement psUser =
+            conn.prepareStatement(insertUserSql, Statement.RETURN_GENERATED_KEYS)) {
+          psUser.setString(1, receptionist.getFirstName());
+          psUser.setString(2, receptionist.getLastName());
+          psUser.setString(3, receptionist.getUserRole());
+          psUser.setString(4, receptionist.getIcPassportNo());
+          psUser.setString(5, receptionist.getEmail());
+          psUser.setString(6, receptionist.getPasswordHash());
+          psUser.executeUpdate();
 
-      int userId;
-      try (PreparedStatement psUser =
-          conn.prepareStatement(insertUserSql, Statement.RETURN_GENERATED_KEYS)) {
-        psUser.setString(1, receptionist.getFirstName());
-        psUser.setString(2, receptionist.getLastName());
-        psUser.setString(3, receptionist.getUserRole());
-        psUser.setString(4, receptionist.getIcPassportNo());
-        psUser.setString(5, receptionist.getEmail());
-        psUser.setString(6, receptionist.getPassword());
-        psUser.executeUpdate();
-
-        try (ResultSet rs = psUser.getGeneratedKeys()) {
-          if (rs.next()) {
-            userId = rs.getInt(1);
-          } else {
-            throw new SQLException("Failed to retrieve generated userId.");
+          try (ResultSet rs = psUser.getGeneratedKeys()) {
+            if (rs.next()) {
+              userId = rs.getInt(1);
+            } else {
+              throw new SQLException("Failed to retrieve generated userId.");
+            }
           }
         }
-      }
 
-      try (PreparedStatement psRec = conn.prepareStatement(insertRecSql)) {
-        psRec.setInt(1, userId);
-        psRec.executeUpdate();
-      }
+        try (PreparedStatement psRec = conn.prepareStatement(insertRecSql)) {
+          psRec.setInt(1, userId);
+          psRec.executeUpdate();
+        }
 
-      conn.commit();
-      System.out.println("Receptionist inserted successfully.");
-      return true;
+        conn.commit();
+        return true;
+      } catch (SQLException e) {
+        conn.rollback();
+        throw e;
+      }
     } catch (SQLException e) {
       e.printStackTrace();
-      if (conn != null) {
-        try {
-          conn.rollback();
-        } catch (SQLException ex) {
-          ex.printStackTrace();
-        }
-      }
       return false;
-    } finally {
-      if (conn != null) {
-        try {
-          conn.setAutoCommit(true);
-          conn.close();
-        } catch (SQLException ex) {
-          ex.printStackTrace();
-        }
-      }
     }
   }
 
@@ -113,10 +98,9 @@ public class ReceptionistRepository {
       ps.setString(3, receptionist.getUserRole());
       ps.setString(4, receptionist.getIcPassportNo());
       ps.setString(5, receptionist.getEmail());
-      ps.setString(6, receptionist.getPassword());
+      ps.setString(6, receptionist.getPasswordHash());
       ps.setInt(7, receptionist.getReceptionistId());
       int rows = ps.executeUpdate();
-      System.out.println("Receptionist updated successfully.");
       return rows > 0;
     } catch (SQLException e) {
       e.printStackTrace();
@@ -129,57 +113,42 @@ public class ReceptionistRepository {
     String deleteRecSql = "DELETE FROM Receptionist WHERE receptionistId = ?";
     String deleteUserSql = "DELETE FROM Users WHERE userId = ?";
 
-    Connection conn = null;
-    try {
-      conn = DatabaseManager.getConnection();
+    try (Connection conn = DatabaseManager.getConnection()) {
       conn.setAutoCommit(false);
-
-      int userId = -1;
-      try (PreparedStatement psSelect = conn.prepareStatement(selectSql)) {
-        psSelect.setInt(1, receptionistId);
-        try (ResultSet rs = psSelect.executeQuery()) {
-          if (rs.next()) {
-            userId = rs.getInt("userId");
+      try {
+        int userId = -1;
+        try (PreparedStatement psSelect = conn.prepareStatement(selectSql)) {
+          psSelect.setInt(1, receptionistId);
+          try (ResultSet rs = psSelect.executeQuery()) {
+            if (rs.next()) {
+              userId = rs.getInt("userId");
+            }
           }
         }
-      }
 
-      if (userId == -1) {
-        throw new SQLException("Receptionist not found with receptionistId: " + receptionistId);
-      }
+        if (userId == -1) {
+          throw new SQLException("Receptionist not found with receptionistId: " + receptionistId);
+        }
 
-      try (PreparedStatement psRec = conn.prepareStatement(deleteRecSql)) {
-        psRec.setInt(1, receptionistId);
-        psRec.executeUpdate();
-      }
+        try (PreparedStatement psRec = conn.prepareStatement(deleteRecSql)) {
+          psRec.setInt(1, receptionistId);
+          psRec.executeUpdate();
+        }
 
-      try (PreparedStatement psUser = conn.prepareStatement(deleteUserSql)) {
-        psUser.setInt(1, userId);
-        psUser.executeUpdate();
-      }
+        try (PreparedStatement psUser = conn.prepareStatement(deleteUserSql)) {
+          psUser.setInt(1, userId);
+          psUser.executeUpdate();
+        }
 
-      conn.commit();
-      System.out.println("Receptionist deleted successfully.");
-      return true;
+        conn.commit();
+        return true;
+      } catch (SQLException e) {
+        conn.rollback();
+        throw e;
+      }
     } catch (SQLException e) {
       e.printStackTrace();
-      if (conn != null) {
-        try {
-          conn.rollback();
-        } catch (SQLException ex) {
-          ex.printStackTrace();
-        }
-      }
       return false;
-    } finally {
-      if (conn != null) {
-        try {
-          conn.setAutoCommit(true);
-          conn.close();
-        } catch (SQLException ex) {
-          ex.printStackTrace();
-        }
-      }
     }
   }
 
