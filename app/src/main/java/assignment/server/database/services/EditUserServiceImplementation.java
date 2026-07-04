@@ -10,7 +10,7 @@ import assignment.shared.model.ClinicAdministrator;
 import assignment.shared.model.Doctor;
 import assignment.shared.model.Patient;
 import assignment.shared.model.Receptionist;
-import assignment.shared.model.Users;
+import assignment.shared.model.User;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.SQLException;
@@ -22,7 +22,7 @@ public class EditUserServiceImplementation extends UnicastRemoteObject implement
   }
 
   @Override
-  public boolean editUser(Users user) throws RemoteException {
+  public boolean editUser(User user) throws RemoteException {
     if (user == null) {
       return false;
     }
@@ -61,7 +61,7 @@ public class EditUserServiceImplementation extends UnicastRemoteObject implement
   }
 
   @Override
-  public List<Users> getAllUsers() throws RemoteException {
+  public List<User> getAllUsers() throws RemoteException {
     try {
       return UserRepository.getAllUsersWithRoles();
     } catch (SQLException e) {

@@ -7,7 +7,6 @@ import assignment.shared.model.Doctor;
 import assignment.shared.model.Patient;
 import assignment.shared.model.Receptionist;
 import assignment.shared.model.User;
-import assignment.shared.model.Users;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,9 +16,9 @@ import java.util.List;
 
 public class UserRepository {
 
-  public static boolean addUser(Users user) throws SQLException {
+  public static boolean addUser(User user) throws SQLException {
     String sql =
-        "INSERT INTO Users (firstName, lastName, userRole, icPassportNo, email, password) VALUES (?, ?, ?, ?, ?, ?)";
+        "INSERT INTO User (firstName, lastName, userRole, icPassportNo, email, password) VALUES (?, ?, ?, ?, ?, ?)";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -36,20 +35,20 @@ public class UserRepository {
     }
   }
 
-  public static Users getUserById(int userId) throws SQLException {
+  public static User getUserById(int userId) throws SQLException {
     String sql =
-        "SELECT userId, firstName, lastName, userRole, icPassportNo, email FROM Users WHERE userId = ?";
+        "SELECT userId, firstName, lastName, userRole, icPassportNo, email FROM User WHERE userId = ?";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
       ps.setInt(1, userId);
       try (ResultSet rs = ps.executeQuery()) {
         if (rs.next()) {
-          return new Users(
+          return new User(
               rs.getInt("userId"),
               rs.getString("firstName"),
               rs.getString("lastName"),
-              rs.getString("userRole"),
+              Role.databaseToEnum(rs.getString("userRole")),
               rs.getString("icPassportNo"),
               rs.getString("email"),
               null);
@@ -60,7 +59,10 @@ public class UserRepository {
   }
 
   public static User getUserByEmail(String email) throws SQLException {
-    String sql = "SELECT userId, email, password, userRole FROM Users WHERE email = ?";
+    // 1. Updated the query string to pull every field required by the new User
+    // constructor
+    String sql =
+        "SELECT userId, firstName, lastName, userRole, icPassportNo, email, password FROM User WHERE email = ?";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql); ) {
@@ -70,20 +72,24 @@ public class UserRepository {
       try (ResultSet rs = ps.executeQuery()) {
         if (rs.next()) {
           String dbRole = rs.getString("userRole");
+
           return new User(
               rs.getInt("userId"),
+              rs.getString("firstName"),
+              rs.getString("lastName"),
+              Role.valueOf(dbRole.toUpperCase()),
+              rs.getString("icPassportNo"),
               rs.getString("email"),
-              rs.getString("password"),
-              Role.valueOf(dbRole.toUpperCase()));
+              rs.getString("password"));
         }
         return null;
       }
     }
   }
 
-  public static boolean updateUser(Users user) throws SQLException {
+  public static boolean updateUser(User user) throws SQLException {
     String sql =
-        "UPDATE Users SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? WHERE userId = ?";
+        "UPDATE User SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? WHERE userId = ?";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -102,7 +108,7 @@ public class UserRepository {
   }
 
   public static boolean deleteUser(int userId) throws SQLException {
-    String sql = "DELETE FROM Users WHERE userId = ?";
+    String sql = "DELETE FROM User WHERE userId = ?";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -115,7 +121,7 @@ public class UserRepository {
   // TODO: Remove before submission
   public static void listAllUsers() throws SQLException {
 
-    String sql = "SELECT userId, firstName, lastName, userRole, icPassportNo, email FROM Users";
+    String sql = "SELECT userId, firstName, lastName, userRole, icPassportNo, email FROM User";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql);
@@ -156,20 +162,20 @@ public class UserRepository {
     }
   }
 
-  public static List<Users> getAllUsers() throws SQLException {
-    String sql = "SELECT userId, firstName, lastName, userRole, icPassportNo, email FROM Users";
+  public static List<User> getAllUsers() throws SQLException {
+    String sql = "SELECT userId, firstName, lastName, userRole, icPassportNo, email FROM User";
 
-    List<Users> list = new ArrayList<>();
+    List<User> list = new ArrayList<>();
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql);
         ResultSet rs = ps.executeQuery()) {
       while (rs.next()) {
         list.add(
-            new Users(
+            new User(
                 rs.getInt("userId"),
                 rs.getString("firstName"),
                 rs.getString("lastName"),
-                rs.getString("userRole"),
+                Role.databaseToEnum(rs.getString("userRole")),
                 rs.getString("icPassportNo"),
                 rs.getString("email"),
                 null));
@@ -178,20 +184,20 @@ public class UserRepository {
     return list;
   }
 
-  public static List<Users> getAllUsersWithRoles() throws SQLException {
+  public static List<User> getAllUsersWithRoles() throws SQLException {
     String sql =
         "SELECT u.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.password, "
             + "       d.doctorId, d.Specialization, "
             + "       p.patientId, p.medicalRecordId, p.contactNumber, "
             + "       a.adminId, "
             + "       r.receptionistId "
-            + "FROM Users u "
+            + "FROM User u "
             + "LEFT JOIN Doctor d ON u.userId = d.userId "
             + "LEFT JOIN Patient p ON u.userId = p.userId "
             + "LEFT JOIN ClinicAdministrator a ON u.userId = a.userId "
             + "LEFT JOIN Receptionist r ON u.userId = r.userId";
 
-    List<Users> users = new ArrayList<>();
+    List<User> users = new ArrayList<>();
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql);
         ResultSet rs = ps.executeQuery()) {

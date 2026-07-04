@@ -14,7 +14,7 @@ public class ReceptionistRepository {
 
   public static boolean addReceptionist(Receptionist receptionist) throws SQLException {
     String insertUserSql =
-        "INSERT INTO Users (firstName, lastName, userRole, icPassportNo, email, password) VALUES (?, ?, ?, ?, ?, ?)";
+        "INSERT INTO User (firstName, lastName, userRole, icPassportNo, email, password) VALUES (?, ?, ?, ?, ?, ?)";
     String insertRecSql = "INSERT INTO Receptionist (userId) VALUES (?)";
 
     try (Connection conn = DatabaseManager.getConnection()) {
@@ -58,7 +58,7 @@ public class ReceptionistRepository {
     String sql =
         "SELECT r.receptionistId, r.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
             + "FROM Receptionist r "
-            + "JOIN Users u ON r.userId = u.userId "
+            + "JOIN User u ON r.userId = u.userId "
             + "WHERE r.receptionistId = ?";
 
     try (Connection conn = DatabaseManager.getConnection();
@@ -83,7 +83,7 @@ public class ReceptionistRepository {
 
   public static boolean updateReceptionist(Receptionist receptionist) throws SQLException {
     String sql =
-        "UPDATE Users SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? "
+        "UPDATE User SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? "
             + "WHERE userId = (SELECT userId FROM Receptionist WHERE receptionistId = ?)";
 
     try (Connection conn = DatabaseManager.getConnection();
@@ -103,7 +103,7 @@ public class ReceptionistRepository {
   public static boolean deleteReceptionist(int receptionistId) throws SQLException {
     String selectSql = "SELECT userId FROM Receptionist WHERE receptionistId = ?";
     String deleteRecSql = "DELETE FROM Receptionist WHERE receptionistId = ?";
-    String deleteUserSql = "DELETE FROM Users WHERE userId = ?";
+    String deleteUserSql = "DELETE FROM User WHERE userId = ?";
 
     try (Connection conn = DatabaseManager.getConnection()) {
       conn.setAutoCommit(false);
@@ -146,7 +146,7 @@ public class ReceptionistRepository {
     String sql =
         "SELECT r.receptionistId, r.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
             + "FROM Receptionist r "
-            + "JOIN Users u ON r.userId = u.userId";
+            + "JOIN User u ON r.userId = u.userId";
 
     List<Receptionist> list = new ArrayList<>();
     try (Connection conn = DatabaseManager.getConnection();
@@ -187,7 +187,7 @@ public class ReceptionistRepository {
     String sql =
         "SELECT r.receptionistId, r.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
             + "FROM Receptionist r "
-            + "JOIN Users u ON r.userId = u.userId";
+            + "JOIN User u ON r.userId = u.userId";
 
     List<Receptionist> list = new ArrayList<>();
     try (Connection conn = DatabaseManager.getConnection();

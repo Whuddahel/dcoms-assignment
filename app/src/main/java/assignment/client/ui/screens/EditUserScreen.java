@@ -1,21 +1,21 @@
 package assignment.client.ui.screens;
 
-import assignment.client.ClinicClient;
+import assignment.client.services.ServiceManager;
 import assignment.client.ui.InputHandler;
 import assignment.shared.model.ClinicAdministrator;
 import assignment.shared.model.Doctor;
 import assignment.shared.model.Patient;
 import assignment.shared.model.Receptionist;
-import assignment.shared.model.Users;
+import assignment.shared.model.User;
 import java.util.ArrayList;
 import java.util.List;
 
 /** EditUserScreen handles the workflow for viewing, searching, and editing existing users. */
 public class EditUserScreen {
 
-  public static void display(ClinicClient client) {
+  public static void display(ServiceManager client) {
     try {
-      List<Users> users = client.getAllUsers();
+      List<User> users = client.getAllUsers();
       if (users == null || users.isEmpty()) {
         System.out.println("No users found in the system.");
         return;
@@ -44,14 +44,14 @@ public class EditUserScreen {
           }
 
           // Search in entire list
-          List<Users> matches = new ArrayList<>();
-          for (Users u : users) {
+          List<User> matches = new ArrayList<>();
+          for (User u : users) {
             if (u.getEmail().equalsIgnoreCase(query) || u.getFullName().equalsIgnoreCase(query)) {
               matches.add(u);
             }
           }
           if (matches.isEmpty()) {
-            for (Users u : users) {
+            for (User u : users) {
               if (u.getEmail().toLowerCase().contains(query.toLowerCase())
                   || u.getFullName().toLowerCase().contains(query.toLowerCase())) {
                 matches.add(u);
@@ -67,7 +67,7 @@ public class EditUserScreen {
           } else {
             System.out.println("\nMultiple users found:");
             for (int i = 0; i < matches.size(); i++) {
-              Users m = matches.get(i);
+              User m = matches.get(i);
               System.out.printf(
                   "[%d]. %s - %s (%s)\n", i + 1, m.getUserRole(), m.getFullName(), m.getEmail());
             }
@@ -100,7 +100,7 @@ public class EditUserScreen {
         }
 
         for (int i = startIdx; i < endIdx; i++) {
-          Users u = users.get(i);
+          User u = users.get(i);
           int indexOnPage = i - startIdx + 1;
           System.out.printf(
               "[%d]. %s - %s %s (%s)\n",
@@ -152,7 +152,7 @@ public class EditUserScreen {
     }
   }
 
-  private static void displayProfile(Users user) {
+  private static void displayProfile(User user) {
     System.out.println("\n================ PROFILE DISPLAY ================");
     System.out.printf("User ID:      %d\n", user.getUserId());
     System.out.printf("Role:         %s\n", user.getUserRole());
@@ -182,7 +182,7 @@ public class EditUserScreen {
     System.out.println("=================================================");
   }
 
-  private static void editUserFields(ClinicClient client, Users user, List<Users> allUsers) {
+  private static void editUserFields(ServiceManager client, User user, List<User> allUsers) {
     while (true) {
       displayProfile(user);
 
@@ -291,8 +291,8 @@ public class EditUserScreen {
     }
   }
 
-  private static Users handleNameEdit(
-      ClinicClient client, List<Users> allUsers, Users currentUser, int choice) {
+  private static User handleNameEdit(
+      ServiceManager client, List<User> allUsers, User currentUser, int choice) {
     String fieldName = choice == 1 ? "First Name" : "Last Name";
     String val = InputHandler.readLine("Enter new " + fieldName + ": ", true);
     if (val.isEmpty()) {
@@ -303,7 +303,7 @@ public class EditUserScreen {
     String newFirstName = choice == 1 ? val : currentUser.getFirstName();
     String newLastName = choice == 2 ? val : currentUser.getLastName();
 
-    Users updated = null;
+    User updated = null;
     switch (currentUser) {
       case Doctor doc ->
           updated =
@@ -361,8 +361,8 @@ public class EditUserScreen {
     return currentUser;
   }
 
-  private static Users executeEdit(
-      ClinicClient client, Users updatedUser, List<Users> allUsers, Users currentUser) {
+  private static User executeEdit(
+      ServiceManager client, User updatedUser, List<User> allUsers, User currentUser) {
     try {
       boolean success = client.editUser(updatedUser);
       if (success) {
@@ -378,7 +378,7 @@ public class EditUserScreen {
     return currentUser;
   }
 
-  private static void updateLocalUser(List<Users> allUsers, Users updatedUser) {
+  private static void updateLocalUser(List<User> allUsers, User updatedUser) {
     for (int i = 0; i < allUsers.size(); i++) {
       if (allUsers.get(i).getUserId() == updatedUser.getUserId()) {
         allUsers.set(i, updatedUser);

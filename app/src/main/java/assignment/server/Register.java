@@ -1,6 +1,8 @@
 package assignment.server;
 
 import assignment.server.services.AuthServiceImplementation;
+import assignment.server.services.EditUserServiceImplementation;
+import assignment.server.services.RegisterUserServiceImplementation;
 import assignment.shared.config.Config;
 import assignment.shared.services.AuthService;
 import java.rmi.registry.LocateRegistry;
@@ -16,9 +18,14 @@ public class Register {
 
       // Create service
       AuthService authService = new AuthServiceImplementation();
+      RegisterUserServiceImplementation registerUserService =
+          new RegisterUserServiceImplementation();
+      EditUserServiceImplementation editUserService = new EditUserServiceImplementation();
 
       // Bind service
       registry.rebind("AuthService", authService);
+      registry.rebind("RegisterUserService", registerUserService);
+      registry.rebind("EditUserService", editUserService);
 
       System.out.println("AuthService bound successfully");
 

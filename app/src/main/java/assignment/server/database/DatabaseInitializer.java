@@ -33,8 +33,7 @@ public final class DatabaseInitializer {
   }
 
   private static boolean seedUserExists(Connection connection) {
-    String sql =
-        "SELECT 1 FROM Users WHERE firstName = 'Michael' AND icPassportNo = '010101100101'";
+    String sql = "SELECT 1 FROM User WHERE firstName = 'Michael' AND icPassportNo = '010101100101'";
     try (Statement stmt = connection.createStatement();
         var rs = stmt.executeQuery(sql)) {
       return rs.next();
@@ -45,7 +44,7 @@ public final class DatabaseInitializer {
 
   private static boolean usersTableExists(Connection connection) {
 
-    try (var resultSet = connection.getMetaData().getTables(null, null, "USERS", null)) {
+    try (var resultSet = connection.getMetaData().getTables(null, null, "USER", null)) {
 
       return resultSet.next();
 
