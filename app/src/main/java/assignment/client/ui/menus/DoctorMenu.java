@@ -1,6 +1,7 @@
 package assignment.client.ui.menus;
 
 import assignment.client.services.ServiceManager;
+import assignment.client.ui.Helper;
 import assignment.client.ui.InputHandler;
 import assignment.client.ui.screens.ManageScheduleScreen;
 import assignment.shared.dto.LoginResponse;
@@ -8,20 +9,20 @@ import assignment.shared.dto.LoginResponse;
 public class DoctorMenu {
   public static void displayMenu(ServiceManager client, LoginResponse session) {
     while (true) {
-      System.out.println("Hello " + session.getFirstName() + " " + session.getLastName());
-      System.out.println("\n=== Doctor Menu ===");
-      System.out.println("[1]. View Patient Appointments");
-      System.out.println("[2]. Update Notes of a Consultation");
-      System.out.println("[3]. View Medical History of Patient");
-      System.out.println("[4]. Manage Available Time");
-      System.out.println("[5]. Exit");
+      System.out.println("\nHello " + session.getFirstName() + " " + session.getLastName());
+      Helper.printBanner("Doctor Menu", Helper.Theme.BLUE);
+      Helper.printOption(1, "View Patient Appointments", Helper.Theme.BLUE);
+      Helper.printOption(2, "Update Notes of a Consultation", Helper.Theme.BLUE);
+      Helper.printOption(3, "View Medical History of Patient", Helper.Theme.BLUE);
+      Helper.printOption(4, "Manage Available Time", Helper.Theme.BLUE);
+      Helper.printLine("[5]. Logout", Helper.Theme.RED);
 
       int choice = InputHandler.readInt("Select an option: ");
       if (choice == 1) {
-        //                RegisterUserScreen.display(client);
+        // RegisterUserScreen.display(client);
         System.out.println("i dunno");
       } else if (choice == 2) {
-        //                EditUserScreen.display(client);
+        // EditUserScreen.display(client);
         System.out.println("I havent do");
       } else if (choice == 3) {
         System.out.println("I havent do");

@@ -4,8 +4,10 @@ import assignment.server.services.AuthServiceImplementation;
 import assignment.server.services.EditUserServiceImplementation;
 import assignment.server.services.ManageScheduleServiceImplementation;
 import assignment.server.services.RegisterUserServiceImplementation;
+import assignment.server.services.ReportServiceImplementation;
 import assignment.shared.config.Config;
 import assignment.shared.services.AuthService;
+import assignment.shared.services.ReportService;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
@@ -24,12 +26,14 @@ public class Register {
       EditUserServiceImplementation editUserService = new EditUserServiceImplementation();
       ManageScheduleServiceImplementation manageScheduleService =
           new ManageScheduleServiceImplementation();
+      ReportService reportService = new ReportServiceImplementation();
 
       // Bind service
       registry.rebind("AuthService", authService);
       registry.rebind("RegisterUserService", registerUserService);
       registry.rebind("EditUserService", editUserService);
       registry.rebind("ManageScheduleService", manageScheduleService);
+      registry.rebind("ReportService", reportService);
 
       System.out.println("AuthService bound successfully");
 

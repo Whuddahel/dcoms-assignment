@@ -62,7 +62,7 @@ public class EditUserScreen {
           if (matches.isEmpty()) {
             System.out.println("No matching user found.");
           } else if (matches.size() == 1) {
-            editUserFields(client, matches.get(0), users);
+            editOrDeleteUser(client, matches.get(0), users);
             inSearchMode = false; // exit search mode after select
           } else {
             System.out.println("\nMultiple users found:");
@@ -71,13 +71,12 @@ public class EditUserScreen {
               System.out.printf(
                   "[%d]. %s - %s (%s)\n", i + 1, m.getUserRole(), m.getFullName(), m.getEmail());
             }
-            String matchChoiceStr =
-                InputHandler.readLine("Select a user by index (or 'cancel'): ", true);
+            String matchChoiceStr = InputHandler.readLine("Select a user by index (or 'cancel'): ");
             if (!matchChoiceStr.equalsIgnoreCase("cancel") && !matchChoiceStr.isEmpty()) {
               try {
                 int matchChoice = Integer.parseInt(matchChoiceStr);
                 if (matchChoice >= 1 && matchChoice <= matches.size()) {
-                  editUserFields(client, matches.get(matchChoice - 1), users);
+                  editOrDeleteUser(client, matches.get(matchChoice - 1), users);
                   inSearchMode = false;
                 } else {
                   System.out.println("Invalid selection.");
@@ -137,7 +136,7 @@ public class EditUserScreen {
             int pageChoice = Integer.parseInt(input);
             int selectedIndex = startIdx + (pageChoice - 1);
             if (selectedIndex >= startIdx && selectedIndex < endIdx) {
-              editUserFields(client, users.get(selectedIndex), users);
+              editOrDeleteUser(client, users.get(selectedIndex), users);
             } else {
               System.out.println("Invalid index. Please try again.");
             }
@@ -182,7 +181,7 @@ public class EditUserScreen {
     System.out.println("=================================================");
   }
 
-  private static void editUserFields(ServiceManager client, User user, List<User> allUsers) {
+  private static void editOrDeleteUser(ServiceManager client, User user, List<User> allUsers) {
     while (true) {
       displayProfile(user);
 
@@ -192,10 +191,11 @@ public class EditUserScreen {
           System.out.printf("[1]. First Name: %s\n", doc.getFirstName());
           System.out.printf("[2]. Last Name: %s\n", doc.getLastName());
           System.out.printf("[3]. Specialization: %s\n", doc.getSpecialization());
-          System.out.println("[4]. Finish editing");
+          System.out.println("[4]. Delete User");
+          System.out.println("[5]. Finish editing");
           int choice = InputHandler.readInt("Select choice: ");
 
-          if (choice == 4) {
+          if (choice == 5) {
             return;
           } else if (choice == 1 || choice == 2) {
             user = handleNameEdit(client, allUsers, user, choice);
@@ -214,8 +214,14 @@ public class EditUserScreen {
                       doc.getIcPassportNo(),
                       doc.getEmail(),
                       doc.getPasswordHash(),
-                      val);
+                      val,
+                      doc.getCreatedAt(),
+                      doc.isDeleted());
               user = executeEdit(client, updated, allUsers, user);
+            }
+          } else if (choice == 4) {
+            if (executeDelete(client, allUsers, user)) {
+              return;
             }
           } else {
             System.out.println("Invalid choice.");
@@ -225,10 +231,11 @@ public class EditUserScreen {
           System.out.printf("[1]. First Name: %s\n", pat.getFirstName());
           System.out.printf("[2]. Last Name: %s\n", pat.getLastName());
           System.out.printf("[3]. Contact Number: %s\n", pat.getContactNumber());
-          System.out.println("[4]. Finish editing");
+          System.out.println("[4]. Delete User");
+          System.out.println("[5]. Finish editing");
           int choice = InputHandler.readInt("Select choice: ");
 
-          if (choice == 4) {
+          if (choice == 5) {
             return;
           } else if (choice == 1 || choice == 2) {
             user = handleNameEdit(client, allUsers, user, choice);
@@ -248,8 +255,14 @@ public class EditUserScreen {
                       pat.getEmail(),
                       pat.getPasswordHash(),
                       pat.getMedicalRecordId(),
-                      val);
+                      val,
+                      pat.getCreatedAt(),
+                      pat.isDeleted());
               user = executeEdit(client, updated, allUsers, user);
+            }
+          } else if (choice == 4) {
+            if (executeDelete(client, allUsers, user)) {
+              return;
             }
           } else {
             System.out.println("Invalid choice.");
@@ -258,13 +271,18 @@ public class EditUserScreen {
         case ClinicAdministrator admin -> {
           System.out.printf("[1]. First Name: %s\n", admin.getFirstName());
           System.out.printf("[2]. Last Name: %s\n", admin.getLastName());
-          System.out.println("[3]. Finish editing");
+          System.out.println("[3]. Delete User");
+          System.out.println("[4]. Finish editing");
           int choice = InputHandler.readInt("Select choice: ");
 
-          if (choice == 3) {
+          if (choice == 4) {
             return;
           } else if (choice == 1 || choice == 2) {
             user = handleNameEdit(client, allUsers, user, choice);
+          } else if (choice == 3) {
+            if (executeDelete(client, allUsers, user)) {
+              return;
+            }
           } else {
             System.out.println("Invalid choice.");
           }
@@ -272,13 +290,18 @@ public class EditUserScreen {
         case Receptionist recep -> {
           System.out.printf("[1]. First Name: %s\n", recep.getFirstName());
           System.out.printf("[2]. Last Name: %s\n", recep.getLastName());
-          System.out.println("[3]. Finish editing");
+          System.out.println("[3]. Delete User");
+          System.out.println("[4]. Finish editing");
           int choice = InputHandler.readInt("Select choice: ");
 
-          if (choice == 3) {
+          if (choice == 4) {
             return;
           } else if (choice == 1 || choice == 2) {
             user = handleNameEdit(client, allUsers, user, choice);
+          } else if (choice == 3) {
+            if (executeDelete(client, allUsers, user)) {
+              return;
+            }
           } else {
             System.out.println("Invalid choice.");
           }
@@ -316,7 +339,9 @@ public class EditUserScreen {
                   doc.getIcPassportNo(),
                   doc.getEmail(),
                   doc.getPasswordHash(),
-                  doc.getSpecialization());
+                  doc.getSpecialization(),
+                  doc.getCreatedAt(),
+                  doc.isDeleted());
       case Patient pat ->
           updated =
               new Patient(
@@ -329,7 +354,9 @@ public class EditUserScreen {
                   pat.getEmail(),
                   pat.getPasswordHash(),
                   pat.getMedicalRecordId(),
-                  pat.getContactNumber());
+                  pat.getContactNumber(),
+                  pat.getCreatedAt(),
+                  pat.isDeleted());
       case ClinicAdministrator admin ->
           updated =
               new ClinicAdministrator(
@@ -340,7 +367,9 @@ public class EditUserScreen {
                   admin.getUserRole(),
                   admin.getIcPassportNo(),
                   admin.getEmail(),
-                  admin.getPasswordHash());
+                  admin.getPasswordHash(),
+                  admin.getCreatedAt(),
+                  admin.isDeleted());
       case Receptionist recep ->
           updated =
               new Receptionist(
@@ -351,7 +380,9 @@ public class EditUserScreen {
                   recep.getUserRole(),
                   recep.getIcPassportNo(),
                   recep.getEmail(),
-                  recep.getPasswordHash());
+                  recep.getPasswordHash(),
+                  recep.getCreatedAt(),
+                  recep.isDeleted());
       default -> {}
     }
 
@@ -385,5 +416,30 @@ public class EditUserScreen {
         break;
       }
     }
+  }
+
+  private static boolean executeDelete(ServiceManager client, List<User> allUsers, User user) {
+    boolean confirm = InputHandler.readYesNo("Are you sure you want to delete this user?");
+    if (!confirm) {
+      System.out.println("Deletion cancelled.");
+      return false;
+    }
+    try {
+      boolean success = client.deleteUser(user);
+      if (success) {
+        System.out.println("User deleted successfully!");
+        deleteLocalUser(allUsers, user);
+        return true;
+      } else {
+        System.out.println("Delete failed on server.");
+      }
+    } catch (Exception e) {
+      System.err.println("Error deleting user: " + e.getMessage());
+    }
+    return false;
+  }
+
+  private static void deleteLocalUser(List<User> allUsers, User deletedUser) {
+    allUsers.removeIf(u -> u.getUserId() == deletedUser.getUserId());
   }
 }

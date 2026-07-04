@@ -6,7 +6,9 @@ CREATE TABLE Users (
     userRole     VARCHAR(20) NOT NULL CHECK (userRole IN ('admin', 'doctor', 'receptionist', 'patient')),
     icPassportNo VARCHAR(50)  NOT NULL,
     email        VARCHAR(150) NOT NULL UNIQUE,
-    password     VARCHAR(255) NOT NULL
+    password     VARCHAR(255) NOT NULL,
+    createdAt    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted      BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE INDEX idx_user_email    ON Users(email);

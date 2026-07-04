@@ -14,7 +14,7 @@ public class ReceptionistRepository {
 
   public static boolean addReceptionist(Receptionist receptionist) throws SQLException {
     String insertUserSql =
-        "INSERT INTO Users (firstName, lastName, userRole, icPassportNo, email, password) VALUES (?, ?, ?, ?, ?, ?)";
+        "INSERT INTO Users (firstName, lastName, userRole, icPassportNo, email, password, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)";
     String insertRecSql = "INSERT INTO Receptionist (userId) VALUES (?)";
 
     try (Connection conn = DatabaseManager.getConnection()) {
@@ -29,6 +29,7 @@ public class ReceptionistRepository {
           psUser.setString(4, receptionist.getIcPassportNo());
           psUser.setString(5, receptionist.getEmail());
           psUser.setString(6, receptionist.getPasswordHash());
+          psUser.setTimestamp(7, receptionist.getCreatedAt());
           psUser.executeUpdate();
 
           try (ResultSet rs = psUser.getGeneratedKeys()) {
@@ -56,10 +57,10 @@ public class ReceptionistRepository {
 
   public static Receptionist getReceptionistById(int receptionistId) throws SQLException {
     String sql =
-        "SELECT r.receptionistId, r.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
+        "SELECT r.receptionistId, r.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.createdAt, u.deleted "
             + "FROM Receptionist r "
             + "JOIN Users u ON r.userId = u.userId "
-            + "WHERE r.receptionistId = ?";
+            + "WHERE r.receptionistId = ? AND u.deleted = false";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -74,7 +75,9 @@ public class ReceptionistRepository {
               rs.getString("userRole"),
               rs.getString("icPassportNo"),
               rs.getString("email"),
-              null);
+              null,
+              rs.getTimestamp("createdAt"),
+              rs.getBoolean("deleted"));
         }
       }
     }
@@ -83,8 +86,7 @@ public class ReceptionistRepository {
 
   public static boolean updateReceptionist(Receptionist receptionist) throws SQLException {
     String sql =
-        "UPDATE Users SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? "
-            + "WHERE userId = (SELECT userId FROM Receptionist WHERE receptionistId = ?)";
+        "UPDATE Users SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? WHERE userId = ?";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -94,7 +96,7 @@ public class ReceptionistRepository {
       ps.setString(4, receptionist.getIcPassportNo());
       ps.setString(5, receptionist.getEmail());
       ps.setString(6, receptionist.getPasswordHash());
-      ps.setInt(7, receptionist.getReceptionistId());
+      ps.setInt(7, receptionist.getUserId());
       int rows = ps.executeUpdate();
       return rows > 0;
     }
@@ -102,8 +104,7 @@ public class ReceptionistRepository {
 
   public static boolean deleteReceptionist(int receptionistId) throws SQLException {
     String selectSql = "SELECT userId FROM Receptionist WHERE receptionistId = ?";
-    String deleteRecSql = "DELETE FROM Receptionist WHERE receptionistId = ?";
-    String deleteUserSql = "DELETE FROM Users WHERE userId = ?";
+    String softDeleteUserSql = "UPDATE Users SET deleted = true WHERE userId = ?";
 
     try (Connection conn = DatabaseManager.getConnection()) {
       conn.setAutoCommit(false);
@@ -122,12 +123,7 @@ public class ReceptionistRepository {
           throw new SQLException("Receptionist not found with receptionistId: " + receptionistId);
         }
 
-        try (PreparedStatement psRec = conn.prepareStatement(deleteRecSql)) {
-          psRec.setInt(1, receptionistId);
-          psRec.executeUpdate();
-        }
-
-        try (PreparedStatement psUser = conn.prepareStatement(deleteUserSql)) {
+        try (PreparedStatement psUser = conn.prepareStatement(softDeleteUserSql)) {
           psUser.setInt(1, userId);
           psUser.executeUpdate();
         }
@@ -141,12 +137,12 @@ public class ReceptionistRepository {
     }
   }
 
-  // TODO: Remove before submission
   public static List<Receptionist> listAllReceptionists() throws SQLException {
     String sql =
-        "SELECT r.receptionistId, r.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
+        "SELECT r.receptionistId, r.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.createdAt, u.deleted "
             + "FROM Receptionist r "
-            + "JOIN Users u ON r.userId = u.userId";
+            + "JOIN Users u ON r.userId = u.userId "
+            + "WHERE u.deleted = false";
 
     List<Receptionist> list = new ArrayList<>();
     try (Connection conn = DatabaseManager.getConnection();
@@ -166,7 +162,9 @@ public class ReceptionistRepository {
                 rs.getString("userRole"),
                 rs.getString("icPassportNo"),
                 rs.getString("email"),
-                null);
+                null,
+                rs.getTimestamp("createdAt"),
+                rs.getBoolean("deleted"));
         list.add(receptionist);
         System.out.println(
             receptionist.getReceptionistId()
@@ -185,9 +183,10 @@ public class ReceptionistRepository {
 
   public static List<Receptionist> getAllReceptionists() throws SQLException {
     String sql =
-        "SELECT r.receptionistId, r.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
+        "SELECT r.receptionistId, r.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.createdAt, u.deleted "
             + "FROM Receptionist r "
-            + "JOIN Users u ON r.userId = u.userId";
+            + "JOIN Users u ON r.userId = u.userId "
+            + "WHERE u.deleted = false";
 
     List<Receptionist> list = new ArrayList<>();
     try (Connection conn = DatabaseManager.getConnection();
@@ -203,7 +202,9 @@ public class ReceptionistRepository {
                 rs.getString("userRole"),
                 rs.getString("icPassportNo"),
                 rs.getString("email"),
-                null));
+                null,
+                rs.getTimestamp("createdAt"),
+                rs.getBoolean("deleted")));
       }
     }
     return list;

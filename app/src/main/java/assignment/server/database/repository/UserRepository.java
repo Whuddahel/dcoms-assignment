@@ -11,6 +11,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +19,7 @@ public class UserRepository {
 
   public static boolean addUser(User user) throws SQLException {
     String sql =
-        "INSERT INTO Users (firstName, lastName, userRole, icPassportNo, email, password) VALUES (?, ?, ?, ?, ?, ?)";
+        "INSERT INTO Users (firstName, lastName, userRole, icPassportNo, email, password, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -29,6 +30,7 @@ public class UserRepository {
       ps.setString(4, user.getIcPassportNo());
       ps.setString(5, user.getEmail());
       ps.setString(6, user.getPasswordHash());
+      ps.setTimestamp(7, user.getCreatedAt());
 
       int rows = ps.executeUpdate();
       return rows > 0;
@@ -37,7 +39,7 @@ public class UserRepository {
 
   public static User getUserById(int userId) throws SQLException {
     String sql =
-        "SELECT userId, firstName, lastName, userRole, icPassportNo, email FROM Users WHERE userId = ?";
+        "SELECT userId, firstName, lastName, userRole, icPassportNo, email, createdAt, deleted FROM Users WHERE userId = ? AND deleted = false";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -51,7 +53,9 @@ public class UserRepository {
               Role.databaseToEnum(rs.getString("userRole")),
               rs.getString("icPassportNo"),
               rs.getString("email"),
-              null);
+              null,
+              rs.getTimestamp("createdAt"),
+              rs.getBoolean("deleted"));
         }
       }
     }
@@ -62,7 +66,7 @@ public class UserRepository {
     // 1. Updated the query string to pull every field required by the new User
     // constructor
     String sql =
-        "SELECT userId, firstName, lastName, userRole, icPassportNo, email, password FROM Users WHERE email = ?";
+        "SELECT userId, firstName, lastName, userRole, icPassportNo, email, password, createdAt, deleted FROM Users WHERE email = ? AND deleted = false";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql); ) {
@@ -80,7 +84,9 @@ public class UserRepository {
               Role.valueOf(dbRole.toUpperCase()),
               rs.getString("icPassportNo"),
               rs.getString("email"),
-              rs.getString("password"));
+              rs.getString("password"),
+              rs.getTimestamp("createdAt"),
+              rs.getBoolean("deleted"));
         }
         return null;
       }
@@ -108,7 +114,7 @@ public class UserRepository {
   }
 
   public static boolean deleteUser(int userId) throws SQLException {
-    String sql = "DELETE FROM Users WHERE userId = ?";
+    String sql = "UPDATE Users SET deleted = true WHERE userId = ?";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -121,7 +127,8 @@ public class UserRepository {
   // TODO: Remove before submission
   public static void listAllUsers() throws SQLException {
 
-    String sql = "SELECT userId, firstName, lastName, userRole, icPassportNo, email FROM Users";
+    String sql =
+        "SELECT userId, firstName, lastName, userRole, icPassportNo, email FROM Users WHERE deleted = false";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql);
@@ -163,7 +170,8 @@ public class UserRepository {
   }
 
   public static List<User> getAllUsers() throws SQLException {
-    String sql = "SELECT userId, firstName, lastName, userRole, icPassportNo, email FROM Users";
+    String sql =
+        "SELECT userId, firstName, lastName, userRole, icPassportNo, email, createdAt, deleted FROM Users WHERE deleted = false";
 
     List<User> list = new ArrayList<>();
     try (Connection conn = DatabaseManager.getConnection();
@@ -178,7 +186,9 @@ public class UserRepository {
                 Role.databaseToEnum(rs.getString("userRole")),
                 rs.getString("icPassportNo"),
                 rs.getString("email"),
-                null));
+                null,
+                rs.getTimestamp("createdAt"),
+                rs.getBoolean("deleted")));
       }
     }
     return list;
@@ -186,7 +196,7 @@ public class UserRepository {
 
   public static List<User> getAllUsersWithRoles() throws SQLException {
     String sql =
-        "SELECT u.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.password, "
+        "SELECT u.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.password, u.createdAt, u.deleted, "
             + "       d.doctorId, d.Specialization, "
             + "       p.patientId, p.medicalRecordId, p.contactNumber, "
             + "       a.adminId, "
@@ -195,7 +205,8 @@ public class UserRepository {
             + "LEFT JOIN Doctor d ON u.userId = d.userId "
             + "LEFT JOIN Patient p ON u.userId = p.userId "
             + "LEFT JOIN ClinicAdministrator a ON u.userId = a.userId "
-            + "LEFT JOIN Receptionist r ON u.userId = r.userId";
+            + "LEFT JOIN Receptionist r ON u.userId = r.userId "
+            + "WHERE u.deleted = false";
 
     List<User> users = new ArrayList<>();
     try (Connection conn = DatabaseManager.getConnection();
@@ -209,6 +220,8 @@ public class UserRepository {
         String icPassportNo = rs.getString("icPassportNo");
         String email = rs.getString("email");
         String password = rs.getString("password");
+        Timestamp createdAt = rs.getTimestamp("createdAt");
+        boolean deleted = rs.getBoolean("deleted");
 
         if ("doctor".equalsIgnoreCase(userRole)) {
           int doctorId = rs.getInt("doctorId");
@@ -223,7 +236,9 @@ public class UserRepository {
                   icPassportNo,
                   email,
                   password,
-                  specialization));
+                  specialization,
+                  createdAt,
+                  deleted));
         } else if ("patient".equalsIgnoreCase(userRole)) {
           int patientId = rs.getInt("patientId");
           int medicalRecordId = rs.getInt("medicalRecordId");
@@ -239,12 +254,23 @@ public class UserRepository {
                   email,
                   password,
                   medicalRecordId,
-                  contactNumber));
+                  contactNumber,
+                  createdAt,
+                  deleted));
         } else if ("admin".equalsIgnoreCase(userRole)) {
           int adminId = rs.getInt("adminId");
           users.add(
               new ClinicAdministrator(
-                  adminId, userId, firstName, lastName, userRole, icPassportNo, email, password));
+                  adminId,
+                  userId,
+                  firstName,
+                  lastName,
+                  userRole,
+                  icPassportNo,
+                  email,
+                  password,
+                  createdAt,
+                  deleted));
         } else if ("receptionist".equalsIgnoreCase(userRole)) {
           int receptionistId = rs.getInt("receptionistId");
           users.add(
@@ -256,7 +282,9 @@ public class UserRepository {
                   userRole,
                   icPassportNo,
                   email,
-                  password));
+                  password,
+                  createdAt,
+                  deleted));
         }
       }
     }

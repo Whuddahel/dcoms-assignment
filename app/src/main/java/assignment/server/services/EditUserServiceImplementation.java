@@ -61,6 +61,46 @@ public class EditUserServiceImplementation extends UnicastRemoteObject implement
   }
 
   @Override
+  public boolean deleteUser(User user) throws RemoteException {
+    if (user == null) {
+      return false;
+    }
+    try {
+      switch (user.getUserRole().toLowerCase()) {
+        case "doctor":
+          if (user instanceof Doctor) {
+            return DoctorRepository.deleteDoctor(((Doctor) user).getDoctorId());
+          }
+          break;
+        case "patient":
+          if (user instanceof Patient) {
+            return PatientRepository.deletePatient(((Patient) user).getPatientId());
+          }
+          break;
+        case "admin":
+          if (user instanceof ClinicAdministrator) {
+            return ClinicAdministratorRepository.deleteClinicAdministrator(
+                ((ClinicAdministrator) user).getAdminId());
+          }
+          break;
+        case "receptionist":
+          if (user instanceof Receptionist) {
+            return ReceptionistRepository.deleteReceptionist(
+                ((Receptionist) user).getReceptionistId());
+          }
+          break;
+        default:
+          System.err.println("Unknown user role for delete: " + user.getUserRole());
+          return false;
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new RemoteException("Database error occurred while deleting user", e);
+    }
+    return false;
+  }
+
+  @Override
   public List<User> getAllUsers() throws RemoteException {
     try {
       return UserRepository.getAllUsersWithRoles();
