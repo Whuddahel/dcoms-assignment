@@ -16,13 +16,13 @@ public class User implements Serializable {
 
   // Primary Constructor
   public User(
-          int userId,
-          String firstName,
-          String lastName,
-          Role role,
-          String icPassportNo,
-          String email,
-          String passwordHash) {
+      int userId,
+      String firstName,
+      String lastName,
+      Role role,
+      String icPassportNo,
+      String email,
+      String passwordHash) {
     this.userId = userId;
     this.firstName = firstName;
     this.lastName = lastName;
@@ -34,12 +34,12 @@ public class User implements Serializable {
 
   // Overloaded Constructor for creating users before database ID generation
   public User(
-          String firstName,
-          String lastName,
-          Role role,
-          String icPassportNo,
-          String email,
-          String passwordHash) {
+      String firstName,
+      String lastName,
+      Role role,
+      String icPassportNo,
+      String email,
+      String passwordHash) {
     this(0, firstName, lastName, role, icPassportNo, email, passwordHash);
   }
 
@@ -59,8 +59,16 @@ public class User implements Serializable {
     return firstName + " " + lastName;
   }
 
+  public String getFullName() {
+    return firstName + " " + lastName;
+  }
+
   public Role getRole() {
     return role;
+  }
+
+  public String getUserRole() {
+    return role != null ? role.name().toLowerCase() : null;
   }
 
   public String getIcPassportNo() {
@@ -78,7 +86,7 @@ public class User implements Serializable {
   @Override
   public String toString() {
     return String.format(
-            "User [userId=%d, firstName=%s, lastName=%s, role=%s, icPassportNo=%s, email=%s, passwordHash=%s]",
-            userId, firstName, lastName, role, icPassportNo, email, passwordHash);
+        "User [userId=%d, firstName=%s, lastName=%s, role=%s, icPassportNo=%s, email=%s, passwordHash=%s]",
+        userId, firstName, lastName, role, icPassportNo, email, passwordHash);
   }
 }

@@ -18,9 +18,9 @@ public class Register {
 
       // Create service
       AuthService authService = new AuthServiceImplementation();
-      RegisterUserServiceImplementation registerUserService = new RegisterUserServiceImplementation();
+      RegisterUserServiceImplementation registerUserService =
+          new RegisterUserServiceImplementation();
       EditUserServiceImplementation editUserService = new EditUserServiceImplementation();
-
 
       // Bind service
       registry.rebind("AuthService", authService);

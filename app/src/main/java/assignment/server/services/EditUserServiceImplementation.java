@@ -2,7 +2,7 @@ package assignment.server.services;
 
 import assignment.shared.config.Config;
 import assignment.shared.interfaces.EditUserService;
-import assignment.shared.model.Users;
+import assignment.shared.model.User;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -16,7 +16,7 @@ public class EditUserServiceImplementation extends UnicastRemoteObject implement
   }
 
   @Override
-  public boolean editUser(Users user) throws RemoteException {
+  public boolean editUser(User user) throws RemoteException {
     try {
       Registry registry = LocateRegistry.getRegistry(Config.DB_HOST, Config.DB_REGISTRY_PORT);
       EditUserService editUser = (EditUserService) registry.lookup("EditUser");
@@ -28,7 +28,7 @@ public class EditUserServiceImplementation extends UnicastRemoteObject implement
   }
 
   @Override
-  public List<Users> getAllUsers() throws RemoteException {
+  public List<User> getAllUsers() throws RemoteException {
     try {
       Registry registry = LocateRegistry.getRegistry(Config.DB_HOST, Config.DB_REGISTRY_PORT);
       EditUserService editUser = (EditUserService) registry.lookup("EditUser");

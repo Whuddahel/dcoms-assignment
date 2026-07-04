@@ -3,7 +3,7 @@ package assignment.shared.auth;
 import java.util.EnumSet;
 import java.util.Set;
 
-/** Enum of available roles for Users */
+/** Enum of available roles for User */
 public enum Role {
   ADMIN(EnumSet.allOf(Permission.class)),
 

@@ -14,7 +14,7 @@ public class PatientRepository {
 
   public static boolean addPatient(Patient patient) throws SQLException {
     String insertUserSql =
-        "INSERT INTO Users (firstName, lastName, userRole, icPassportNo, email, password) VALUES (?, ?, ?, ?, ?, ?)";
+        "INSERT INTO User (firstName, lastName, userRole, icPassportNo, email, password) VALUES (?, ?, ?, ?, ?, ?)";
     String insertPatSql =
         "INSERT INTO Patient (userId, medicalRecordId, contactNumber) VALUES (?, NEXT VALUE FOR medical_record_seq, ?)";
 
@@ -60,7 +60,7 @@ public class PatientRepository {
     String sql =
         "SELECT p.patientId, p.userId, p.medicalRecordId, p.contactNumber, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
             + "FROM Patient p "
-            + "JOIN Users u ON p.userId = u.userId "
+            + "JOIN User u ON p.userId = u.userId "
             + "WHERE p.patientId = ?";
 
     try (Connection conn = DatabaseManager.getConnection();
@@ -87,7 +87,7 @@ public class PatientRepository {
 
   public static boolean updatePatient(Patient patient) throws SQLException {
     String updateUserSql =
-        "UPDATE Users SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? "
+        "UPDATE User SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? "
             + "WHERE userId = (SELECT userId FROM Patient WHERE patientId = ?)";
     String updatePatSql = "UPDATE Patient SET contactNumber = ? WHERE patientId = ?";
 
@@ -123,7 +123,7 @@ public class PatientRepository {
   public static boolean deletePatient(int patientId) throws SQLException {
     String selectSql = "SELECT userId FROM Patient WHERE patientId = ?";
     String deletePatSql = "DELETE FROM Patient WHERE patientId = ?";
-    String deleteUserSql = "DELETE FROM Users WHERE userId = ?";
+    String deleteUserSql = "DELETE FROM User WHERE userId = ?";
 
     try (Connection conn = DatabaseManager.getConnection()) {
       conn.setAutoCommit(false);
@@ -166,7 +166,7 @@ public class PatientRepository {
     String sql =
         "SELECT p.patientId, p.userId, p.medicalRecordId, p.contactNumber, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
             + "FROM Patient p "
-            + "JOIN Users u ON p.userId = u.userId";
+            + "JOIN User u ON p.userId = u.userId";
 
     List<Patient> list = new ArrayList<>();
     try (Connection conn = DatabaseManager.getConnection();
@@ -211,7 +211,7 @@ public class PatientRepository {
     String sql =
         "SELECT p.patientId, p.userId, p.medicalRecordId, p.contactNumber, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
             + "FROM Patient p "
-            + "JOIN Users u ON p.userId = u.userId";
+            + "JOIN User u ON p.userId = u.userId";
 
     List<Patient> list = new ArrayList<>();
     try (Connection conn = DatabaseManager.getConnection();

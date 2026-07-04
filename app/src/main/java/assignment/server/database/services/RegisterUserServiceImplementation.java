@@ -9,7 +9,7 @@ import assignment.shared.model.ClinicAdministrator;
 import assignment.shared.model.Doctor;
 import assignment.shared.model.Patient;
 import assignment.shared.model.Receptionist;
-import assignment.shared.model.Users;
+import assignment.shared.model.User;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.SQLException;
@@ -22,7 +22,7 @@ public class RegisterUserServiceImplementation extends UnicastRemoteObject
   }
 
   @Override
-  public boolean registerUser(Users user) throws RemoteException {
+  public boolean registerUser(User user) throws RemoteException {
     if (user == null) {
       return false;
     }

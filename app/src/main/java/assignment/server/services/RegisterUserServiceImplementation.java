@@ -2,7 +2,7 @@ package assignment.server.services;
 
 import assignment.shared.config.Config;
 import assignment.shared.interfaces.RegisterUserService;
-import assignment.shared.model.Users;
+import assignment.shared.model.User;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -17,7 +17,7 @@ public class RegisterUserServiceImplementation extends UnicastRemoteObject
   }
 
   @Override
-  public boolean registerUser(Users user) throws RemoteException {
+  public boolean registerUser(User user) throws RemoteException {
     try {
       Registry registry = LocateRegistry.getRegistry(Config.DB_HOST, Config.DB_REGISTRY_PORT);
       RegisterUserService registerUser = (RegisterUserService) registry.lookup("RegisterUser");

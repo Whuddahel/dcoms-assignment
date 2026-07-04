@@ -4,15 +4,15 @@ import assignment.shared.config.Config;
 import assignment.shared.dto.LoginResponse;
 import assignment.shared.interfaces.EditUserService;
 import assignment.shared.interfaces.RegisterUserService;
-import assignment.shared.model.Users;
+import assignment.shared.model.User;
 import assignment.shared.services.AuthService;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.List;
 
 /**
- * ServiceManager acts as the central client coordinator. It connects to the RMI server registry once
- * and pre-loads all shared services, delegating service calls to avoid initializing registries
+ * ServiceManager acts as the central client coordinator. It connects to the RMI server registry
+ * once and pre-loads all shared services, delegating service calls to avoid initializing registries
  * repeatedly.
  */
 public class ServiceManager {
@@ -37,18 +37,18 @@ public class ServiceManager {
   // ==========================================
   // RegisterUserService Delegation
   // ==========================================
-  public boolean registerUser(Users user) throws Exception {
+  public boolean registerUser(User user) throws Exception {
     return registerUserService.registerUser(user);
   }
 
   // ==========================================
   // EditUserService Delegation
   // ==========================================
-  public boolean editUser(Users user) throws Exception {
+  public boolean editUser(User user) throws Exception {
     return editUserService.editUser(user);
   }
 
-  public List<Users> getAllUsers() throws Exception {
+  public List<User> getAllUsers() throws Exception {
     return editUserService.getAllUsers();
   }
 }

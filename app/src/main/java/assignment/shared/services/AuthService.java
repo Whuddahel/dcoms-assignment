@@ -1,8 +1,6 @@
 package assignment.shared.services;
 
-import assignment.server.auth.Session;
 import assignment.shared.dto.LoginResponse;
-
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
