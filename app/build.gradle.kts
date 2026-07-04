@@ -64,13 +64,6 @@ tasks.register<JavaExec>("stopDerbyServer") {
     args("shutdown", "-h", "localhost", "-p", "1527")
 }
 
-// Command: .\gradlew.bat :app:runDatabase
-tasks.register<JavaExec>("runDatabase") {
-    group = "application"
-    description = "Runs the Database Server."
-    classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("assignment.server.database.Database")
-}
 
 // Command: .\gradlew.bat :app:runServer
 tasks.register<JavaExec>("runServer") {
