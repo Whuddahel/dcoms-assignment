@@ -3,6 +3,7 @@ package assignment.client.ui.menus;
 import assignment.client.services.ServiceManager;
 import assignment.client.ui.InputHandler;
 import assignment.client.ui.screens.EditUserScreen;
+import assignment.client.ui.screens.ManageScheduleScreen;
 import assignment.client.ui.screens.RegisterUserScreen;
 import assignment.shared.dto.LoginResponse;
 
@@ -38,6 +39,7 @@ public class DoctorMenu
             }
             else if (choice == 4)
             {
+                ManageScheduleScreen.display(client, session);
                 System.out.println("I havent do");
             }
             else if (choice == 5)
