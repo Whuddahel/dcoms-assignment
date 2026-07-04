@@ -1,6 +1,6 @@
 package assignment.client.ui.screens;
 
-import assignment.client.ClinicClient;
+import assignment.client.services.ServiceManager;
 import assignment.client.ui.InputHandler;
 import assignment.shared.model.ClinicAdministrator;
 import assignment.shared.model.Doctor;
@@ -11,7 +11,7 @@ import org.mindrot.jbcrypt.BCrypt;
 /** RegisterUserScreen displays and handles the workflow for registering new users. */
 public class RegisterUserScreen {
 
-  public static void display(ClinicClient client) {
+  public static void display(ServiceManager client) {
     System.out.println("\nSelect user role to register:");
     System.out.println("1. Doctor");
     System.out.println("2. Patient");

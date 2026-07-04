@@ -1,6 +1,6 @@
 package assignment.client.ui.screens;
 
-import assignment.client.ClinicClient;
+import assignment.client.services.ServiceManager;
 import assignment.client.ui.InputHandler;
 import assignment.shared.model.ClinicAdministrator;
 import assignment.shared.model.Doctor;
@@ -13,7 +13,7 @@ import java.util.List;
 /** EditUserScreen handles the workflow for viewing, searching, and editing existing users. */
 public class EditUserScreen {
 
-  public static void display(ClinicClient client) {
+  public static void display(ServiceManager client) {
     try {
       List<Users> users = client.getAllUsers();
       if (users == null || users.isEmpty()) {
@@ -182,7 +182,7 @@ public class EditUserScreen {
     System.out.println("=================================================");
   }
 
-  private static void editUserFields(ClinicClient client, Users user, List<Users> allUsers) {
+  private static void editUserFields(ServiceManager client, Users user, List<Users> allUsers) {
     while (true) {
       displayProfile(user);
 
@@ -292,7 +292,7 @@ public class EditUserScreen {
   }
 
   private static Users handleNameEdit(
-      ClinicClient client, List<Users> allUsers, Users currentUser, int choice) {
+          ServiceManager client, List<Users> allUsers, Users currentUser, int choice) {
     String fieldName = choice == 1 ? "First Name" : "Last Name";
     String val = InputHandler.readLine("Enter new " + fieldName + ": ", true);
     if (val.isEmpty()) {
@@ -362,7 +362,7 @@ public class EditUserScreen {
   }
 
   private static Users executeEdit(
-      ClinicClient client, Users updatedUser, List<Users> allUsers, Users currentUser) {
+          ServiceManager client, Users updatedUser, List<Users> allUsers, Users currentUser) {
     try {
       boolean success = client.editUser(updatedUser);
       if (success) {

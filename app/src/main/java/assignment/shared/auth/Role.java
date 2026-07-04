@@ -22,4 +22,8 @@ public enum Role {
   public boolean hasPermission(Permission permission) {
     return permissions.contains(permission);
   }
+
+  public static Role databaseToEnum(String roleStr) {
+    return Role.valueOf(roleStr.toUpperCase());
+  }
 }
