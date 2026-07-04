@@ -14,7 +14,7 @@ public class DoctorRepository {
 
   public static boolean addDoctor(Doctor doctor) throws SQLException {
     String insertUserSql =
-        "INSERT INTO User (firstName, lastName, userRole, icPassportNo, email, password) VALUES (?, ?, ?, ?, ?, ?)";
+        "INSERT INTO Users (firstName, lastName, userRole, icPassportNo, email, password) VALUES (?, ?, ?, ?, ?, ?)";
     String insertDocSql = "INSERT INTO Doctor (userId, Specialization) VALUES (?, ?)";
 
     try (Connection conn = DatabaseManager.getConnection()) {
@@ -59,7 +59,7 @@ public class DoctorRepository {
     String sql =
         "SELECT d.doctorId, d.userId, d.Specialization, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
             + "FROM Doctor d "
-            + "JOIN User u ON d.userId = u.userId "
+            + "JOIN Users u ON d.userId = u.userId "
             + "WHERE d.doctorId = ?";
 
     try (Connection conn = DatabaseManager.getConnection();
@@ -85,7 +85,7 @@ public class DoctorRepository {
 
   public static boolean updateDoctor(Doctor doctor) throws SQLException {
     String updateUserSql =
-        "UPDATE User SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? "
+        "UPDATE Users SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? "
             + "WHERE userId = (SELECT userId FROM Doctor WHERE doctorId = ?)";
     String updateDocSql = "UPDATE Doctor SET Specialization = ? WHERE doctorId = ?";
 
@@ -121,7 +121,7 @@ public class DoctorRepository {
   public static boolean deleteDoctor(int doctorId) throws SQLException {
     String selectSql = "SELECT userId FROM Doctor WHERE doctorId = ?";
     String deleteDocSql = "DELETE FROM Doctor WHERE doctorId = ?";
-    String deleteUserSql = "DELETE FROM User WHERE userId = ?";
+    String deleteUserSql = "DELETE FROM Users WHERE userId = ?";
 
     try (Connection conn = DatabaseManager.getConnection()) {
       conn.setAutoCommit(false);
@@ -164,7 +164,7 @@ public class DoctorRepository {
     String sql =
         "SELECT d.doctorId, d.userId, d.Specialization, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
             + "FROM Doctor d "
-            + "JOIN User u ON d.userId = u.userId";
+            + "JOIN Users u ON d.userId = u.userId";
 
     List<Doctor> list = new ArrayList<>();
     try (Connection conn = DatabaseManager.getConnection();
@@ -208,7 +208,7 @@ public class DoctorRepository {
     String sql =
         "SELECT d.doctorId, d.userId, d.Specialization, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
             + "FROM Doctor d "
-            + "JOIN User u ON d.userId = u.userId";
+            + "JOIN Users u ON d.userId = u.userId";
 
     List<Doctor> list = new ArrayList<>();
     try (Connection conn = DatabaseManager.getConnection();

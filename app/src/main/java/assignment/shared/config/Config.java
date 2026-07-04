@@ -15,7 +15,6 @@ public final class Config {
   public static final String SERVER_HOST = "localhost";
   public static final String DB_HOST = "localhost";
   public static final int SERVER_REGISTRY_PORT = 1099;
-  public static final int DB_REGISTRY_PORT = 1040;
 
   // ==========================================
   // Database Connection Constants

@@ -1,5 +1,5 @@
--- User
-CREATE TABLE User (
+-- Users
+CREATE TABLE Users (
     userId       INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     firstName    VARCHAR(100) NOT NULL,
     lastName     VARCHAR(100) NOT NULL,
@@ -9,15 +9,15 @@ CREATE TABLE User (
     password     VARCHAR(255) NOT NULL
 );
 
-CREATE INDEX idx_user_email    ON User(email);
-CREATE INDEX idx_user_userRole ON User(userRole);
+CREATE INDEX idx_user_email    ON Users(email);
+CREATE INDEX idx_user_userRole ON Users(userRole);
 
 
 -- ClinicAdministrator
 CREATE TABLE ClinicAdministrator (
     adminId INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     userId  INT NOT NULL UNIQUE,
-    FOREIGN KEY (userId) REFERENCES User(userId)
+    FOREIGN KEY (userId) REFERENCES Users(userId)
 );
 
 CREATE INDEX idx_clinicadmin_userId ON ClinicAdministrator(userId);
@@ -27,7 +27,7 @@ CREATE INDEX idx_clinicadmin_userId ON ClinicAdministrator(userId);
 CREATE TABLE Receptionist (
     receptionistId INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     userId         INT NOT NULL UNIQUE,
-    FOREIGN KEY (userId) REFERENCES User(userId)
+    FOREIGN KEY (userId) REFERENCES Users(userId)
 );
 
 CREATE INDEX idx_receptionist_userId ON Receptionist(userId);
@@ -38,7 +38,7 @@ CREATE TABLE Doctor (
     doctorId       INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     userId         INT NOT NULL UNIQUE,
     Specialization VARCHAR(100) NOT NULL,
-    FOREIGN KEY (userId) REFERENCES User(userId)
+    FOREIGN KEY (userId) REFERENCES Users(userId)
 );
 
 CREATE INDEX idx_doctor_userId         ON Doctor(userId);
@@ -53,7 +53,7 @@ CREATE TABLE Patient (
     userId          INT NOT NULL UNIQUE,
     medicalRecordId INT NOT NULL UNIQUE,
     contactNumber   VARCHAR(20)  NOT NULL,
-    FOREIGN KEY (userId) REFERENCES User(userId)
+    FOREIGN KEY (userId) REFERENCES Users(userId)
 );
 
 CREATE INDEX idx_patient_userId          ON Patient(userId);

@@ -14,7 +14,7 @@ public class ClinicAdministratorRepository {
 
   public static boolean addClinicAdministrator(ClinicAdministrator admin) throws SQLException {
     String insertUserSql =
-        "INSERT INTO User (firstName, lastName, userRole, icPassportNo, email, password) VALUES (?, ?, ?, ?, ?, ?)";
+        "INSERT INTO Users (firstName, lastName, userRole, icPassportNo, email, password) VALUES (?, ?, ?, ?, ?, ?)";
     String insertAdminSql = "INSERT INTO ClinicAdministrator (userId) VALUES (?)";
 
     try (Connection conn = DatabaseManager.getConnection()) {
@@ -58,7 +58,7 @@ public class ClinicAdministratorRepository {
     String sql =
         "SELECT a.adminId, a.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
             + "FROM ClinicAdministrator a "
-            + "JOIN User u ON a.userId = u.userId "
+            + "JOIN Users u ON a.userId = u.userId "
             + "WHERE a.adminId = ?";
 
     try (Connection conn = DatabaseManager.getConnection();
@@ -83,7 +83,7 @@ public class ClinicAdministratorRepository {
 
   public static boolean updateClinicAdministrator(ClinicAdministrator admin) throws SQLException {
     String sql =
-        "UPDATE User SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? "
+        "UPDATE Users SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? "
             + "WHERE userId = (SELECT userId FROM ClinicAdministrator WHERE adminId = ?)";
 
     try (Connection conn = DatabaseManager.getConnection();
@@ -103,7 +103,7 @@ public class ClinicAdministratorRepository {
   public static boolean deleteClinicAdministrator(int adminId) throws SQLException {
     String selectSql = "SELECT userId FROM ClinicAdministrator WHERE adminId = ?";
     String deleteAdminSql = "DELETE FROM ClinicAdministrator WHERE adminId = ?";
-    String deleteUserSql = "DELETE FROM User WHERE userId = ?";
+    String deleteUserSql = "DELETE FROM Users WHERE userId = ?";
 
     try (Connection conn = DatabaseManager.getConnection()) {
       conn.setAutoCommit(false);
@@ -146,7 +146,7 @@ public class ClinicAdministratorRepository {
     String sql =
         "SELECT a.adminId, a.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
             + "FROM ClinicAdministrator a "
-            + "JOIN User u ON a.userId = u.userId";
+            + "JOIN Users u ON a.userId = u.userId";
 
     List<ClinicAdministrator> list = new ArrayList<>();
     try (Connection conn = DatabaseManager.getConnection();
@@ -183,7 +183,7 @@ public class ClinicAdministratorRepository {
     String sql =
         "SELECT a.adminId, a.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
             + "FROM ClinicAdministrator a "
-            + "JOIN User u ON a.userId = u.userId";
+            + "JOIN Users u ON a.userId = u.userId";
 
     List<ClinicAdministrator> list = new ArrayList<>();
     try (Connection conn = DatabaseManager.getConnection();
