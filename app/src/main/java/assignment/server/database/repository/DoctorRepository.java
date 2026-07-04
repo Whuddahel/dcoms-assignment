@@ -83,6 +83,22 @@ public class DoctorRepository {
     return null;
   }
 
+  // Because userID is used for session, we need to infer doctorID from userID
+  public static int getDoctorIdByUserId(int userId) throws SQLException {
+    String sql = "SELECT doctorId FROM Doctor WHERE userId = ?";
+
+    try (Connection conn = DatabaseManager.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setInt(1, userId);
+      try (ResultSet rs = ps.executeQuery()) {
+        if (rs.next()) {
+          return rs.getInt("doctorId");
+        }
+      }
+    }
+    return -1;
+  }
+
   public static boolean updateDoctor(Doctor doctor) throws SQLException {
     String updateUserSql =
         "UPDATE Users SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? "

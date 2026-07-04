@@ -41,18 +41,15 @@ public class ServiceManager {
   // ==========================================
   // ManageScheduleService Delegation
   // ==========================================
-  public boolean addSchedule(Schedule schedule) throws Exception
-  {
+  public boolean addSchedule(Schedule schedule) throws Exception {
     return manageScheduleService.addSchedule(schedule);
   }
 
-  public List<Schedule> getSchedulesByDoctor(int userId) throws Exception
-  {
+  public List<Schedule> getSchedulesByDoctor(int userId) throws Exception {
     return manageScheduleService.getSchedulesByDoctor(userId);
   }
 
-  public boolean deleteSchedule(int scheduleId) throws Exception
-  {
+  public boolean deleteSchedule(int scheduleId) throws Exception {
     return manageScheduleService.deleteSchedule(scheduleId);
   }
 
