@@ -34,10 +34,9 @@ public class Helper {
 
   public static void printBanner(String content, Theme color) {
     String colorCode = getColorCode(color);
-    int totalLength = 37;
-    int contentLen = content.length();
-    int leftPadding = (totalLength - contentLen) / 2;
-    if (leftPadding < 0) leftPadding = 0;
+    int requiredLength = content.length() + 8; // At least 4 spaces on each side
+    int totalLength = Math.max(37, requiredLength);
+    int leftPadding = (totalLength - content.length()) / 2;
 
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < leftPadding; i++) {
@@ -48,7 +47,12 @@ public class Helper {
       sb.append(" ");
     }
 
-    String equalsLine = "=====================================";
+    StringBuilder equalsBuilder = new StringBuilder();
+    for (int i = 0; i < totalLength; i++) {
+      equalsBuilder.append("=");
+    }
+    String equalsLine = equalsBuilder.toString();
+
     System.out.println(colorCode + equalsLine + ANSI_RESET);
     System.out.println(colorCode + sb.toString() + ANSI_RESET);
     System.out.println(colorCode + equalsLine + ANSI_RESET);

@@ -1,6 +1,7 @@
 package assignment.client.ui.screens;
 
 import assignment.client.services.ServiceManager;
+import assignment.client.ui.Helper;
 import assignment.client.ui.InputHandler;
 import assignment.shared.dto.DoctorConsultationReport;
 import assignment.shared.dto.MonthlyAppointmentReport;
@@ -14,15 +15,9 @@ import java.util.Locale;
 
 public class ReportScreen {
 
-  // ANSI Escape Codes for text styling
-  private static final String ANSI_RESET = "\u001B[0m";
-  private static final String ANSI_GREEN = "\u001B[32m";
-  private static final String ANSI_YELLOW = "\u001B[33m";
-  private static final String ANSI_CYAN = "\u001B[36m";
-  private static final String ANSI_BOLD = "\u001B[1m";
-
   public static void displayMonthlyAppointmentReport(ServiceManager client) {
-    System.out.println("\n=== Generate Monthly Appointment Report ===");
+    System.out.print("\n");
+    Helper.printBanner("Generate Monthly Appointment Report", Helper.Theme.BLUE);
     int[] date = promptForYearAndMonth();
     if (date == null) return;
     int year = date[0];
@@ -32,28 +27,23 @@ public class ReportScreen {
       MonthlyAppointmentReport report = client.getMonthlyAppointmentReport(year, month);
       String monthName = Month.of(month).getDisplayName(TextStyle.FULL, Locale.ENGLISH);
 
-      System.out.println(
-          "\n" + ANSI_CYAN + "=============================================" + ANSI_RESET);
-      System.out.printf(
-          ANSI_BOLD + "APPOINTMENT REPORT FOR %s %d\n" + ANSI_RESET, monthName.toUpperCase(), year);
-      System.out.println(ANSI_CYAN + "=============================================" + ANSI_RESET);
+      System.out.print("\n");
+      Helper.printBanner(
+          "APPOINTMENT REPORT FOR " + monthName.toUpperCase() + " " + year, Helper.Theme.BLUE);
       System.out.printf("Total Appointments Made:     %d\n", report.getTotalMade());
       System.out.printf("Total Successful:            %d\n", report.getTotalSuccessful());
       System.out.printf("Total Cancelled:             %d\n", report.getTotalCancelled());
       System.out.printf("  - Cancelled by Doctor:     %d\n", report.getCancelledByDoctor());
       System.out.printf("  - Cancelled by Patient:    %d\n", report.getCancelledByPatient());
-      System.out.println(ANSI_CYAN + "---------------------------------------------" + ANSI_RESET);
+      Helper.printLine("---------------------------------------------", Helper.Theme.BLUE);
 
-      System.out.println(
-          "\n" + ANSI_YELLOW + "Top 10 Doctors by Successful Appointments:" + ANSI_RESET);
+      System.out.print("\n");
+      Helper.printLine("Top 10 Doctors by Successful Appointments:", Helper.Theme.YELLOW);
       if (report.getTopDoctors().isEmpty()) {
         System.out.println("(No successful appointments found for this month)");
       } else {
         String[] headers = {
-          "No.",
-          "Doctor Name (ID: {user_id})",
-          "Successful Appointment",
-          "Appointment Cancelled (by Doctor/Client)"
+          "No.", "Doctor Name", "Successful Appointment", "Appointment Cancelled (by Doctor/Client)"
         };
 
         List<String[]> rows = new ArrayList<>();
@@ -78,7 +68,8 @@ public class ReportScreen {
   }
 
   public static void displayDoctorConsultationReport(ServiceManager client) {
-    System.out.println("\n=== Generate Doctor Consultation Report ===");
+    System.out.print("\n");
+    Helper.printBanner("Generate Doctor Consultation Report", Helper.Theme.BLUE);
     int[] date = promptForYearAndMonth();
     if (date == null) return;
     int year = date[0];
@@ -88,16 +79,13 @@ public class ReportScreen {
       DoctorConsultationReport report = client.getDoctorConsultationReport(year, month);
       String monthName = Month.of(month).getDisplayName(TextStyle.FULL, Locale.ENGLISH);
 
-      System.out.println(
-          "\n" + ANSI_CYAN + "=============================================" + ANSI_RESET);
-      System.out.printf(
-          ANSI_BOLD + "DOCTOR CONSULTATION REPORT FOR %s %d\n" + ANSI_RESET,
-          monthName.toUpperCase(),
-          year);
-      System.out.println(ANSI_CYAN + "=============================================" + ANSI_RESET);
+      System.out.print("\n");
+      Helper.printBanner(
+          "DOCTOR CONSULTATION REPORT FOR " + monthName.toUpperCase() + " " + year,
+          Helper.Theme.BLUE);
       System.out.printf("Total Consultations Made:    %d\n", report.getTotalConsultations());
       System.out.printf("Total Earnings:              RM %.2f\n", report.getTotalEarning());
-      System.out.println(ANSI_CYAN + "---------------------------------------------" + ANSI_RESET);
+      Helper.printLine("---------------------------------------------", Helper.Theme.BLUE);
 
       List<DoctorConsultationReport.DoctorConsultationItem> items = report.getDoctorConsultations();
       if (items.isEmpty()) {
@@ -112,14 +100,13 @@ public class ReportScreen {
       int totalPages = (int) Math.ceil((double) totalItems / pageSize);
 
       while (true) {
-        System.out.println("\n" + ANSI_YELLOW + "Doctor Consultation List:" + ANSI_RESET);
+        System.out.print("\n");
+        Helper.printLine("Doctor Consultation List:", Helper.Theme.YELLOW);
         if (totalPages > 1) {
           System.out.printf("Page %d of %d\n", currentPage + 1, totalPages);
         }
 
-        String[] headers = {
-          "No.", "Doctor Name (ID: {user_id})", "Total Consultation Made", "Total Earning"
-        };
+        String[] headers = {"No.", "Doctor Name", "Total Consultation Made", "Total Earning"};
 
         List<String[]> rows = new ArrayList<>();
         int startIdx = currentPage * pageSize;
@@ -165,7 +152,8 @@ public class ReportScreen {
   }
 
   public static void displayPatientVisitSummary(ServiceManager client) {
-    System.out.println("\n=== Generate Patient Visit Summary ===");
+    System.out.print("\n");
+    Helper.printBanner("Generate Patient Visit Summary", Helper.Theme.BLUE);
     int[] date = promptForYearAndMonth();
     if (date == null) return;
     int year = date[0];
@@ -175,29 +163,29 @@ public class ReportScreen {
       PatientVisitSummaryReport report = client.getPatientVisitSummaryReport(year, month);
       String monthName = Month.of(month).getDisplayName(TextStyle.FULL, Locale.ENGLISH);
 
-      System.out.println(
-          "\n" + ANSI_CYAN + "=============================================" + ANSI_RESET);
-      System.out.printf(
-          ANSI_BOLD + "PATIENT VISIT SUMMARY FOR %s %d\n" + ANSI_RESET,
-          monthName.toUpperCase(),
-          year);
-      System.out.println(ANSI_CYAN + "=============================================" + ANSI_RESET);
+      System.out.print("\n");
+      Helper.printBanner(
+          "PATIENT VISIT SUMMARY FOR " + monthName.toUpperCase() + " " + year, Helper.Theme.BLUE);
       System.out.printf("New Patients Registered:     %d\n", report.getNewPatientsCount());
-      System.out.println(ANSI_CYAN + "---------------------------------------------" + ANSI_RESET);
+      Helper.printLine("---------------------------------------------", Helper.Theme.BLUE);
 
-      System.out.println(
-          "\n" + ANSI_YELLOW + "Patient Visit List (Consultations Made):" + ANSI_RESET);
+      System.out.print("\n");
+      Helper.printLine("Patient Visit List (Consultations Made):", Helper.Theme.YELLOW);
       if (report.getPatientVisits().isEmpty()) {
         System.out.println("(No patients had consultations this month)");
       } else {
-        String[] headers = {"No.", "Patient Name - (ID: {user_id})", "Consultations Made"};
+        String[] headers = {"No.", "Patient Name", "Consultations Made"};
         List<String[]> rows = new ArrayList<>();
         int index = 1;
         for (PatientVisitSummaryReport.PatientVisitItem item : report.getPatientVisits()) {
           String nameDisplay =
               String.format("%s - (ID: %d)", item.getPatientName(), item.getUserId());
           if (item.isRegisteredThisMonth()) {
-            nameDisplay = ANSI_GREEN + nameDisplay + " (New)" + ANSI_RESET;
+            nameDisplay =
+                Helper.getColorCode(Helper.Theme.GREEN)
+                    + nameDisplay
+                    + " (New)"
+                    + Helper.getColorCode(Helper.Theme.RESET);
           }
           rows.add(
               new String[] {
@@ -302,21 +290,34 @@ public class ReportScreen {
       }
     }
 
+    // Build separator
+    StringBuilder separator = new StringBuilder();
+    for (int i = 0; i < cols; i++) {
+      separator.append(repeat("-", colWidths[i]));
+      if (i < cols - 1) {
+        separator.append("-+-");
+      }
+    }
+    String sepStr = separator.toString();
+
+    // Print top separator
+    System.out.println(sepStr);
+
     // Print headers
     StringBuilder headerLine = new StringBuilder();
     for (int i = 0; i < cols; i++) {
       headerLine.append(padRight(headers[i], colWidths[i]));
-      if (i < cols - 1) headerLine.append(" | ");
+      if (i < cols - 1) {
+        headerLine.append(" | ");
+      }
     }
-    System.out.println(ANSI_BOLD + headerLine.toString() + ANSI_RESET);
+    System.out.println(
+        Helper.getColorCode(Helper.Theme.YELLOW)
+            + headerLine.toString()
+            + Helper.getColorCode(Helper.Theme.RESET));
 
-    // Print separator
-    StringBuilder separator = new StringBuilder();
-    for (int i = 0; i < cols; i++) {
-      separator.append(repeat("-", colWidths[i]));
-      if (i < cols - 1) separator.append("-+-");
-    }
-    System.out.println(separator.toString());
+    // Print bottom separator
+    System.out.println(sepStr);
 
     // Print rows
     for (String[] row : rows) {
