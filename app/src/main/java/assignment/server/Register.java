@@ -2,6 +2,7 @@ package assignment.server;
 
 import assignment.server.services.AuthServiceImplementation;
 import assignment.server.services.EditUserServiceImplementation;
+import assignment.server.services.ManageScheduleServiceImplementation;
 import assignment.server.services.RegisterUserServiceImplementation;
 import assignment.shared.config.Config;
 import assignment.shared.services.AuthService;
@@ -21,11 +22,14 @@ public class Register {
       RegisterUserServiceImplementation registerUserService =
           new RegisterUserServiceImplementation();
       EditUserServiceImplementation editUserService = new EditUserServiceImplementation();
+      ManageScheduleServiceImplementation manageScheduleService =
+          new ManageScheduleServiceImplementation();
 
       // Bind service
       registry.rebind("AuthService", authService);
       registry.rebind("RegisterUserService", registerUserService);
       registry.rebind("EditUserService", editUserService);
+      registry.rebind("ManageScheduleService", manageScheduleService);
 
       System.out.println("AuthService bound successfully");
 
