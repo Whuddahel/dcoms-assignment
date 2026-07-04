@@ -1,6 +1,8 @@
 package assignment.shared.model;
 
-public class Patient extends Users {
+import assignment.shared.auth.Role;
+
+public class Patient extends User {
   private final int patientId;
   private final int medicalRecordId;
   private final String contactNumber;
@@ -16,7 +18,8 @@ public class Patient extends Users {
       String password,
       int medicalRecordId,
       String contactNumber) {
-    super(userId, firstName, lastName, userRole, icPassportNo, email, password);
+    super(
+        userId, firstName, lastName, Role.databaseToEnum(userRole), icPassportNo, email, password);
     this.patientId = patientId;
     this.medicalRecordId = medicalRecordId;
     this.contactNumber = contactNumber;
@@ -31,7 +34,7 @@ public class Patient extends Users {
       String password,
       int medicalRecordId,
       String contactNumber) {
-    super(0, firstName, lastName, userRole, icPassportNo, email, password);
+    super(0, firstName, lastName, Role.databaseToEnum(userRole), icPassportNo, email, password);
     this.patientId = 0;
     this.medicalRecordId = medicalRecordId;
     this.contactNumber = contactNumber;

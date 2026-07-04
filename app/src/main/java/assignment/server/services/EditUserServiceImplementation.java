@@ -1,13 +1,19 @@
 package assignment.server.services;
 
-import assignment.shared.config.Config;
+import assignment.server.database.repository.ClinicAdministratorRepository;
+import assignment.server.database.repository.DoctorRepository;
+import assignment.server.database.repository.PatientRepository;
+import assignment.server.database.repository.ReceptionistRepository;
+import assignment.server.database.repository.UserRepository;
 import assignment.shared.interfaces.EditUserService;
-import assignment.shared.model.Users;
-import java.rmi.NotBoundException;
+import assignment.shared.model.ClinicAdministrator;
+import assignment.shared.model.Doctor;
+import assignment.shared.model.Patient;
+import assignment.shared.model.Receptionist;
+import assignment.shared.model.User;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.sql.SQLException;
 import java.util.List;
 
 public class EditUserServiceImplementation extends UnicastRemoteObject implements EditUserService {
@@ -16,26 +22,51 @@ public class EditUserServiceImplementation extends UnicastRemoteObject implement
   }
 
   @Override
-  public boolean editUser(Users user) throws RemoteException {
-    try {
-      Registry registry = LocateRegistry.getRegistry(Config.DB_HOST, Config.DB_REGISTRY_PORT);
-      EditUserService editUser = (EditUserService) registry.lookup("EditUser");
-      return editUser.editUser(user);
-    } catch (NotBoundException e) {
-      e.printStackTrace();
+  public boolean editUser(User user) throws RemoteException {
+    if (user == null) {
       return false;
     }
+    try {
+      switch (user.getUserRole().toLowerCase()) {
+        case "doctor":
+          if (user instanceof Doctor) {
+            return DoctorRepository.updateDoctor((Doctor) user);
+          }
+          break;
+        case "patient":
+          if (user instanceof Patient) {
+            return PatientRepository.updatePatient((Patient) user);
+          }
+          break;
+        case "admin":
+          if (user instanceof ClinicAdministrator) {
+            return ClinicAdministratorRepository.updateClinicAdministrator(
+                (ClinicAdministrator) user);
+          }
+          break;
+        case "receptionist":
+          if (user instanceof Receptionist) {
+            return ReceptionistRepository.updateReceptionist((Receptionist) user);
+          }
+          break;
+        default:
+          System.err.println("Unknown user role for edit: " + user.getUserRole());
+          return false;
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new RemoteException("Database error occurred while editing user", e);
+    }
+    return false;
   }
 
   @Override
-  public List<Users> getAllUsers() throws RemoteException {
+  public List<User> getAllUsers() throws RemoteException {
     try {
-      Registry registry = LocateRegistry.getRegistry(Config.DB_HOST, Config.DB_REGISTRY_PORT);
-      EditUserService editUser = (EditUserService) registry.lookup("EditUser");
-      return editUser.getAllUsers();
-    } catch (NotBoundException e) {
+      return UserRepository.getAllUsersWithRoles();
+    } catch (SQLException e) {
       e.printStackTrace();
-      throw new RemoteException("Database server connection failed", e);
+      throw new RemoteException("Database error in getAllUsers", e);
     }
   }
 }

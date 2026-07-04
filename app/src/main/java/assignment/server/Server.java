@@ -1,7 +1,7 @@
 package assignment.server;
 
 import assignment.server.database.DatabaseInitializer;
-import assignment.server.database.UserRepository;
+import assignment.server.database.repository.UserRepository;
 
 public class Server {
   public static void main(String[] args) {

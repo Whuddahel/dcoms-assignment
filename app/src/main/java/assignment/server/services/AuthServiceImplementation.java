@@ -1,8 +1,7 @@
 package assignment.server.services;
 
-import assignment.server.auth.Session;
 import assignment.server.auth.SessionManager;
-import assignment.server.database.UserRepository;
+import assignment.server.database.repository.UserRepository;
 import assignment.shared.dto.LoginResponse;
 import assignment.shared.error.AuthError;
 import assignment.shared.model.User;
@@ -38,7 +37,14 @@ public class AuthServiceImplementation extends UnicastRemoteObject implements Au
 
       // TODO: Remove debug statement
       SessionManager.printSessions();
-      return new LoginResponse(token, user.getEmail(), user.getFirstName(), user.getLastName(), user.getUserId(), user.getRole(), user.getIcPassportNo());
+      return new LoginResponse(
+          token,
+          user.getEmail(),
+          user.getFirstName(),
+          user.getLastName(),
+          user.getUserId(),
+          user.getRole(),
+          user.getIcPassportNo());
     } catch (SQLException e) {
       throw new RemoteException(AuthError.DB_ERROR.name(), e);
     }

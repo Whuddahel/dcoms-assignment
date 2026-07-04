@@ -1,12 +1,12 @@
 package assignment.shared.interfaces;
 
-import assignment.shared.model.Users;
+import assignment.shared.model.User;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
 
 public interface EditUserService extends Remote {
-  public boolean editUser(Users user) throws RemoteException;
+  public boolean editUser(User user) throws RemoteException;
 
-  public List<Users> getAllUsers() throws RemoteException;
+  public List<User> getAllUsers() throws RemoteException;
 }
