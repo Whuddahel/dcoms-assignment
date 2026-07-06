@@ -27,11 +27,16 @@ public class Register {
 
       // Bind service
       registry.rebind("AuthService", authService);
-      registry.rebind("RegisterUserService", registerUserService);
-      registry.rebind("EditUserService", editUserService);
-      registry.rebind("ManageScheduleService", manageScheduleService);
-
       System.out.println("AuthService bound successfully");
+
+      registry.rebind("RegisterUserService", registerUserService);
+      System.out.println("RegisterUserService bound successfully");
+
+      registry.rebind("EditUserService", editUserService);
+      System.out.println("EditUserService bound successfully");
+
+      registry.rebind("ManageScheduleService", manageScheduleService);
+      System.out.println("ManageScheduleService bound successfully");
 
     } catch (Exception e) {
       System.err.println("Failed to start RMI Registry");
