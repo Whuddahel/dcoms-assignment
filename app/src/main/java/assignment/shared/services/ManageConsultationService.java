@@ -5,11 +5,10 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
 
-public interface ManageConsultationService extends Remote
-{
-    boolean addConsultation(Consultation consultation) throws RemoteException;
+public interface ManageConsultationService extends Remote {
+  boolean addConsultation(Consultation consultation) throws RemoteException;
 
-    List<Consultation> getAllConsultations() throws RemoteException;
+  List<Consultation> getAllConsultations() throws RemoteException;
 
-    boolean updateConsultation(Consultation consultation) throws RemoteException;
+  boolean updateConsultation(Consultation consultation) throws RemoteException;
 }

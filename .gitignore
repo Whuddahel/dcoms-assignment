@@ -26,3 +26,6 @@ derby.log
 appdb/
 lib/
 bin/
+
+# Environment Variables
+.env

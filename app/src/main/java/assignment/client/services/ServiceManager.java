@@ -1,6 +1,5 @@
 package assignment.client.services;
 
-import assignment.shared.config.Config;
 import assignment.shared.dto.LoginResponse;
 import assignment.shared.interfaces.EditUserService;
 import assignment.shared.interfaces.RegisterUserService;
@@ -8,8 +7,8 @@ import assignment.shared.model.Consultation;
 import assignment.shared.model.Schedule;
 import assignment.shared.model.User;
 import assignment.shared.services.AuthService;
-import assignment.shared.services.ManageScheduleService;
 import assignment.shared.services.ManageConsultationService;
+import assignment.shared.services.ManageScheduleService;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.List;
@@ -27,12 +26,27 @@ public class ServiceManager {
   private final ManageConsultationService manageConsultationService;
 
   public ServiceManager() throws Exception {
-    Registry registry = LocateRegistry.getRegistry(Config.SERVER_HOST, Config.SERVER_REGISTRY_PORT);
+    String serverHost = System.getenv("SERVER_HOST");
+    if (serverHost == null || serverHost.isEmpty()) {
+      throw new IllegalStateException("SERVER_HOST environment variable is not set.");
+    }
+    String portStr = System.getenv("SERVER_REGISTRY_PORT");
+    if (portStr == null || portStr.isEmpty()) {
+      throw new IllegalStateException("SERVER_REGISTRY_PORT environment variable is not set.");
+    }
+    int port;
+    try {
+      port = Integer.parseInt(portStr);
+    } catch (NumberFormatException e) {
+      throw new IllegalStateException("SERVER_REGISTRY_PORT is not a valid integer: " + portStr, e);
+    }
+    Registry registry = LocateRegistry.getRegistry(serverHost, port);
     this.authService = (AuthService) registry.lookup("AuthService");
     this.registerUserService = (RegisterUserService) registry.lookup("RegisterUserService");
     this.editUserService = (EditUserService) registry.lookup("EditUserService");
     this.manageScheduleService = (ManageScheduleService) registry.lookup("ManageScheduleService");
-    this.manageConsultationService = (ManageConsultationService) registry.lookup("ManageConsultationService");
+    this.manageConsultationService =
+        (ManageConsultationService) registry.lookup("ManageConsultationService");
   }
 
   // ==========================================
@@ -60,18 +74,15 @@ public class ServiceManager {
   // ==========================================
   // ManageConsultationService Delegation
   // ==========================================
-  public boolean addConsultation(Consultation consultation) throws Exception
-  {
+  public boolean addConsultation(Consultation consultation) throws Exception {
     return manageConsultationService.addConsultation(consultation);
   }
 
-  public List<Consultation> getAllConsultations() throws Exception
-  {
+  public List<Consultation> getAllConsultations() throws Exception {
     return manageConsultationService.getAllConsultations();
   }
 
-  public boolean updateConsultation(Consultation consultation) throws Exception
-  {
+  public boolean updateConsultation(Consultation consultation) throws Exception {
     return manageConsultationService.updateConsultation(consultation);
   }
 
