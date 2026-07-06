@@ -2,6 +2,7 @@ package assignment.server;
 
 import assignment.server.services.AuthServiceImplementation;
 import assignment.server.services.EditUserServiceImplementation;
+import assignment.server.services.ManageConsultationServiceImplementation;
 import assignment.server.services.ManageScheduleServiceImplementation;
 import assignment.server.services.RegisterUserServiceImplementation;
 import assignment.server.services.ReportServiceImplementation;
@@ -36,17 +37,28 @@ public class Register {
       EditUserServiceImplementation editUserService = new EditUserServiceImplementation();
       ManageScheduleServiceImplementation manageScheduleService =
           new ManageScheduleServiceImplementation();
+      ManageConsultationServiceImplementation manageConsultationService =
+          new ManageConsultationServiceImplementation();
       ReportService reportService = new ReportServiceImplementation();
 
       // Bind service
       registry.rebind("AuthService", authService);
-      registry.rebind("RegisterUserService", registerUserService);
-      registry.rebind("EditUserService", editUserService);
-      registry.rebind("ManageScheduleService", manageScheduleService);
-      registry.rebind("ManageConsultationService", manageConsultationService);
-      registry.rebind("ReportService", reportService);
-
       System.out.println("AuthService bound successfully");
+
+      registry.rebind("RegisterUserService", registerUserService);
+      System.out.println("RegisterUserService bound successfully");
+
+      registry.rebind("EditUserService", editUserService);
+      System.out.println("EditUserService bound successfully");
+
+      registry.rebind("ManageScheduleService", manageScheduleService);
+      System.out.println("ManageScheduleService bound successfully");
+
+      registry.rebind("ManageConsultationService", manageConsultationService);
+      System.out.println("ManageConsultationService bound successfully");
+
+      registry.rebind("ReportService", reportService);
+      System.out.println("ReportService bound successfully");
 
     } catch (Exception e) {
       System.err.println("Failed to start RMI Registry");
