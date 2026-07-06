@@ -1,6 +1,5 @@
 package assignment.client.services;
 
-import assignment.shared.config.Config;
 import assignment.shared.dto.LoginResponse;
 import assignment.shared.interfaces.EditUserService;
 import assignment.shared.interfaces.RegisterUserService;
@@ -24,7 +23,21 @@ public class ServiceManager {
   private final ManageScheduleService manageScheduleService;
 
   public ServiceManager() throws Exception {
-    Registry registry = LocateRegistry.getRegistry(Config.SERVER_HOST, Config.SERVER_REGISTRY_PORT);
+    String serverHost = System.getenv("SERVER_HOST");
+    if (serverHost == null || serverHost.isEmpty()) {
+      throw new IllegalStateException("SERVER_HOST environment variable is not set.");
+    }
+    String portStr = System.getenv("SERVER_REGISTRY_PORT");
+    if (portStr == null || portStr.isEmpty()) {
+      throw new IllegalStateException("SERVER_REGISTRY_PORT environment variable is not set.");
+    }
+    int port;
+    try {
+      port = Integer.parseInt(portStr);
+    } catch (NumberFormatException e) {
+      throw new IllegalStateException("SERVER_REGISTRY_PORT is not a valid integer: " + portStr, e);
+    }
+    Registry registry = LocateRegistry.getRegistry(serverHost, port);
     this.authService = (AuthService) registry.lookup("AuthService");
     this.registerUserService = (RegisterUserService) registry.lookup("RegisterUserService");
     this.editUserService = (EditUserService) registry.lookup("EditUserService");

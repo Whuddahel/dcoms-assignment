@@ -20,13 +20,6 @@ public class Client {
 
       ClientContext currentContext = new ClientContext(serviceManager);
 
-      //            Registry registry = LocateRegistry.getRegistry(Config.SERVER_HOST,
-      // Config.SERVER_REGISTRY_PORT);
-      //            AuthService authService = (AuthService) registry.lookup("AuthService");
-      //            System.out.println("Ok connected to server");
-
-      //            String token = authService.login("michael@gmail.com", "1234");
-
       boolean running = true;
       while (running) {
         System.out.println("\n=================================");
