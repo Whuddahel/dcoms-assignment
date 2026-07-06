@@ -5,6 +5,8 @@ import assignment.server.database.repository.UserRepository;
 
 public class Server {
   public static void main(String[] args) {
+    System.setProperty("java.rmi.server.hostname", System.getenv("SERVER_HOST"));
+
     try {
       DatabaseInitializer.initialize();
       UserRepository.listAllUsers();

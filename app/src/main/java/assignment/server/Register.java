@@ -5,7 +5,6 @@ import assignment.server.services.EditUserServiceImplementation;
 import assignment.server.services.ManageScheduleServiceImplementation;
 import assignment.server.services.RegisterUserServiceImplementation;
 import assignment.server.services.ReportServiceImplementation;
-import assignment.shared.config.Config;
 import assignment.shared.services.AuthService;
 import assignment.shared.services.ReportService;
 import java.rmi.registry.LocateRegistry;
@@ -15,9 +14,20 @@ public class Register {
 
   public static void start() {
     try {
+      String portStr = System.getenv("SERVER_REGISTRY_PORT");
+      if (portStr == null || portStr.isEmpty()) {
+        throw new IllegalStateException("SERVER_REGISTRY_PORT environment variable is not set.");
+      }
+      int port;
+      try {
+        port = Integer.parseInt(portStr);
+      } catch (NumberFormatException e) {
+        throw new IllegalStateException(
+            "SERVER_REGISTRY_PORT is not a valid integer: " + portStr, e);
+      }
       // Start RMI registry
-      Registry registry = LocateRegistry.createRegistry(Config.SERVER_REGISTRY_PORT);
-      System.out.println("RMI Registry started on port " + Config.SERVER_REGISTRY_PORT);
+      Registry registry = LocateRegistry.createRegistry(port);
+      System.out.println("RMI Registry started on port " + port);
 
       // Create service
       AuthService authService = new AuthServiceImplementation();
@@ -33,6 +43,7 @@ public class Register {
       registry.rebind("RegisterUserService", registerUserService);
       registry.rebind("EditUserService", editUserService);
       registry.rebind("ManageScheduleService", manageScheduleService);
+      registry.rebind("ManageConsultationService", manageConsultationService);
       registry.rebind("ReportService", reportService);
 
       System.out.println("AuthService bound successfully");
