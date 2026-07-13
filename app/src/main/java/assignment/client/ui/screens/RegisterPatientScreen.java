@@ -4,14 +4,14 @@
  */
 package assignment.client.ui.screens;
 
-import assignment.client.ClinicClient;
+import assignment.client.services.ServiceManager;
 import assignment.client.ui.InputHandler;
 import assignment.shared.model.Patient;
 import org.mindrot.jbcrypt.BCrypt;
 
 public class RegisterPatientScreen {
 
-  public static void display(ClinicClient client) {
+  public static void display(ServiceManager client) {
     System.out.println("PATIENT REGISTRATION");
     System.out.println("Enter patient details:");
     
