@@ -30,16 +30,6 @@ public class Appointment implements Serializable {
     this.cancelledByUserId = cancelledByUserId;
   }
 
-  public Appointment(
-      int doctorId,
-      int patientId,
-      int scheduleId,
-      Date appointmentDate,
-      Timestamp createdAt,
-      Integer cancelledByUserId) {
-    this(0, doctorId, patientId, scheduleId, appointmentDate, createdAt, cancelledByUserId);
-  }
-
   public Appointment(int doctorId, int patientId, int scheduleId, Date appointmentDate) {
     this(
         0,

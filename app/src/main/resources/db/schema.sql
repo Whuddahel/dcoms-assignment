@@ -84,7 +84,7 @@ CREATE TABLE Appointment (
     scheduleId      INT      NOT NULL,
     appointmentDate DATE     NOT NULL,
     createdAt       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    cancelledByUserId     INT,
+    cancelledByUserId     INT DEFAULT NULL,
     FOREIGN KEY (doctorId)        REFERENCES Doctor(doctorId),
     FOREIGN KEY (patientId)       REFERENCES Patient(patientId),
     FOREIGN KEY (scheduleId)      REFERENCES Schedule(scheduleId)
