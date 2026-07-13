@@ -6,6 +6,7 @@ import assignment.shared.dto.MonthlyAppointmentReport;
 import assignment.shared.dto.PatientVisitSummaryReport;
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -15,6 +16,20 @@ import java.util.Calendar;
 import java.util.List;
 
 public class ReportRepository {
+
+  private static Date[] getStartAndEndDates(int year, int month) {
+    Calendar cal = Calendar.getInstance();
+    cal.clear();
+    cal.set(Calendar.YEAR, year);
+    cal.set(Calendar.MONTH, month - 1);
+    cal.set(Calendar.DAY_OF_MONTH, 1);
+    Date start = new Date(cal.getTimeInMillis());
+
+    cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+    Date end = new Date(cal.getTimeInMillis());
+
+    return new Date[] {start, end};
+  }
 
   private static Timestamp[] getStartAndEndTimestamps(int year, int month) {
     Calendar cal = Calendar.getInstance();
@@ -40,9 +55,9 @@ public class ReportRepository {
 
   public static MonthlyAppointmentReport getMonthlyAppointmentReport(int year, int month)
       throws SQLException {
-    Timestamp[] range = getStartAndEndTimestamps(year, month);
-    Timestamp start = range[0];
-    Timestamp end = range[1];
+    Date[] range = getStartAndEndDates(year, month);
+    Date start = range[0];
+    Date end = range[1];
 
     int totalSuccessful = 0;
     int totalCancelled = 0;
@@ -52,47 +67,47 @@ public class ReportRepository {
     String successSql =
         "SELECT COUNT(a.appointmentId) FROM Appointment a "
             + "JOIN Consultation c ON a.appointmentId = c.appointmentId "
-            + "WHERE a.createdAt >= ? AND a.createdAt <= ?";
+            + "WHERE a.appointmentDate >= ? AND a.appointmentDate <= ?";
 
     String cancelledSql =
         "SELECT COUNT(a.appointmentId) FROM Appointment a "
-            + "WHERE a.createdAt >= ? AND a.createdAt <= ? AND a.cancelledByUserId IS NOT NULL";
+            + "WHERE a.appointmentDate >= ? AND a.appointmentDate <= ? AND a.cancelledByUserId IS NOT NULL";
 
     String docCancelSql =
         "SELECT COUNT(a.appointmentId) FROM Appointment a "
             + "JOIN Users u ON a.cancelledByUserId = u.userId "
-            + "WHERE a.createdAt >= ? AND a.createdAt <= ? AND u.userRole = 'doctor'";
+            + "WHERE a.appointmentDate >= ? AND a.appointmentDate <= ? AND u.userRole = 'doctor'";
 
     String patCancelSql =
         "SELECT COUNT(a.appointmentId) FROM Appointment a "
             + "JOIN Users u ON a.cancelledByUserId = u.userId "
-            + "WHERE a.createdAt >= ? AND a.createdAt <= ? AND u.userRole = 'patient'";
+            + "WHERE a.appointmentDate >= ? AND a.appointmentDate <= ? AND u.userRole = 'patient'";
 
     try (Connection conn = DatabaseManager.getConnection()) {
       try (PreparedStatement ps = conn.prepareStatement(successSql)) {
-        ps.setTimestamp(1, start);
-        ps.setTimestamp(2, end);
+        ps.setDate(1, start);
+        ps.setDate(2, end);
         try (ResultSet rs = ps.executeQuery()) {
           if (rs.next()) totalSuccessful = rs.getInt(1);
         }
       }
       try (PreparedStatement ps = conn.prepareStatement(cancelledSql)) {
-        ps.setTimestamp(1, start);
-        ps.setTimestamp(2, end);
+        ps.setDate(1, start);
+        ps.setDate(2, end);
         try (ResultSet rs = ps.executeQuery()) {
           if (rs.next()) totalCancelled = rs.getInt(1);
         }
       }
       try (PreparedStatement ps = conn.prepareStatement(docCancelSql)) {
-        ps.setTimestamp(1, start);
-        ps.setTimestamp(2, end);
+        ps.setDate(1, start);
+        ps.setDate(2, end);
         try (ResultSet rs = ps.executeQuery()) {
           if (rs.next()) cancelledByDoctor = rs.getInt(1);
         }
       }
       try (PreparedStatement ps = conn.prepareStatement(patCancelSql)) {
-        ps.setTimestamp(1, start);
-        ps.setTimestamp(2, end);
+        ps.setDate(1, start);
+        ps.setDate(2, end);
         try (ResultSet rs = ps.executeQuery()) {
           if (rs.next()) cancelledByPatient = rs.getInt(1);
         }
@@ -109,15 +124,15 @@ public class ReportRepository {
             + "JOIN Users u ON d.userId = u.userId "
             + "JOIN Appointment a ON d.doctorId = a.doctorId "
             + "JOIN Consultation c ON a.appointmentId = c.appointmentId "
-            + "WHERE a.createdAt >= ? AND a.createdAt <= ? AND u.deleted = false "
+            + "WHERE a.appointmentDate >= ? AND a.appointmentDate <= ? AND u.deleted = false "
             + "GROUP BY d.doctorId, u.userId, u.firstName, u.lastName "
             + "ORDER BY successfulCount DESC, u.lastName ASC, u.firstName ASC "
             + "FETCH FIRST 10 ROWS ONLY";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(topDocSql)) {
-      ps.setTimestamp(1, start);
-      ps.setTimestamp(2, end);
+      ps.setDate(1, start);
+      ps.setDate(2, end);
       try (ResultSet rs = ps.executeQuery()) {
         while (rs.next()) {
           int docId = rs.getInt("doctorId");
@@ -134,12 +149,12 @@ public class ReportRepository {
                   + "  SUM(CASE WHEN u.userRole = 'patient' THEN 1 ELSE 0 END) AS cPat "
                   + "FROM Appointment a "
                   + "JOIN Users u ON a.cancelledByUserId = u.userId "
-                  + "WHERE a.doctorId = ? AND a.createdAt >= ? AND a.createdAt <= ?";
+                  + "WHERE a.doctorId = ? AND a.appointmentDate >= ? AND a.appointmentDate <= ?";
 
           try (PreparedStatement ps2 = conn.prepareStatement(docCancelledCountsSql)) {
             ps2.setInt(1, docId);
-            ps2.setTimestamp(2, start);
-            ps2.setTimestamp(3, end);
+            ps2.setDate(2, start);
+            ps2.setDate(3, end);
             try (ResultSet rs2 = ps2.executeQuery()) {
               if (rs2.next()) {
                 cancelledByDoc = rs2.getInt("cDoc");

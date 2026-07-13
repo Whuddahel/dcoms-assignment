@@ -82,6 +82,7 @@ CREATE TABLE Appointment (
     doctorId        INT      NOT NULL,
     patientId       INT      NOT NULL,
     scheduleId      INT      NOT NULL,
+    appointmentDate DATE     NOT NULL,
     createdAt       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     cancelledByUserId     INT,
     FOREIGN KEY (doctorId)        REFERENCES Doctor(doctorId),
@@ -93,6 +94,8 @@ CREATE INDEX idx_appointment_doctorId        ON Appointment(doctorId);
 CREATE INDEX idx_appointment_patientId       ON Appointment(patientId);
 CREATE INDEX idx_appointment_scheduleId      ON Appointment(scheduleId);
 CREATE INDEX idx_appointment_createdAt       ON Appointment(createdAt);
+CREATE INDEX idx_appointment_appointmentDate ON Appointment(appointmentDate);
+
 
 
 -- Consultation
