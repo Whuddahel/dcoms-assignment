@@ -14,7 +14,7 @@ public class PatientRepository {
 
   public static boolean addPatient(Patient patient) throws SQLException {
     String insertUserSql =
-        "INSERT INTO Users (firstName, lastName, userRole, icPassportNo, email, password) VALUES (?, ?, ?, ?, ?, ?)";
+        "INSERT INTO Users (firstName, lastName, userRole, icPassportNo, email, password, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)";
     String insertPatSql =
         "INSERT INTO Patient (userId, medicalRecordId, contactNumber) VALUES (?, NEXT VALUE FOR medical_record_seq, ?)";
 
@@ -30,6 +30,7 @@ public class PatientRepository {
           psUser.setString(4, patient.getIcPassportNo());
           psUser.setString(5, patient.getEmail());
           psUser.setString(6, patient.getPasswordHash());
+          psUser.setTimestamp(7, patient.getCreatedAt());
           psUser.executeUpdate();
 
           try (ResultSet rs = psUser.getGeneratedKeys()) {
@@ -58,10 +59,10 @@ public class PatientRepository {
 
   public static Patient getPatientById(int patientId) throws SQLException {
     String sql =
-        "SELECT p.patientId, p.userId, p.medicalRecordId, p.contactNumber, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
+        "SELECT p.patientId, p.userId, p.medicalRecordId, p.contactNumber, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.createdAt, u.deleted "
             + "FROM Patient p "
             + "JOIN Users u ON p.userId = u.userId "
-            + "WHERE p.patientId = ?";
+            + "WHERE p.patientId = ? AND u.deleted = false";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -78,7 +79,9 @@ public class PatientRepository {
               rs.getString("email"),
               null,
               rs.getInt("medicalRecordId"),
-              rs.getString("contactNumber"));
+              rs.getString("contactNumber"),
+              rs.getTimestamp("createdAt"),
+              rs.getBoolean("deleted"));
         }
       }
     }
@@ -87,8 +90,7 @@ public class PatientRepository {
 
   public static boolean updatePatient(Patient patient) throws SQLException {
     String updateUserSql =
-        "UPDATE Users SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? "
-            + "WHERE userId = (SELECT userId FROM Patient WHERE patientId = ?)";
+        "UPDATE Users SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? WHERE userId = ?";
     String updatePatSql = "UPDATE Patient SET contactNumber = ? WHERE patientId = ?";
 
     try (Connection conn = DatabaseManager.getConnection()) {
@@ -101,7 +103,7 @@ public class PatientRepository {
           psUser.setString(4, patient.getIcPassportNo());
           psUser.setString(5, patient.getEmail());
           psUser.setString(6, patient.getPasswordHash());
-          psUser.setInt(7, patient.getPatientId());
+          psUser.setInt(7, patient.getUserId());
           psUser.executeUpdate();
         }
 
@@ -122,8 +124,7 @@ public class PatientRepository {
 
   public static boolean deletePatient(int patientId) throws SQLException {
     String selectSql = "SELECT userId FROM Patient WHERE patientId = ?";
-    String deletePatSql = "DELETE FROM Patient WHERE patientId = ?";
-    String deleteUserSql = "DELETE FROM Users WHERE userId = ?";
+    String softDeleteUserSql = "UPDATE Users SET deleted = true WHERE userId = ?";
 
     try (Connection conn = DatabaseManager.getConnection()) {
       conn.setAutoCommit(false);
@@ -142,12 +143,7 @@ public class PatientRepository {
           throw new SQLException("Patient not found with patientId: " + patientId);
         }
 
-        try (PreparedStatement psPat = conn.prepareStatement(deletePatSql)) {
-          psPat.setInt(1, patientId);
-          psPat.executeUpdate();
-        }
-
-        try (PreparedStatement psUser = conn.prepareStatement(deleteUserSql)) {
+        try (PreparedStatement psUser = conn.prepareStatement(softDeleteUserSql)) {
           psUser.setInt(1, userId);
           psUser.executeUpdate();
         }
@@ -164,9 +160,10 @@ public class PatientRepository {
   // TODO: Remove before submission
   public static List<Patient> listAllPatients() throws SQLException {
     String sql =
-        "SELECT p.patientId, p.userId, p.medicalRecordId, p.contactNumber, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
+        "SELECT p.patientId, p.userId, p.medicalRecordId, p.contactNumber, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.createdAt, u.deleted "
             + "FROM Patient p "
-            + "JOIN Users u ON p.userId = u.userId";
+            + "JOIN Users u ON p.userId = u.userId "
+            + "WHERE u.deleted = false";
 
     List<Patient> list = new ArrayList<>();
     try (Connection conn = DatabaseManager.getConnection();
@@ -188,7 +185,9 @@ public class PatientRepository {
                 rs.getString("email"),
                 null,
                 rs.getInt("medicalRecordId"),
-                rs.getString("contactNumber"));
+                rs.getString("contactNumber"),
+                rs.getTimestamp("createdAt"),
+                rs.getBoolean("deleted"));
         list.add(patient);
         System.out.println(
             patient.getPatientId()
@@ -209,9 +208,10 @@ public class PatientRepository {
 
   public static List<Patient> getAllPatients() throws SQLException {
     String sql =
-        "SELECT p.patientId, p.userId, p.medicalRecordId, p.contactNumber, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
+        "SELECT p.patientId, p.userId, p.medicalRecordId, p.contactNumber, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.createdAt, u.deleted "
             + "FROM Patient p "
-            + "JOIN Users u ON p.userId = u.userId";
+            + "JOIN Users u ON p.userId = u.userId "
+            + "WHERE u.deleted = false";
 
     List<Patient> list = new ArrayList<>();
     try (Connection conn = DatabaseManager.getConnection();
@@ -229,7 +229,9 @@ public class PatientRepository {
                 rs.getString("email"),
                 null,
                 rs.getInt("medicalRecordId"),
-                rs.getString("contactNumber")));
+                rs.getString("contactNumber"),
+                rs.getTimestamp("createdAt"),
+                rs.getBoolean("deleted")));
       }
     }
     return list;

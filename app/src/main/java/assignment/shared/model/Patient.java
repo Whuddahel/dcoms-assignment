@@ -1,6 +1,7 @@
 package assignment.shared.model;
 
 import assignment.shared.auth.Role;
+import java.sql.Timestamp;
 
 public class Patient extends User {
   private final int patientId;
@@ -17,9 +18,19 @@ public class Patient extends User {
       String email,
       String password,
       int medicalRecordId,
-      String contactNumber) {
+      String contactNumber,
+      Timestamp createdAt,
+      boolean deleted) {
     super(
-        userId, firstName, lastName, Role.databaseToEnum(userRole), icPassportNo, email, password);
+        userId,
+        firstName,
+        lastName,
+        Role.databaseToEnum(userRole),
+        icPassportNo,
+        email,
+        password,
+        createdAt,
+        deleted);
     this.patientId = patientId;
     this.medicalRecordId = medicalRecordId;
     this.contactNumber = contactNumber;
@@ -34,10 +45,19 @@ public class Patient extends User {
       String password,
       int medicalRecordId,
       String contactNumber) {
-    super(0, firstName, lastName, Role.databaseToEnum(userRole), icPassportNo, email, password);
-    this.patientId = 0;
-    this.medicalRecordId = medicalRecordId;
-    this.contactNumber = contactNumber;
+    this(
+        0,
+        0,
+        firstName,
+        lastName,
+        userRole,
+        icPassportNo,
+        email,
+        password,
+        medicalRecordId,
+        contactNumber,
+        new Timestamp(System.currentTimeMillis()),
+        false);
   }
 
   public int getPatientId() {

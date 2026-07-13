@@ -6,7 +6,9 @@ CREATE TABLE Users (
     userRole     VARCHAR(20) NOT NULL CHECK (userRole IN ('admin', 'doctor', 'receptionist', 'patient')),
     icPassportNo VARCHAR(50)  NOT NULL,
     email        VARCHAR(150) NOT NULL UNIQUE,
-    password     VARCHAR(255) NOT NULL
+    password     VARCHAR(255) NOT NULL,
+    createdAt    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted      BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE INDEX idx_user_email    ON Users(email);
@@ -80,8 +82,9 @@ CREATE TABLE Appointment (
     doctorId        INT      NOT NULL,
     patientId       INT      NOT NULL,
     scheduleId      INT      NOT NULL,
+    appointmentDate DATE     NOT NULL,
     createdAt       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    cancelledByUserId     INT,
+    cancelledByUserId     INT DEFAULT NULL,
     FOREIGN KEY (doctorId)        REFERENCES Doctor(doctorId),
     FOREIGN KEY (patientId)       REFERENCES Patient(patientId),
     FOREIGN KEY (scheduleId)      REFERENCES Schedule(scheduleId)
@@ -91,6 +94,8 @@ CREATE INDEX idx_appointment_doctorId        ON Appointment(doctorId);
 CREATE INDEX idx_appointment_patientId       ON Appointment(patientId);
 CREATE INDEX idx_appointment_scheduleId      ON Appointment(scheduleId);
 CREATE INDEX idx_appointment_createdAt       ON Appointment(createdAt);
+CREATE INDEX idx_appointment_appointmentDate ON Appointment(appointmentDate);
+
 
 
 -- Consultation

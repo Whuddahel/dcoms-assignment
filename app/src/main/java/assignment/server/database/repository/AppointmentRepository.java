@@ -13,17 +13,18 @@ public class AppointmentRepository {
 
   public static boolean addAppointment(Appointment app) throws SQLException {
     String sql =
-        "INSERT INTO Appointment (doctorId, patientId, scheduleId, cancelledByUserId) VALUES (?, ?, ?, ?)";
+        "INSERT INTO Appointment (doctorId, patientId, scheduleId, appointmentDate, cancelledByUserId) VALUES (?, ?, ?, ?, ?)";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
       ps.setInt(1, app.getDoctorId());
       ps.setInt(2, app.getPatientId());
       ps.setInt(3, app.getScheduleId());
+      ps.setDate(4, app.getAppointmentDate());
       if (app.getcancelledByUserId() != null) {
-        ps.setInt(4, app.getcancelledByUserId());
+        ps.setInt(5, app.getcancelledByUserId());
       } else {
-        ps.setNull(4, java.sql.Types.INTEGER);
+        ps.setNull(5, java.sql.Types.INTEGER);
       }
       int rows = ps.executeUpdate();
       return rows > 0;
@@ -32,7 +33,7 @@ public class AppointmentRepository {
 
   public static Appointment getAppointmentById(int appointmentId) throws SQLException {
     String sql =
-        "SELECT appointmentId, doctorId, patientId, scheduleId, createdAt, cancelledByUserId FROM Appointment WHERE appointmentId = ?";
+        "SELECT appointmentId, doctorId, patientId, scheduleId, appointmentDate, createdAt, cancelledByUserId FROM Appointment WHERE appointmentId = ?";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -46,6 +47,7 @@ public class AppointmentRepository {
               rs.getInt("doctorId"),
               rs.getInt("patientId"),
               rs.getInt("scheduleId"),
+              rs.getDate("appointmentDate"),
               rs.getTimestamp("createdAt"),
               cancelledByUserId);
         }
@@ -56,19 +58,20 @@ public class AppointmentRepository {
 
   public static boolean updateAppointment(Appointment app) throws SQLException {
     String sql =
-        "UPDATE Appointment SET doctorId = ?, patientId = ?, scheduleId = ?, cancelledByUserId = ? WHERE appointmentId = ?";
+        "UPDATE Appointment SET doctorId = ?, patientId = ?, scheduleId = ?, appointmentDate = ?, cancelledByUserId = ? WHERE appointmentId = ?";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
       ps.setInt(1, app.getDoctorId());
       ps.setInt(2, app.getPatientId());
       ps.setInt(3, app.getScheduleId());
+      ps.setDate(4, app.getAppointmentDate());
       if (app.getcancelledByUserId() != null) {
-        ps.setInt(4, app.getcancelledByUserId());
+        ps.setInt(5, app.getcancelledByUserId());
       } else {
-        ps.setNull(4, java.sql.Types.INTEGER);
+        ps.setNull(5, java.sql.Types.INTEGER);
       }
-      ps.setInt(5, app.getAppointmentId());
+      ps.setInt(6, app.getAppointmentId());
       int rows = ps.executeUpdate();
       return rows > 0;
     }
@@ -88,7 +91,7 @@ public class AppointmentRepository {
   // TODO: Remove before submission
   public static List<Appointment> listAllAppointments() throws SQLException {
     String sql =
-        "SELECT appointmentId, doctorId, patientId, scheduleId, createdAt, cancelledByUserId FROM Appointment";
+        "SELECT appointmentId, doctorId, patientId, scheduleId, appointmentDate, createdAt, cancelledByUserId FROM Appointment";
 
     List<Appointment> list = new ArrayList<>();
     try (Connection conn = DatabaseManager.getConnection();
@@ -107,6 +110,7 @@ public class AppointmentRepository {
                 rs.getInt("doctorId"),
                 rs.getInt("patientId"),
                 rs.getInt("scheduleId"),
+                rs.getDate("appointmentDate"),
                 rs.getTimestamp("createdAt"),
                 cancelledByUserId);
         list.add(app);
@@ -116,6 +120,8 @@ public class AppointmentRepository {
                 + app.getDoctorId()
                 + " | Patient ID: "
                 + app.getPatientId()
+                + " | Date: "
+                + app.getAppointmentDate()
                 + " | Created: "
                 + app.getCreatedAt()
                 + " | Cancelled By: "
@@ -131,7 +137,7 @@ public class AppointmentRepository {
 
   public static List<Appointment> getAllAppointments() throws SQLException {
     String sql =
-        "SELECT appointmentId, doctorId, patientId, scheduleId, createdAt, cancelledByUserId FROM Appointment";
+        "SELECT appointmentId, doctorId, patientId, scheduleId, appointmentDate, createdAt, cancelledByUserId FROM Appointment";
 
     List<Appointment> list = new ArrayList<>();
     try (Connection conn = DatabaseManager.getConnection();
@@ -146,6 +152,7 @@ public class AppointmentRepository {
                 rs.getInt("doctorId"),
                 rs.getInt("patientId"),
                 rs.getInt("scheduleId"),
+                rs.getDate("appointmentDate"),
                 rs.getTimestamp("createdAt"),
                 cancelledByUserId));
       }

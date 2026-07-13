@@ -1,9 +1,11 @@
 package assignment.client.ui.menus;
 
 import assignment.client.services.ServiceManager;
+import assignment.client.ui.Helper;
 import assignment.client.ui.InputHandler;
 import assignment.client.ui.screens.EditUserScreen;
 import assignment.client.ui.screens.RegisterUserScreen;
+import assignment.client.ui.screens.ReportScreen;
 import assignment.shared.dto.LoginResponse;
 
 /**
@@ -14,11 +16,14 @@ public class ClinicAdministratorMenu {
 
   public static void displayMenu(ServiceManager client, LoginResponse session) {
     while (true) {
-      System.out.println("Hello " + session.getFirstName() + " " + session.getLastName());
-      System.out.println("\n=== Clinic Administrator Menu ===");
-      System.out.println("[1]. Register User");
-      System.out.println("[2]. Edit User");
-      System.out.println("[3]. Exit");
+      System.out.println("\nHello " + session.getFirstName() + " " + session.getLastName());
+      Helper.printBanner("Clinic Administrator Menu", Helper.Theme.BLUE);
+      Helper.printOption(1, "Register User", Helper.Theme.BLUE);
+      Helper.printOption(2, "Edit User", Helper.Theme.BLUE);
+      Helper.printOption(3, "Generate Monthly Appointment Report", Helper.Theme.BLUE);
+      Helper.printOption(4, "Generate Doctor Consultation Report", Helper.Theme.BLUE);
+      Helper.printOption(5, "Generate Patient Visit Summary", Helper.Theme.BLUE);
+      Helper.printLine("[6]. Logout", Helper.Theme.RED);
 
       int choice = InputHandler.readInt("Select an option: ");
       if (choice == 1) {
@@ -26,6 +31,12 @@ public class ClinicAdministratorMenu {
       } else if (choice == 2) {
         EditUserScreen.display(client);
       } else if (choice == 3) {
+        ReportScreen.displayMonthlyAppointmentReport(client);
+      } else if (choice == 4) {
+        ReportScreen.displayDoctorConsultationReport(client);
+      } else if (choice == 5) {
+        ReportScreen.displayPatientVisitSummary(client);
+      } else if (choice == 6) {
         System.out.println("Exiting Clinic Administrator Menu...");
         break;
       } else {

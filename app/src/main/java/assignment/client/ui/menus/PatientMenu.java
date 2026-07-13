@@ -1,20 +1,21 @@
 package assignment.client.ui.menus;
 
 import assignment.client.services.ServiceManager;
+import assignment.client.ui.Helper;
 import assignment.client.ui.InputHandler;
 import assignment.shared.dto.LoginResponse;
 
 public class PatientMenu {
   public static void displayMenu(ServiceManager client, LoginResponse session) {
     while (true) {
-      System.out.println("Hello " + session.getFirstName() + " " + session.getLastName());
-      System.out.println("\n=== Patient Menu ===");
-      System.out.println("[1]. Update Personal Information");
-      System.out.println("[2]. View Upcoming Appointments/Cancel");
-      System.out.println("[3]. Book Appointment");
-      System.out.println("[4]. View Past Appointments");
-      System.out.println("[5]. View Consultation Notes");
-      System.out.println("[6]. Exit");
+      System.out.println("\nHello " + session.getFirstName() + " " + session.getLastName());
+      Helper.printBanner("Patient Menu", Helper.Theme.BLUE);
+      Helper.printOption(1, "Update Personal Information", Helper.Theme.BLUE);
+      Helper.printOption(2, "View Upcoming Appointments/Cancel", Helper.Theme.BLUE);
+      Helper.printOption(3, "Book Appointment", Helper.Theme.BLUE);
+      Helper.printOption(4, "View Past Appointments", Helper.Theme.BLUE);
+      Helper.printOption(5, "View Consultation Notes", Helper.Theme.BLUE);
+      Helper.printLine("[6]. Logout", Helper.Theme.RED);
 
       int choice = InputHandler.readInt("Select an option: ");
       if (choice == 1) {

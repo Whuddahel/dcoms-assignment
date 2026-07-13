@@ -14,7 +14,7 @@ public class DoctorRepository {
 
   public static boolean addDoctor(Doctor doctor) throws SQLException {
     String insertUserSql =
-        "INSERT INTO Users (firstName, lastName, userRole, icPassportNo, email, password) VALUES (?, ?, ?, ?, ?, ?)";
+        "INSERT INTO Users (firstName, lastName, userRole, icPassportNo, email, password, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)";
     String insertDocSql = "INSERT INTO Doctor (userId, Specialization) VALUES (?, ?)";
 
     try (Connection conn = DatabaseManager.getConnection()) {
@@ -29,6 +29,7 @@ public class DoctorRepository {
           psUser.setString(4, doctor.getIcPassportNo());
           psUser.setString(5, doctor.getEmail());
           psUser.setString(6, doctor.getPasswordHash());
+          psUser.setTimestamp(7, doctor.getCreatedAt());
           psUser.executeUpdate();
 
           try (ResultSet rs = psUser.getGeneratedKeys()) {
@@ -57,10 +58,10 @@ public class DoctorRepository {
 
   public static Doctor getDoctorById(int doctorId) throws SQLException {
     String sql =
-        "SELECT d.doctorId, d.userId, d.Specialization, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
+        "SELECT d.doctorId, d.userId, d.Specialization, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.createdAt, u.deleted "
             + "FROM Doctor d "
             + "JOIN Users u ON d.userId = u.userId "
-            + "WHERE d.doctorId = ?";
+            + "WHERE d.doctorId = ? AND u.deleted = false";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -76,7 +77,9 @@ public class DoctorRepository {
               rs.getString("icPassportNo"),
               rs.getString("email"),
               null,
-              rs.getString("Specialization"));
+              rs.getString("Specialization"),
+              rs.getTimestamp("createdAt"),
+              rs.getBoolean("deleted"));
         }
       }
     }
@@ -101,8 +104,7 @@ public class DoctorRepository {
 
   public static boolean updateDoctor(Doctor doctor) throws SQLException {
     String updateUserSql =
-        "UPDATE Users SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? "
-            + "WHERE userId = (SELECT userId FROM Doctor WHERE doctorId = ?)";
+        "UPDATE Users SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? WHERE userId = ?";
     String updateDocSql = "UPDATE Doctor SET Specialization = ? WHERE doctorId = ?";
 
     try (Connection conn = DatabaseManager.getConnection()) {
@@ -115,7 +117,7 @@ public class DoctorRepository {
           psUser.setString(4, doctor.getIcPassportNo());
           psUser.setString(5, doctor.getEmail());
           psUser.setString(6, doctor.getPasswordHash());
-          psUser.setInt(7, doctor.getDoctorId());
+          psUser.setInt(7, doctor.getUserId());
           psUser.executeUpdate();
         }
 
@@ -136,8 +138,7 @@ public class DoctorRepository {
 
   public static boolean deleteDoctor(int doctorId) throws SQLException {
     String selectSql = "SELECT userId FROM Doctor WHERE doctorId = ?";
-    String deleteDocSql = "DELETE FROM Doctor WHERE doctorId = ?";
-    String deleteUserSql = "DELETE FROM Users WHERE userId = ?";
+    String softDeleteUserSql = "UPDATE Users SET deleted = true WHERE userId = ?";
 
     try (Connection conn = DatabaseManager.getConnection()) {
       conn.setAutoCommit(false);
@@ -156,12 +157,7 @@ public class DoctorRepository {
           throw new SQLException("Doctor not found with doctorId: " + doctorId);
         }
 
-        try (PreparedStatement psDoc = conn.prepareStatement(deleteDocSql)) {
-          psDoc.setInt(1, doctorId);
-          psDoc.executeUpdate();
-        }
-
-        try (PreparedStatement psUser = conn.prepareStatement(deleteUserSql)) {
+        try (PreparedStatement psUser = conn.prepareStatement(softDeleteUserSql)) {
           psUser.setInt(1, userId);
           psUser.executeUpdate();
         }
@@ -178,9 +174,10 @@ public class DoctorRepository {
   // TODO: Remove before submission
   public static List<Doctor> listAllDoctors() throws SQLException {
     String sql =
-        "SELECT d.doctorId, d.userId, d.Specialization, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
+        "SELECT d.doctorId, d.userId, d.Specialization, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.createdAt, u.deleted "
             + "FROM Doctor d "
-            + "JOIN Users u ON d.userId = u.userId";
+            + "JOIN Users u ON d.userId = u.userId "
+            + "WHERE u.deleted = false";
 
     List<Doctor> list = new ArrayList<>();
     try (Connection conn = DatabaseManager.getConnection();
@@ -201,7 +198,9 @@ public class DoctorRepository {
                 rs.getString("icPassportNo"),
                 rs.getString("email"),
                 null,
-                rs.getString("Specialization"));
+                rs.getString("Specialization"),
+                rs.getTimestamp("createdAt"),
+                rs.getBoolean("deleted"));
         list.add(doctor);
         System.out.println(
             doctor.getDoctorId()
@@ -222,9 +221,10 @@ public class DoctorRepository {
 
   public static List<Doctor> getAllDoctors() throws SQLException {
     String sql =
-        "SELECT d.doctorId, d.userId, d.Specialization, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
+        "SELECT d.doctorId, d.userId, d.Specialization, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.createdAt, u.deleted "
             + "FROM Doctor d "
-            + "JOIN Users u ON d.userId = u.userId";
+            + "JOIN Users u ON d.userId = u.userId "
+            + "WHERE u.deleted = false";
 
     List<Doctor> list = new ArrayList<>();
     try (Connection conn = DatabaseManager.getConnection();
@@ -241,7 +241,9 @@ public class DoctorRepository {
                 rs.getString("icPassportNo"),
                 rs.getString("email"),
                 null,
-                rs.getString("Specialization")));
+                rs.getString("Specialization"),
+                rs.getTimestamp("createdAt"),
+                rs.getBoolean("deleted")));
       }
     }
     return list;

@@ -14,7 +14,7 @@ public class ClinicAdministratorRepository {
 
   public static boolean addClinicAdministrator(ClinicAdministrator admin) throws SQLException {
     String insertUserSql =
-        "INSERT INTO Users (firstName, lastName, userRole, icPassportNo, email, password) VALUES (?, ?, ?, ?, ?, ?)";
+        "INSERT INTO Users (firstName, lastName, userRole, icPassportNo, email, password, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)";
     String insertAdminSql = "INSERT INTO ClinicAdministrator (userId) VALUES (?)";
 
     try (Connection conn = DatabaseManager.getConnection()) {
@@ -29,6 +29,7 @@ public class ClinicAdministratorRepository {
           psUser.setString(4, admin.getIcPassportNo());
           psUser.setString(5, admin.getEmail());
           psUser.setString(6, admin.getPasswordHash());
+          psUser.setTimestamp(7, admin.getCreatedAt());
           psUser.executeUpdate();
 
           try (ResultSet rs = psUser.getGeneratedKeys()) {
@@ -56,10 +57,10 @@ public class ClinicAdministratorRepository {
 
   public static ClinicAdministrator getClinicAdministratorById(int adminId) throws SQLException {
     String sql =
-        "SELECT a.adminId, a.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
+        "SELECT a.adminId, a.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.createdAt, u.deleted "
             + "FROM ClinicAdministrator a "
             + "JOIN Users u ON a.userId = u.userId "
-            + "WHERE a.adminId = ?";
+            + "WHERE a.adminId = ? AND u.deleted = false";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -74,7 +75,9 @@ public class ClinicAdministratorRepository {
               rs.getString("userRole"),
               rs.getString("icPassportNo"),
               rs.getString("email"),
-              null);
+              null,
+              rs.getTimestamp("createdAt"),
+              rs.getBoolean("deleted"));
         }
       }
     }
@@ -83,8 +86,7 @@ public class ClinicAdministratorRepository {
 
   public static boolean updateClinicAdministrator(ClinicAdministrator admin) throws SQLException {
     String sql =
-        "UPDATE Users SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? "
-            + "WHERE userId = (SELECT userId FROM ClinicAdministrator WHERE adminId = ?)";
+        "UPDATE Users SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? WHERE userId = ?";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -94,7 +96,7 @@ public class ClinicAdministratorRepository {
       ps.setString(4, admin.getIcPassportNo());
       ps.setString(5, admin.getEmail());
       ps.setString(6, admin.getPasswordHash());
-      ps.setInt(7, admin.getAdminId());
+      ps.setInt(7, admin.getUserId());
       int rows = ps.executeUpdate();
       return rows > 0;
     }
@@ -102,8 +104,7 @@ public class ClinicAdministratorRepository {
 
   public static boolean deleteClinicAdministrator(int adminId) throws SQLException {
     String selectSql = "SELECT userId FROM ClinicAdministrator WHERE adminId = ?";
-    String deleteAdminSql = "DELETE FROM ClinicAdministrator WHERE adminId = ?";
-    String deleteUserSql = "DELETE FROM Users WHERE userId = ?";
+    String softDeleteUserSql = "UPDATE Users SET deleted = true WHERE userId = ?";
 
     try (Connection conn = DatabaseManager.getConnection()) {
       conn.setAutoCommit(false);
@@ -122,12 +123,7 @@ public class ClinicAdministratorRepository {
           throw new SQLException("ClinicAdministrator not found with adminId: " + adminId);
         }
 
-        try (PreparedStatement psAdmin = conn.prepareStatement(deleteAdminSql)) {
-          psAdmin.setInt(1, adminId);
-          psAdmin.executeUpdate();
-        }
-
-        try (PreparedStatement psUser = conn.prepareStatement(deleteUserSql)) {
+        try (PreparedStatement psUser = conn.prepareStatement(softDeleteUserSql)) {
           psUser.setInt(1, userId);
           psUser.executeUpdate();
         }
@@ -141,12 +137,12 @@ public class ClinicAdministratorRepository {
     }
   }
 
-  // TODO: Remove before submission
   public static List<ClinicAdministrator> listAllClinicAdministrators() throws SQLException {
     String sql =
-        "SELECT a.adminId, a.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
+        "SELECT a.adminId, a.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.createdAt, u.deleted "
             + "FROM ClinicAdministrator a "
-            + "JOIN Users u ON a.userId = u.userId";
+            + "JOIN Users u ON a.userId = u.userId "
+            + "WHERE u.deleted = false";
 
     List<ClinicAdministrator> list = new ArrayList<>();
     try (Connection conn = DatabaseManager.getConnection();
@@ -166,7 +162,9 @@ public class ClinicAdministratorRepository {
                 rs.getString("userRole"),
                 rs.getString("icPassportNo"),
                 rs.getString("email"),
-                null);
+                null,
+                rs.getTimestamp("createdAt"),
+                rs.getBoolean("deleted"));
         list.add(admin);
         System.out.println(
             admin.getAdminId() + " | " + admin.getFullName() + " | " + admin.getEmail());
@@ -181,9 +179,10 @@ public class ClinicAdministratorRepository {
 
   public static List<ClinicAdministrator> getAllClinicAdministrators() throws SQLException {
     String sql =
-        "SELECT a.adminId, a.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email "
+        "SELECT a.adminId, a.userId, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.createdAt, u.deleted "
             + "FROM ClinicAdministrator a "
-            + "JOIN Users u ON a.userId = u.userId";
+            + "JOIN Users u ON a.userId = u.userId "
+            + "WHERE u.deleted = false";
 
     List<ClinicAdministrator> list = new ArrayList<>();
     try (Connection conn = DatabaseManager.getConnection();
@@ -199,7 +198,9 @@ public class ClinicAdministratorRepository {
                 rs.getString("userRole"),
                 rs.getString("icPassportNo"),
                 rs.getString("email"),
-                null));
+                null,
+                rs.getTimestamp("createdAt"),
+                rs.getBoolean("deleted")));
       }
     }
     return list;

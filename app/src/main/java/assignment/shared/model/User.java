@@ -2,6 +2,7 @@ package assignment.shared.model;
 
 import assignment.shared.auth.Role;
 import java.io.Serializable;
+import java.sql.Timestamp;
 
 public class User implements Serializable {
   private static final long serialVersionUID = 1L;
@@ -13,6 +14,8 @@ public class User implements Serializable {
   private final String icPassportNo;
   private final String email;
   private final String passwordHash;
+  private final Timestamp createdAt;
+  private final boolean deleted;
 
   // Primary Constructor
   public User(
@@ -22,7 +25,9 @@ public class User implements Serializable {
       Role role,
       String icPassportNo,
       String email,
-      String passwordHash) {
+      String passwordHash,
+      Timestamp createdAt,
+      boolean deleted) {
     this.userId = userId;
     this.firstName = firstName;
     this.lastName = lastName;
@@ -30,6 +35,8 @@ public class User implements Serializable {
     this.icPassportNo = icPassportNo;
     this.email = email;
     this.passwordHash = passwordHash;
+    this.createdAt = createdAt;
+    this.deleted = deleted;
   }
 
   // Overloaded Constructor for creating users before database ID generation
@@ -40,7 +47,16 @@ public class User implements Serializable {
       String icPassportNo,
       String email,
       String passwordHash) {
-    this(0, firstName, lastName, role, icPassportNo, email, passwordHash);
+    this(
+        0,
+        firstName,
+        lastName,
+        role,
+        icPassportNo,
+        email,
+        passwordHash,
+        new Timestamp(System.currentTimeMillis()),
+        false);
   }
 
   public int getUserId() {
@@ -83,10 +99,18 @@ public class User implements Serializable {
     return passwordHash;
   }
 
+  public Timestamp getCreatedAt() {
+    return createdAt;
+  }
+
+  public boolean isDeleted() {
+    return deleted;
+  }
+
   @Override
   public String toString() {
     return String.format(
-        "User [userId=%d, firstName=%s, lastName=%s, role=%s, icPassportNo=%s, email=%s, passwordHash=%s]",
-        userId, firstName, lastName, role, icPassportNo, email, passwordHash);
+        "User [userId=%d, firstName=%s, lastName=%s, role=%s, icPassportNo=%s, email=%s, passwordHash=%s, createdAt=%s, deleted=%b]",
+        userId, firstName, lastName, role, icPassportNo, email, passwordHash, createdAt, deleted);
   }
 }
