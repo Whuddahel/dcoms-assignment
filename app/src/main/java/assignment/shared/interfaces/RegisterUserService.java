@@ -6,5 +6,5 @@ import java.rmi.RemoteException;
 
 public interface RegisterUserService extends Remote {
   // Function declarations go here
-  public boolean registerUser(User user) throws RemoteException;
+  public boolean registerUser(String token, User user) throws RemoteException;
 }

@@ -35,7 +35,6 @@ public class AuthServiceImplementation extends UnicastRemoteObject implements Au
 
       String token = SessionManager.createSession(user);
 
-      // TODO: Remove debug statement
       SessionManager.printSessions();
       return new LoginResponse(
           token,

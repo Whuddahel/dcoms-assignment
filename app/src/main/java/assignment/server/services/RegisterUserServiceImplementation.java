@@ -1,5 +1,6 @@
 package assignment.server.services;
 
+import assignment.server.auth.AuthorizationManager;
 import assignment.server.database.repository.ClinicAdministratorRepository;
 import assignment.server.database.repository.DoctorRepository;
 import assignment.server.database.repository.PatientRepository;
@@ -22,7 +23,8 @@ public class RegisterUserServiceImplementation extends UnicastRemoteObject
   }
 
   @Override
-  public boolean registerUser(User user) throws RemoteException {
+  public boolean registerUser(String token, User user) throws RemoteException {
+    AuthorizationManager.requirePermissions(token, "registerUser");
     if (user == null) {
       return false;
     }

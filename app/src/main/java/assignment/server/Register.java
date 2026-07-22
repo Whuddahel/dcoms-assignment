@@ -1,9 +1,11 @@
 package assignment.server;
 
 import assignment.server.services.AuthServiceImplementation;
+import assignment.server.services.DoctorServiceImplementation;
 import assignment.server.services.EditUserServiceImplementation;
 import assignment.server.services.ManageConsultationServiceImplementation;
 import assignment.server.services.ManageScheduleServiceImplementation;
+import assignment.server.services.PatientServiceImplementation;
 import assignment.server.services.RegisterUserServiceImplementation;
 import assignment.server.services.ReportServiceImplementation;
 import assignment.shared.services.AuthService;
@@ -40,6 +42,8 @@ public class Register {
       ManageConsultationServiceImplementation manageConsultationService =
           new ManageConsultationServiceImplementation();
       ReportService reportService = new ReportServiceImplementation();
+      PatientServiceImplementation patientService = new PatientServiceImplementation();
+      DoctorServiceImplementation doctorService = new DoctorServiceImplementation();
 
       // Bind service
       registry.rebind("AuthService", authService);
@@ -59,6 +63,12 @@ public class Register {
 
       registry.rebind("ReportService", reportService);
       System.out.println("ReportService bound successfully");
+
+      registry.rebind("PatientService", patientService);
+      System.out.println("PatientService bound successfully");
+
+      registry.rebind("DoctorService", doctorService);
+      System.out.println("DoctorService bound successfully");
 
     } catch (Exception e) {
       System.err.println("Failed to start RMI Registry");

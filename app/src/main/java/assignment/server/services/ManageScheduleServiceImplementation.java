@@ -1,5 +1,6 @@
 package assignment.server.services;
 
+import assignment.server.auth.AuthorizationManager;
 import assignment.server.database.repository.DoctorRepository;
 import assignment.server.database.repository.ScheduleRepository;
 import assignment.shared.model.Schedule;
@@ -18,7 +19,8 @@ public class ManageScheduleServiceImplementation extends UnicastRemoteObject
   }
 
   @Override
-  public boolean addSchedule(Schedule schedule) throws RemoteException {
+  public boolean addSchedule(String token, Schedule schedule) throws RemoteException {
+    AuthorizationManager.requirePermissions(token, "addSchedule");
     try {
       int realDoctorId = DoctorRepository.getDoctorIdByUserId(schedule.getDoctorId());
       // -1 means user is not in doctor table
@@ -41,7 +43,8 @@ public class ManageScheduleServiceImplementation extends UnicastRemoteObject
   }
 
   @Override
-  public List<Schedule> getSchedulesByDoctor(int userId) throws RemoteException {
+  public List<Schedule> getSchedulesByDoctor(String token, int userId) throws RemoteException {
+    AuthorizationManager.requirePermissions(token, "getSchedulesByDoctor");
     try {
       int realDoctorId = DoctorRepository.getDoctorIdByUserId(userId);
       if (realDoctorId == -1) {
@@ -54,7 +57,8 @@ public class ManageScheduleServiceImplementation extends UnicastRemoteObject
   }
 
   @Override
-  public boolean deleteSchedule(int scheduleId) throws RemoteException {
+  public boolean deleteSchedule(String token, int scheduleId) throws RemoteException {
+    AuthorizationManager.requirePermissions(token, "deleteSchedule");
     try {
       if (ScheduleRepository.countLinkedAppointments(scheduleId) > 0) {
         throw new RemoteException("CANNOT_DELETE: Patients have already booked this time slot.");

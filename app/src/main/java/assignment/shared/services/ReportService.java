@@ -7,10 +7,12 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface ReportService extends Remote {
-  MonthlyAppointmentReport getMonthlyAppointmentReport(int year, int month) throws RemoteException;
+  MonthlyAppointmentReport getMonthlyAppointmentReport(String token, int year, int month)
+      throws RemoteException;
 
-  DoctorConsultationReport getDoctorConsultationReport(int year, int month) throws RemoteException;
+  DoctorConsultationReport getDoctorConsultationReport(String token, int year, int month)
+      throws RemoteException;
 
-  PatientVisitSummaryReport getPatientVisitSummaryReport(int year, int month)
+  PatientVisitSummaryReport getPatientVisitSummaryReport(String token, int year, int month)
       throws RemoteException;
 }

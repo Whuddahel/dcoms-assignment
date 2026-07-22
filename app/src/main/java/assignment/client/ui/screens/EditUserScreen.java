@@ -2,6 +2,7 @@ package assignment.client.ui.screens;
 
 import assignment.client.services.ServiceManager;
 import assignment.client.ui.InputHandler;
+import assignment.client.ui.PrintHelper;
 import assignment.shared.model.ClinicAdministrator;
 import assignment.shared.model.Doctor;
 import assignment.shared.model.Patient;
@@ -21,14 +22,10 @@ public class EditUserScreen {
         return;
       }
 
-      int currentPage = 0;
+      PrintHelper.Paginator<User> paginator = new PrintHelper.Paginator<>(users, 10);
       boolean inSearchMode = false;
 
       while (true) {
-        int totalUsers = users.size();
-        int pageSize = 10;
-        int totalPages = (int) Math.ceil((double) totalUsers / pageSize);
-
         if (inSearchMode) {
           System.out.println("\n--- Search Mode ---");
           String query =
@@ -66,17 +63,20 @@ public class EditUserScreen {
             inSearchMode = false; // exit search mode after select
           } else {
             System.out.println("\nMultiple users found:");
-            for (int i = 0; i < matches.size(); i++) {
-              User m = matches.get(i);
-              System.out.printf(
-                  "[%d]. %s - %s (%s)\n", i + 1, m.getUserRole(), m.getFullName(), m.getEmail());
-            }
-            String matchChoiceStr = InputHandler.readLine("Select a user by index (or 'cancel'): ");
-            if (!matchChoiceStr.equalsIgnoreCase("cancel") && !matchChoiceStr.isEmpty()) {
+            String input =
+                PrintHelper.printUserList(matches, 0, "Select a user by index (or 'cancel'): ");
+            if (!input.equalsIgnoreCase("cancel") && !input.isEmpty()) {
               try {
-                int matchChoice = Integer.parseInt(matchChoiceStr);
-                if (matchChoice >= 1 && matchChoice <= matches.size()) {
-                  editOrDeleteUser(client, matches.get(matchChoice - 1), users);
+                int userId = Integer.parseInt(input);
+                User selected = null;
+                for (User u : users) {
+                  if (u.getUserId() == userId) {
+                    selected = u;
+                    break;
+                  }
+                }
+                if (selected != null) {
+                  editOrDeleteUser(client, selected, users);
                   inSearchMode = false;
                 } else {
                   System.out.println("Invalid selection.");
@@ -91,52 +91,41 @@ public class EditUserScreen {
 
         // Standard display mode
         System.out.println("\n=== Edit User ===");
-        int startIdx = currentPage * pageSize;
-        int endIdx = Math.min(startIdx + pageSize, totalUsers);
-
-        if (totalUsers > pageSize) {
-          System.out.printf("Page %d of %d\n", currentPage + 1, totalPages);
-        }
-
-        for (int i = startIdx; i < endIdx; i++) {
-          User u = users.get(i);
-          int indexOnPage = i - startIdx + 1;
-          System.out.printf(
-              "[%d]. %s - %s %s (%s)\n",
-              indexOnPage, u.getUserRole(), u.getFirstName(), u.getLastName(), u.getEmail());
+        if (paginator.getTotalPages() > 1) {
+          paginator.printPageInfo();
         }
 
         System.out.println("\nInput settings:");
-        if (totalUsers > pageSize) {
+        if (paginator.getTotalPages() > 1) {
           System.out.println("  \"<\" or \">\" to change page");
         }
         System.out.println("  \"s\" to search by Email/Name");
         System.out.println("  \"back\" to return to menu");
-        System.out.println("  Enter 1-" + (endIdx - startIdx) + " to select user");
 
-        String input = InputHandler.readLine("Input: ", true);
+        String input =
+            PrintHelper.printUserList(
+                paginator.getCurrentPageItems(), paginator.getStartIndex(), "Input: ");
+
         if (input.equalsIgnoreCase("back")) {
           break;
         } else if (input.equalsIgnoreCase("s")) {
           inSearchMode = true;
-        } else if (input.equals("<") && totalUsers > pageSize) {
-          if (currentPage > 0) {
-            currentPage--;
-          } else {
-            System.out.println("Already on the first page.");
-          }
-        } else if (input.equals(">") && totalUsers > pageSize) {
-          if (currentPage < totalPages - 1) {
-            currentPage++;
-          } else {
-            System.out.println("Already on the last page.");
-          }
+        } else if (input.equals("<") && paginator.getTotalPages() > 1) {
+          paginator.prevPage();
+        } else if (input.equals(">") && paginator.getTotalPages() > 1) {
+          paginator.nextPage();
         } else {
           try {
-            int pageChoice = Integer.parseInt(input);
-            int selectedIndex = startIdx + (pageChoice - 1);
-            if (selectedIndex >= startIdx && selectedIndex < endIdx) {
-              editOrDeleteUser(client, users.get(selectedIndex), users);
+            int userId = Integer.parseInt(input);
+            User selectedUser = null;
+            for (User u : users) {
+              if (u.getUserId() == userId) {
+                selectedUser = u;
+                break;
+              }
+            }
+            if (selectedUser != null) {
+              editOrDeleteUser(client, selectedUser, users);
             } else {
               System.out.println("Invalid index. Please try again.");
             }

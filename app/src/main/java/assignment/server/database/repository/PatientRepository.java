@@ -206,6 +206,37 @@ public class PatientRepository {
     return list;
   }
 
+  public static Patient getPatientByUserId(int userId) throws SQLException {
+    String sql =
+        "SELECT p.patientId, p.userId, p.medicalRecordId, p.contactNumber, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.createdAt, u.deleted "
+            + "FROM Patient p "
+            + "JOIN Users u ON p.userId = u.userId "
+            + "WHERE p.userId = ? AND u.deleted = false";
+
+    try (Connection conn = DatabaseManager.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setInt(1, userId);
+      try (ResultSet rs = ps.executeQuery()) {
+        if (rs.next()) {
+          return new Patient(
+              rs.getInt("patientId"),
+              rs.getInt("userId"),
+              rs.getString("firstName"),
+              rs.getString("lastName"),
+              rs.getString("userRole"),
+              rs.getString("icPassportNo"),
+              rs.getString("email"),
+              null,
+              rs.getInt("medicalRecordId"),
+              rs.getString("contactNumber"),
+              rs.getTimestamp("createdAt"),
+              rs.getBoolean("deleted"));
+        }
+      }
+    }
+    return null;
+  }
+
   public static List<Patient> getAllPatients() throws SQLException {
     String sql =
         "SELECT p.patientId, p.userId, p.medicalRecordId, p.contactNumber, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.createdAt, u.deleted "

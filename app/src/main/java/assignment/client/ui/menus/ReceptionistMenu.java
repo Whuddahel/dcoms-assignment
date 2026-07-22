@@ -8,7 +8,6 @@ import assignment.shared.dto.LoginResponse;
 public class ReceptionistMenu {
   public static void displayMenu(ServiceManager client, LoginResponse session) {
     while (true) {
-      System.out.println("\nHello " + session.getFirstName() + " " + session.getLastName());
       Helper.printBanner("Receptionist Menu", Helper.Theme.BLUE);
       Helper.printOption(1, "Register Patient", Helper.Theme.BLUE);
       Helper.printLine("[2]. Logout", Helper.Theme.RED);
