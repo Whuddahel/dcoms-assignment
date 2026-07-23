@@ -5,14 +5,19 @@ import assignment.shared.dto.DoctorConsultationReport;
 import assignment.shared.dto.MonthlyAppointmentReport;
 import assignment.shared.dto.PatientVisitSummaryReport;
 import assignment.shared.services.ReportService;
+import assignment.shared.ssl.LenientSslRMIClientSocketFactory;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.SQLException;
+import javax.rmi.ssl.SslRMIServerSocketFactory;
 
 public class ReportServiceImplementation extends UnicastRemoteObject implements ReportService {
 
   public ReportServiceImplementation() throws RemoteException {
-    super();
+    super(
+        0,
+        new LenientSslRMIClientSocketFactory(),
+        new SslRMIServerSocketFactory(null, null, false));
   }
 
   @Override

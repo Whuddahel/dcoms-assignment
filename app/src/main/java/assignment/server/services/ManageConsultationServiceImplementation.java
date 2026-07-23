@@ -3,16 +3,21 @@ package assignment.server.services;
 import assignment.server.database.repository.ConsultationRepository;
 import assignment.shared.model.Consultation;
 import assignment.shared.services.ManageConsultationService;
+import assignment.shared.ssl.LenientSslRMIClientSocketFactory;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.SQLException;
 import java.util.List;
+import javax.rmi.ssl.SslRMIServerSocketFactory;
 
 public class ManageConsultationServiceImplementation extends UnicastRemoteObject
     implements ManageConsultationService {
 
   public ManageConsultationServiceImplementation() throws RemoteException {
-    super();
+    super(
+        0,
+        new LenientSslRMIClientSocketFactory(),
+        new SslRMIServerSocketFactory(null, null, false));
   }
 
   @Override

@@ -13,15 +13,15 @@ import assignment.shared.services.AuthService;
 import assignment.shared.services.ManageConsultationService;
 import assignment.shared.services.ManageScheduleService;
 import assignment.shared.services.ReportService;
+import assignment.shared.ssl.LenientSslRMIClientSocketFactory;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.List;
 
 /**
- * ServiceManager acts as the central client coordinator. It connects to the RMI server registry
- * once and pre-loads all shared services, delegating service calls to avoid initializing registries
- * repeatedly.
+ * ServiceManager acts as the central client coordinator. It connects to the RMI server registry and
+ * provides getter methods to access various remote services.
  */
 public class ServiceManager {
   private final AuthService authService;
@@ -33,21 +33,23 @@ public class ServiceManager {
 
   public ServiceManager() throws RemoteException {
     String serverHost = System.getenv("SERVER_HOST");
-    if (serverHost == null || serverHost.isEmpty()) {
-      throw new IllegalStateException("SERVER_HOST environment variable is not set.");
+    if (serverHost == null || serverHost.trim().isEmpty()) {
+      serverHost = "localhost";
     }
+
     String portStr = System.getenv("SERVER_REGISTRY_PORT");
-    if (portStr == null || portStr.isEmpty()) {
-      throw new IllegalStateException("SERVER_REGISTRY_PORT environment variable is not set.");
+    int port = 1099;
+    if (portStr != null && !portStr.trim().isEmpty()) {
+      try {
+        port = Integer.parseInt(portStr);
+      } catch (NumberFormatException e) {
+        throw new IllegalStateException(
+            "SERVER_REGISTRY_PORT is not a valid integer: " + portStr, e);
+      }
     }
-    int port;
     try {
-      port = Integer.parseInt(portStr);
-    } catch (NumberFormatException e) {
-      throw new IllegalStateException("SERVER_REGISTRY_PORT is not a valid integer: " + portStr, e);
-    }
-    try {
-      Registry registry = LocateRegistry.getRegistry(serverHost, port);
+      Registry registry =
+          LocateRegistry.getRegistry(serverHost, port, new LenientSslRMIClientSocketFactory());
       this.authService = (AuthService) registry.lookup("AuthService");
       this.registerUserService = (RegisterUserService) registry.lookup("RegisterUserService");
       this.editUserService = (EditUserService) registry.lookup("EditUserService");
