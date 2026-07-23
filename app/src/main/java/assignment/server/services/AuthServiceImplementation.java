@@ -6,15 +6,20 @@ import assignment.shared.dto.LoginResponse;
 import assignment.shared.error.AuthError;
 import assignment.shared.model.User;
 import assignment.shared.services.AuthService;
+import assignment.shared.ssl.LenientSslRMIClientSocketFactory;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.SQLException;
+import javax.rmi.ssl.SslRMIServerSocketFactory;
 import org.mindrot.jbcrypt.BCrypt;
 
 public class AuthServiceImplementation extends UnicastRemoteObject implements AuthService {
 
   public AuthServiceImplementation() throws RemoteException {
-    super();
+    super(
+        0,
+        new LenientSslRMIClientSocketFactory(),
+        new SslRMIServerSocketFactory(null, null, false));
   }
 
   @Override

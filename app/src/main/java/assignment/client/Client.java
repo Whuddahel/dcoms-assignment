@@ -13,6 +13,17 @@ import assignment.shared.dto.LoginResponse;
 
 public class Client {
   public static void main(String[] args) {
+    // Enable SSL debugging (Only uncomment code below when you need to proof that
+    // the TLS is working)
+    // System.setProperty("javax.net.debug", "ssl:handshake");
+    // Set SSL TrustStore properties
+    String trustStorePath = System.getenv("SSL_TRUSTSTORE_PATH");
+    String trustStorePassword = System.getenv("SSL_TRUSTSTORE_PASSWORD");
+    if (trustStorePath != null && trustStorePassword != null) {
+      System.setProperty("javax.net.ssl.trustStore", trustStorePath);
+      System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
+    }
+
     try {
       ServiceManager serviceManager = new ServiceManager();
       System.out.println("connected to server");

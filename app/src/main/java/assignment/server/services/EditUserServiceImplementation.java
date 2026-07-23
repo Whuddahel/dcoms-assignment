@@ -11,14 +11,19 @@ import assignment.shared.model.Doctor;
 import assignment.shared.model.Patient;
 import assignment.shared.model.Receptionist;
 import assignment.shared.model.User;
+import assignment.shared.ssl.LenientSslRMIClientSocketFactory;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.SQLException;
 import java.util.List;
+import javax.rmi.ssl.SslRMIServerSocketFactory;
 
 public class EditUserServiceImplementation extends UnicastRemoteObject implements EditUserService {
   public EditUserServiceImplementation() throws RemoteException {
-    super();
+    super(
+        0,
+        new LenientSslRMIClientSocketFactory(),
+        new SslRMIServerSocketFactory(null, null, false));
   }
 
   @Override

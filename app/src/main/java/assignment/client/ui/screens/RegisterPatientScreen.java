@@ -4,17 +4,17 @@
  */
 package assignment.client.ui.screens;
 
-import assignment.client.ClinicClient;
+import assignment.client.services.ServiceManager;
 import assignment.client.ui.InputHandler;
 import assignment.shared.model.Patient;
 import org.mindrot.jbcrypt.BCrypt;
 
 public class RegisterPatientScreen {
 
-  public static void display(ClinicClient client) {
+  public static void display(ServiceManager client) {
     System.out.println("PATIENT REGISTRATION");
     System.out.println("Enter patient details:");
-    
+
     String firstName = InputHandler.readLine("First Name: ");
     String lastName = InputHandler.readLine("Last Name: ");
     String icPassportNo = InputHandler.readLine("IC/Passport Number: ");
@@ -25,19 +25,19 @@ public class RegisterPatientScreen {
     String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 
     try {
-      Patient patient = new Patient(
-          firstName, 
-          lastName, 
-          "patient", 
-          icPassportNo, 
-          email, 
-          hashedPassword, 
-          0, 
-          contactNumber
-      );
-      
+      Patient patient =
+          new Patient(
+              firstName,
+              lastName,
+              "patient",
+              icPassportNo,
+              email,
+              hashedPassword,
+              0,
+              contactNumber);
+
       boolean success = client.registerUser(patient);
-      
+
       if (success) {
         System.out.println("\nPatient registered successfully!");
         System.out.println("Medical Record ID will be assigned by the system.");

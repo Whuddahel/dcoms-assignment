@@ -81,12 +81,21 @@ fun ProcessForkOptions.setupEnv() {
     val dbPassword = getEnvOrProperty("DB_PASSWORD", "Password")
     val dbUrl = getEnvOrProperty("DB_URL", "jdbc:derby://$dbHost:1527/appdb;create=true")
 
+    val sslKeystorePath = File(rootDir, getEnvOrProperty("SSL_KEYSTORE_PATH", "./ssl/server/serverkeystore.jks")).absolutePath
+    val sslKeystorePassword = getEnvOrProperty("SSL_KEYSTORE_PASSWORD", "123456")
+    val sslTruststorePath = File(rootDir, getEnvOrProperty("SSL_TRUSTSTORE_PATH", "./ssl/client/clienttruststore.jks")).absolutePath
+    val sslTruststorePassword = getEnvOrProperty("SSL_TRUSTSTORE_PASSWORD", "123456")
+
     environment("SERVER_HOST", serverHost)
     environment("DB_HOST", dbHost)
     environment("SERVER_REGISTRY_PORT", registryPort)
     environment("DB_USER", dbUser)
     environment("DB_PASSWORD", dbPassword)
     environment("DB_URL", dbUrl)
+    environment("SSL_KEYSTORE_PATH", sslKeystorePath)
+    environment("SSL_KEYSTORE_PASSWORD", sslKeystorePassword)
+    environment("SSL_TRUSTSTORE_PATH", sslTruststorePath)
+    environment("SSL_TRUSTSTORE_PASSWORD", sslTruststorePassword)
 }
 
 // Command: .\gradlew.bat :app:startDerbyServer

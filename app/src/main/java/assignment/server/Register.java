@@ -8,8 +8,10 @@ import assignment.server.services.RegisterUserServiceImplementation;
 import assignment.server.services.ReportServiceImplementation;
 import assignment.shared.services.AuthService;
 import assignment.shared.services.ReportService;
+import assignment.shared.ssl.LenientSslRMIClientSocketFactory;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import javax.rmi.ssl.SslRMIServerSocketFactory;
 
 public class Register {
 
@@ -26,8 +28,12 @@ public class Register {
         throw new IllegalStateException(
             "SERVER_REGISTRY_PORT is not a valid integer: " + portStr, e);
       }
-      // Start RMI registry
-      Registry registry = LocateRegistry.createRegistry(port);
+      // Start RMI registry with SSL factories
+      Registry registry =
+          LocateRegistry.createRegistry(
+              port,
+              new LenientSslRMIClientSocketFactory(),
+              new SslRMIServerSocketFactory(null, null, false));
       System.out.println("RMI Registry started on port " + port);
 
       // Create service

@@ -4,17 +4,22 @@ import assignment.server.database.repository.DoctorRepository;
 import assignment.server.database.repository.ScheduleRepository;
 import assignment.shared.model.Schedule;
 import assignment.shared.services.ManageScheduleService;
+import assignment.shared.ssl.LenientSslRMIClientSocketFactory;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.SQLException;
 import java.util.ArrayList; // Added this import to fix ArrayList compilation
 import java.util.List;
+import javax.rmi.ssl.SslRMIServerSocketFactory;
 
 public class ManageScheduleServiceImplementation extends UnicastRemoteObject
     implements ManageScheduleService {
 
   public ManageScheduleServiceImplementation() throws RemoteException {
-    super();
+    super(
+        0,
+        new LenientSslRMIClientSocketFactory(),
+        new SslRMIServerSocketFactory(null, null, false));
   }
 
   @Override
