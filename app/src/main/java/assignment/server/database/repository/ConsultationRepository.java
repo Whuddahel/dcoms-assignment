@@ -2,6 +2,7 @@ package assignment.server.database.repository;
 
 import assignment.server.database.DatabaseManager;
 import assignment.shared.model.Consultation;
+import assignment.shared.model.Patient;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -124,6 +125,90 @@ public class ConsultationRepository {
                 rs.getString("content"),
                 rs.getDouble("fee"),
                 rs.getTimestamp("createdAt")));
+      }
+    }
+    return list;
+  }
+
+  public static List<Consultation> getConsultationsByPatientId(int patientId) throws SQLException {
+    String sql =
+        "SELECT c.consultationId, c.appointmentId, c.content, c.fee, c.createdAt "
+            + "FROM Consultation c "
+            + "JOIN Appointment a ON c.appointmentId = a.appointmentId "
+            + "WHERE a.patientId = ? "
+            + "ORDER BY c.createdAt DESC";
+
+    List<Consultation> list = new ArrayList<>();
+    try (Connection conn = DatabaseManager.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setInt(1, patientId);
+      try (ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) {
+          list.add(
+              new Consultation(
+                  rs.getInt("consultationId"),
+                  rs.getInt("appointmentId"),
+                  rs.getString("content"),
+                  rs.getDouble("fee"),
+                  rs.getTimestamp("createdAt")));
+        }
+      }
+    }
+    return list;
+  }
+
+  public static Consultation getConsultationByAppointmentId(int appointmentId) throws SQLException {
+    String sql =
+        "SELECT consultationId, appointmentId, content, fee, createdAt FROM Consultation WHERE appointmentId = ?";
+
+    try (Connection conn = DatabaseManager.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setInt(1, appointmentId);
+      try (ResultSet rs = ps.executeQuery()) {
+        if (rs.next()) {
+          return new Consultation(
+              rs.getInt("consultationId"),
+              rs.getInt("appointmentId"),
+              rs.getString("content"),
+              rs.getDouble("fee"),
+              rs.getTimestamp("createdAt"));
+        }
+      }
+    }
+    return null;
+  }
+
+  public static List<Patient> getPatientsWithConsultationsByDoctorId(int doctorId)
+      throws SQLException {
+    String sql =
+        "SELECT DISTINCT p.patientId, p.userId, p.medicalRecordId, p.contactNumber, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.createdAt, u.deleted "
+            + "FROM Patient p "
+            + "JOIN Users u ON p.userId = u.userId "
+            + "JOIN Appointment a ON a.patientId = p.patientId "
+            + "JOIN Consultation c ON c.appointmentId = a.appointmentId "
+            + "WHERE a.doctorId = ? AND u.deleted = false";
+
+    List<Patient> list = new ArrayList<>();
+    try (Connection conn = DatabaseManager.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setInt(1, doctorId);
+      try (ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) {
+          list.add(
+              new Patient(
+                  rs.getInt("patientId"),
+                  rs.getInt("userId"),
+                  rs.getString("firstName"),
+                  rs.getString("lastName"),
+                  rs.getString("userRole"),
+                  rs.getString("icPassportNo"),
+                  rs.getString("email"),
+                  null, // password not needed here
+                  rs.getInt("medicalRecordId"),
+                  rs.getString("contactNumber"),
+                  rs.getTimestamp("createdAt"),
+                  rs.getBoolean("deleted")));
+        }
       }
     }
     return list;

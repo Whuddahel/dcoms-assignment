@@ -3,12 +3,14 @@ package assignment.client.ui.menus;
 import assignment.client.services.ServiceManager;
 import assignment.client.ui.Helper;
 import assignment.client.ui.InputHandler;
+import assignment.client.ui.screens.AppointmentScreen;
+import assignment.client.ui.screens.ConsultationScreen;
+import assignment.client.ui.screens.ProfileScreen;
 import assignment.shared.dto.LoginResponse;
 
 public class PatientMenu {
   public static void displayMenu(ServiceManager client, LoginResponse session) {
     while (true) {
-      System.out.println("\nHello " + session.getFirstName() + " " + session.getLastName());
       Helper.printBanner("Patient Menu", Helper.Theme.BLUE);
       Helper.printOption(1, "Update Personal Information", Helper.Theme.BLUE);
       Helper.printOption(2, "View Upcoming Appointments/Cancel", Helper.Theme.BLUE);
@@ -19,15 +21,15 @@ public class PatientMenu {
 
       int choice = InputHandler.readInt("Select an option: ");
       if (choice == 1) {
-        System.out.println("i love marvel rivals");
+        ProfileScreen.updatePersonalInfo(client, session);
       } else if (choice == 2) {
-        System.out.println("i love marvel rivals");
+        AppointmentScreen.viewUpcomingAppointments(client, session);
       } else if (choice == 3) {
-        System.out.println("i love marvel rivals");
+        AppointmentScreen.bookAppointment(client, session);
       } else if (choice == 4) {
-        System.out.println("i love marvel rivals");
+        AppointmentScreen.viewAppointmentHistory(client, session);
       } else if (choice == 5) {
-        System.out.println("i love marvel rivals");
+        ConsultationScreen.viewConsultationNotes(client, session);
       } else if (choice == 6) {
         System.out.println("Exiting Patient Menu...");
         break;

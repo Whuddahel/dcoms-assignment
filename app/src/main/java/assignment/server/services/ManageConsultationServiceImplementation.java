@@ -1,5 +1,6 @@
 package assignment.server.services;
 
+import assignment.server.auth.AuthorizationManager;
 import assignment.server.database.repository.ConsultationRepository;
 import assignment.shared.model.Consultation;
 import assignment.shared.services.ManageConsultationService;
@@ -21,7 +22,8 @@ public class ManageConsultationServiceImplementation extends UnicastRemoteObject
   }
 
   @Override
-  public boolean addConsultation(Consultation consultation) throws RemoteException {
+  public boolean addConsultation(String token, Consultation consultation) throws RemoteException {
+    AuthorizationManager.requirePermissions(token, "addConsultation");
     try {
       return ConsultationRepository.addConsultation(consultation);
     } catch (SQLException e) {
@@ -30,7 +32,8 @@ public class ManageConsultationServiceImplementation extends UnicastRemoteObject
   }
 
   @Override
-  public List<Consultation> getAllConsultations() throws RemoteException {
+  public List<Consultation> getAllConsultations(String token) throws RemoteException {
+    AuthorizationManager.requirePermissions(token, "getAllConsultations");
     try {
       return ConsultationRepository.getAllConsultations();
     } catch (SQLException e) {
@@ -39,7 +42,9 @@ public class ManageConsultationServiceImplementation extends UnicastRemoteObject
   }
 
   @Override
-  public boolean updateConsultation(Consultation consultation) throws RemoteException {
+  public boolean updateConsultation(String token, Consultation consultation)
+      throws RemoteException {
+    AuthorizationManager.requirePermissions(token, "updateConsultation");
     try {
       return ConsultationRepository.updateConsultation(consultation);
     } catch (SQLException e) {

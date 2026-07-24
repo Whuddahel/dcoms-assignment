@@ -52,6 +52,7 @@ public class Client {
 
           if (sessionData != null) {
             currentContext.setSession(sessionData);
+            serviceManager.setToken(sessionData.getToken());
             Helper.printLine("Login successful!", Helper.Theme.GREEN);
 
             Role role = sessionData.getRole();
@@ -75,6 +76,7 @@ public class Client {
 
             // logout
             currentContext.clearSession();
+            serviceManager.clearToken();
             System.out.println("Session closed successfully.");
 
           } else {

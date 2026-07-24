@@ -159,4 +159,137 @@ public class AppointmentRepository {
     }
     return list;
   }
+
+  public static List<Appointment> getAppointmentsByPatientId(int patientId) throws SQLException {
+    String sql =
+        "SELECT appointmentId, doctorId, patientId, scheduleId, appointmentDate, createdAt, cancelledByUserId "
+            + "FROM Appointment WHERE patientId = ? ORDER BY appointmentDate DESC";
+
+    List<Appointment> list = new ArrayList<>();
+    try (Connection conn = DatabaseManager.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setInt(1, patientId);
+      try (ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) {
+          int cancelledByUserIdVal = rs.getInt("cancelledByUserId");
+          Integer cancelledByUserId = rs.wasNull() ? null : cancelledByUserIdVal;
+          list.add(
+              new Appointment(
+                  rs.getInt("appointmentId"),
+                  rs.getInt("doctorId"),
+                  rs.getInt("patientId"),
+                  rs.getInt("scheduleId"),
+                  rs.getDate("appointmentDate"),
+                  rs.getTimestamp("createdAt"),
+                  cancelledByUserId));
+        }
+      }
+    }
+    return list;
+  }
+
+  public static List<Appointment> getAppointmentsByDoctorAndDate(int doctorId, java.sql.Date date)
+      throws SQLException {
+    String sql =
+        "SELECT appointmentId, doctorId, patientId, scheduleId, appointmentDate, createdAt, cancelledByUserId "
+            + "FROM Appointment WHERE doctorId = ? AND appointmentDate = ? AND cancelledByUserId IS NULL";
+
+    List<Appointment> list = new ArrayList<>();
+    try (Connection conn = DatabaseManager.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setInt(1, doctorId);
+      ps.setDate(2, date);
+      try (ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) {
+          int cancelledByUserIdVal = rs.getInt("cancelledByUserId");
+          Integer cancelledByUserId = rs.wasNull() ? null : cancelledByUserIdVal;
+          list.add(
+              new Appointment(
+                  rs.getInt("appointmentId"),
+                  rs.getInt("doctorId"),
+                  rs.getInt("patientId"),
+                  rs.getInt("scheduleId"),
+                  rs.getDate("appointmentDate"),
+                  rs.getTimestamp("createdAt"),
+                  cancelledByUserId));
+        }
+      }
+    }
+    return list;
+  }
+
+  public static boolean cancelAppointment(int appointmentId, int cancelledByUserId)
+      throws SQLException {
+    String sql = "UPDATE Appointment SET cancelledByUserId = ? WHERE appointmentId = ?";
+
+    try (Connection conn = DatabaseManager.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setInt(1, cancelledByUserId);
+      ps.setInt(2, appointmentId);
+      int rows = ps.executeUpdate();
+      return rows > 0;
+    }
+  }
+
+  public static List<Appointment> getUpcomingAppointmentsByDoctorId(int doctorId)
+      throws SQLException {
+    String sql =
+        "SELECT a.appointmentId, a.doctorId, a.patientId, a.scheduleId, a.appointmentDate, a.createdAt, a.cancelledByUserId "
+            + "FROM Appointment a "
+            + "JOIN Schedule s ON a.scheduleId = s.scheduleId "
+            + "WHERE a.doctorId = ? AND a.cancelledByUserId IS NULL";
+
+    List<Appointment> list = new ArrayList<>();
+    try (Connection conn = DatabaseManager.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setInt(1, doctorId);
+      try (ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) {
+          list.add(
+              new Appointment(
+                  rs.getInt("appointmentId"),
+                  rs.getInt("doctorId"),
+                  rs.getInt("patientId"),
+                  rs.getInt("scheduleId"),
+                  rs.getDate("appointmentDate"),
+                  rs.getTimestamp("createdAt"),
+                  null)); // cancelledByUserId is null by definition of query
+        }
+      }
+    }
+    return list;
+  }
+
+  public static List<Appointment> getAppointmentsByDoctorAndPatient(int doctorId, int patientId)
+      throws SQLException {
+    String sql =
+        "SELECT a.appointmentId, a.doctorId, a.patientId, a.scheduleId, a.appointmentDate, a.createdAt, a.cancelledByUserId "
+            + "FROM Appointment a "
+            + "JOIN Consultation c ON c.appointmentId = a.appointmentId "
+            + "WHERE a.doctorId = ? AND a.patientId = ? AND a.cancelledByUserId IS NULL "
+            + "ORDER BY a.appointmentDate DESC";
+
+    List<Appointment> list = new ArrayList<>();
+    try (Connection conn = DatabaseManager.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setInt(1, doctorId);
+      ps.setInt(2, patientId);
+      try (ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) {
+          int cancelledByUserIdVal = rs.getInt("cancelledByUserId");
+          Integer cancelledByUserId = rs.wasNull() ? null : cancelledByUserIdVal;
+          list.add(
+              new Appointment(
+                  rs.getInt("appointmentId"),
+                  rs.getInt("doctorId"),
+                  rs.getInt("patientId"),
+                  rs.getInt("scheduleId"),
+                  rs.getDate("appointmentDate"),
+                  rs.getTimestamp("createdAt"),
+                  cancelledByUserId));
+        }
+      }
+    }
+    return list;
+  }
 }

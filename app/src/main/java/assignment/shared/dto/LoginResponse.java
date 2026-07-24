@@ -12,6 +12,7 @@ public class LoginResponse implements Serializable {
   private Role role;
   private String icPassport;
 
+  // Constructor
   public LoginResponse(
       String token,
       String email,

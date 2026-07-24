@@ -1,5 +1,6 @@
 package assignment.server.services;
 
+import assignment.server.auth.AuthorizationManager;
 import assignment.server.database.repository.ClinicAdministratorRepository;
 import assignment.server.database.repository.DoctorRepository;
 import assignment.server.database.repository.PatientRepository;
@@ -27,7 +28,8 @@ public class EditUserServiceImplementation extends UnicastRemoteObject implement
   }
 
   @Override
-  public boolean editUser(User user) throws RemoteException {
+  public boolean editUser(String token, User user) throws RemoteException {
+    AuthorizationManager.requirePermissions(token, "editUser");
     if (user == null) {
       return false;
     }
@@ -66,7 +68,8 @@ public class EditUserServiceImplementation extends UnicastRemoteObject implement
   }
 
   @Override
-  public boolean deleteUser(User user) throws RemoteException {
+  public boolean deleteUser(String token, User user) throws RemoteException {
+    AuthorizationManager.requirePermissions(token, "deleteUser");
     if (user == null) {
       return false;
     }
@@ -106,7 +109,8 @@ public class EditUserServiceImplementation extends UnicastRemoteObject implement
   }
 
   @Override
-  public List<User> getAllUsers() throws RemoteException {
+  public List<User> getAllUsers(String token) throws RemoteException {
+    AuthorizationManager.requirePermissions(token, "getAllUsers");
     try {
       return UserRepository.getAllUsersWithRoles();
     } catch (SQLException e) {

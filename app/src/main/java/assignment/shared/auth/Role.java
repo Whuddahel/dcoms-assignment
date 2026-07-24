@@ -7,11 +7,38 @@ import java.util.Set;
 public enum Role {
   ADMIN(EnumSet.allOf(Permission.class)),
 
-  DOCTOR(EnumSet.of(Permission.USER_READ)),
+  DOCTOR(
+      EnumSet.of(
+          Permission.USER_READ,
+          Permission.APPOINTMENT_READ,
+          Permission.APPOINTMENT_UPDATE,
+          Permission.SCHEDULE_READ,
+          Permission.CONSULTATION_CREATE,
+          Permission.CONSULTATION_READ,
+          Permission.CONSULTATION_UPDATE)),
 
-  RECEPTIONIST(EnumSet.of(Permission.USER_READ)),
+  RECEPTIONIST(
+      EnumSet.of(
+          Permission.USER_CREATE,
+          Permission.USER_READ,
+          Permission.USER_UPDATE,
+          Permission.USER_DELETE,
+          Permission.APPOINTMENT_READ,
+          Permission.SCHEDULE_CREATE,
+          Permission.SCHEDULE_READ,
+          Permission.SCHEDULE_UPDATE,
+          Permission.SCHEDULE_DELETE,
+          Permission.REPORT_READ)),
 
-  PATIENT(EnumSet.of(Permission.USER_READ));
+  PATIENT(
+      EnumSet.of(
+          Permission.USER_READ,
+          Permission.USER_UPDATE,
+          Permission.APPOINTMENT_CREATE,
+          Permission.APPOINTMENT_READ,
+          Permission.APPOINTMENT_UPDATE,
+          Permission.SCHEDULE_READ,
+          Permission.CONSULTATION_READ));
 
   private final Set<Permission> permissions;
 

@@ -16,7 +16,6 @@ public class ClinicAdministratorMenu {
 
   public static void displayMenu(ServiceManager client, LoginResponse session) {
     while (true) {
-      System.out.println("\nHello " + session.getFirstName() + " " + session.getLastName());
       Helper.printBanner("Clinic Administrator Menu", Helper.Theme.BLUE);
       Helper.printOption(1, "Register User", Helper.Theme.BLUE);
       Helper.printOption(2, "Edit User", Helper.Theme.BLUE);

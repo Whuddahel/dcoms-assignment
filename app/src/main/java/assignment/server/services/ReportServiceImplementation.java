@@ -1,5 +1,6 @@
 package assignment.server.services;
 
+import assignment.server.auth.AuthorizationManager;
 import assignment.server.database.repository.ReportRepository;
 import assignment.shared.dto.DoctorConsultationReport;
 import assignment.shared.dto.MonthlyAppointmentReport;
@@ -21,8 +22,9 @@ public class ReportServiceImplementation extends UnicastRemoteObject implements 
   }
 
   @Override
-  public MonthlyAppointmentReport getMonthlyAppointmentReport(int year, int month)
+  public MonthlyAppointmentReport getMonthlyAppointmentReport(String token, int year, int month)
       throws RemoteException {
+    AuthorizationManager.requirePermissions(token, "getMonthlyAppointmentReport");
     try {
       return ReportRepository.getMonthlyAppointmentReport(year, month);
     } catch (SQLException e) {
@@ -32,8 +34,9 @@ public class ReportServiceImplementation extends UnicastRemoteObject implements 
   }
 
   @Override
-  public DoctorConsultationReport getDoctorConsultationReport(int year, int month)
+  public DoctorConsultationReport getDoctorConsultationReport(String token, int year, int month)
       throws RemoteException {
+    AuthorizationManager.requirePermissions(token, "getDoctorConsultationReport");
     try {
       return ReportRepository.getDoctorConsultationReport(year, month);
     } catch (SQLException e) {
@@ -43,8 +46,9 @@ public class ReportServiceImplementation extends UnicastRemoteObject implements 
   }
 
   @Override
-  public PatientVisitSummaryReport getPatientVisitSummaryReport(int year, int month)
+  public PatientVisitSummaryReport getPatientVisitSummaryReport(String token, int year, int month)
       throws RemoteException {
+    AuthorizationManager.requirePermissions(token, "getPatientVisitSummaryReport");
     try {
       return ReportRepository.getPatientVisitSummaryReport(year, month);
     } catch (SQLException e) {

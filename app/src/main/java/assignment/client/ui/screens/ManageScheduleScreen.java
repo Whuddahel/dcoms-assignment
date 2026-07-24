@@ -1,7 +1,9 @@
 package assignment.client.ui.screens;
 
 import assignment.client.services.ServiceManager;
+import assignment.client.ui.Helper;
 import assignment.client.ui.InputHandler;
+import assignment.client.ui.PrintHelper;
 import assignment.shared.dto.LoginResponse;
 import assignment.shared.model.Schedule;
 import java.sql.Time;
@@ -10,53 +12,88 @@ import java.util.List;
 public class ManageScheduleScreen {
 
   public static void display(ServiceManager client, LoginResponse session) {
-
     while (true) {
       System.out.println("\n=== Manage Available Time ===");
-      System.out.println("[1]. View Current Slots");
-      System.out.println("[2]. Add New Availability Slot");
-      System.out.println("[3]. Remove Availability Slot");
-      System.out.println("[4]. Return to Doctor Menu");
+      List<Schedule> schedules = null;
+      try {
+        schedules = client.getSchedulesByDoctor(session.getUserId());
+        if (schedules != null) {
+          java.util.Collections.sort(schedules);
+        }
+      } catch (Exception e) {
+        System.err.println("Error pulling schedules: " + e.getMessage());
+      }
 
-      int choice = InputHandler.readInt("Select an option: ");
-
-      if (choice == 1) {
-        showSchedules(client, session.getUserId());
-      } else if (choice == 2) {
-        addNewSchedule(client, session.getUserId());
-      } else if (choice == 3) {
-        removeSchedule(client, session.getUserId());
-      } else if (choice == 4) {
-        break;
+      if (schedules == null || schedules.isEmpty()) {
+        System.out.println("(No availability slots found)");
+        System.out.println("\n[1]. Add New Availability Slot");
+        System.out.println("[2]. Return to Doctor Menu");
+        String input = InputHandler.readLine("Select an option: ", true);
+        if (input.equals("1")) {
+          addNewSchedule(client, session.getUserId());
+        } else if (input.equals("2")) {
+          break;
+        } else {
+          System.out.println("Invalid choice. Please try again.");
+        }
       } else {
-        System.out.println("Invalid choice. Please try again.");
+        String input =
+            PrintHelper.printScheduleList(
+                schedules,
+                0,
+                "Enter slot index to manage, 'add' to add new, or 'back' to return: ");
+        if (input.equalsIgnoreCase("back")) {
+          break;
+        } else if (input.equalsIgnoreCase("add")) {
+          addNewSchedule(client, session.getUserId());
+        } else {
+          try {
+            int scheduleId = Integer.parseInt(input);
+            manageSingleSchedule(client, schedules, scheduleId);
+          } catch (NumberFormatException e) {
+            System.out.println("Invalid choice. Please try again.");
+          }
+        }
       }
     }
   }
 
-  private static void showSchedules(
-      ServiceManager client, int userIdThatWillBeCrosscheckedWithDoctorId) {
-    try {
-      List<Schedule> schedules =
-          client.getSchedulesByDoctor(userIdThatWillBeCrosscheckedWithDoctorId);
-      System.out.println("\n--- Your Current Availability Slots ---");
-      if (schedules == null || schedules.isEmpty()) {
-        System.out.println("(No availability slots found)");
-        return;
+  private static void manageSingleSchedule(
+      ServiceManager client, List<Schedule> schedules, int scheduleId) {
+    Schedule selected = null;
+    for (Schedule s : schedules) {
+      if (s.getScheduleId() == scheduleId) {
+        selected = s;
+        break;
       }
-      for (Schedule schedule : schedules) {
-        System.out.println(
-            "ID: ["
-                + schedule.getScheduleId()
-                + "] | "
-                + schedule.getDay()
-                + " | "
-                + schedule.getStartTime()
-                + " - "
-                + schedule.getEndTime());
+    }
+    if (selected == null) {
+      System.out.println("Invalid slot selected.");
+      return;
+    }
+
+    System.out.println("\n--- Selected Slot ---");
+    System.out.printf("Day: %s\n", selected.getDay());
+    System.out.printf("Time: %s - %s\n", selected.getStartTime(), selected.getEndTime());
+
+    System.out.println("\nDo you want to delete this availability slot?");
+    System.out.println("[1]. Back");
+    Helper.printLine("[2]. Delete Slot", Helper.Theme.RED);
+
+    int choice = InputHandler.readInt("Select an option: ");
+    if (choice == 2) {
+      try {
+        boolean success = client.deleteSchedule(scheduleId);
+        if (success) {
+          System.out.println("Availability slot deleted successfully.");
+        } else {
+          System.out.println("Failed to delete slot.");
+        }
+      } catch (Exception e) {
+        System.err.println("Error removing slot: " + e.getMessage());
       }
-    } catch (Exception e) {
-      System.err.println("Error pulling availability schedules: " + e.getMessage());
+    } else if (choice != 1) {
+      System.out.println("Invalid choice.");
     }
   }
 
@@ -81,6 +118,30 @@ public class ManageScheduleScreen {
       Time startTime = Time.valueOf(startStr);
       Time endTime = Time.valueOf(endStr);
 
+      if (!startTime.before(endTime)) {
+        System.out.println("Error: Start time must be before end time.");
+        return;
+      }
+
+      List<Schedule> existingSchedules =
+          client.getSchedulesByDoctor(userIdToBeLaterConvertedToDoctorID);
+      if (existingSchedules != null) {
+        for (Schedule existing : existingSchedules) {
+          if (existing.getDay().equalsIgnoreCase(standardizedDay)) {
+            if (startTime.before(existing.getEndTime())
+                && existing.getStartTime().before(endTime)) {
+              System.out.println(
+                  "Error: The new schedule clashes with an existing slot ("
+                      + existing.getStartTime()
+                      + " - "
+                      + existing.getEndTime()
+                      + ").");
+              return;
+            }
+          }
+        }
+      }
+
       Schedule schedule =
           new Schedule(0, userIdToBeLaterConvertedToDoctorID, standardizedDay, startTime, endTime);
       boolean success = client.addSchedule(schedule);
@@ -94,29 +155,6 @@ public class ManageScheduleScreen {
       System.out.println("Invalid time format! Please use HH:MM:SS format.");
     } catch (Exception e) {
       System.err.println("Error adding schedule entry: " + e.getMessage());
-    }
-  }
-
-  private static void removeSchedule(
-      ServiceManager client, int userIdThatWillBeCrosscheckedWithDoctorId) {
-    showSchedules(client, userIdThatWillBeCrosscheckedWithDoctorId);
-    System.out.println("\n--- Remove Availability Slot ---");
-    int scheduleId = InputHandler.readInt("Enter the Slot ID to delete (-1 To cancel): ");
-
-    if (scheduleId == -1) {
-      System.out.println("Operation cancelled.");
-      return;
-    }
-
-    try {
-      boolean success = client.deleteSchedule(scheduleId);
-      if (success) {
-        System.out.println("Availability slot removed successfully.");
-      } else {
-        System.out.println("Failed to remove slot");
-      }
-    } catch (Exception e) {
-      System.err.println("Error: " + e.getMessage());
     }
   }
 }
