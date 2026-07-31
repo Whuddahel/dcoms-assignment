@@ -25,6 +25,9 @@ dependencies {
     // Use JUnit Jupiter for testing.
     testImplementation(libs.junit.jupiter)
 
+    testImplementation("org.mockito:mockito-core:5.12.0")
+    testImplementation("org.mockito:mockito-inline:5.2.0")
+
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     // This dependency is used by the application.
@@ -41,6 +44,8 @@ dependencies {
 
     // jBCrypt (Hashing Library)
     implementation("org.mindrot:jbcrypt:0.4")
+
+
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
