@@ -591,9 +591,21 @@ public class AppointmentScreen {
           "Time Slot:       %s\n", resolveScheduleTime(client, appointment.getScheduleId()));
     }
 
-    System.out.printf(
-        "Status:          %s\n",
-        appointment.getcancelledByUserId() != null ? "Cancelled" : "Active");
+    String status = "Active";
+    if (appointment.getcancelledByUserId() != null) {
+      status = "Cancelled";
+    } else {
+      try {
+        Consultation existingConsultation =
+            client.getConsultationByAppointmentId(appointment.getAppointmentId());
+        if (existingConsultation != null) {
+          status = "Completed";
+        }
+      } catch (Exception e) {
+        // ignore, fall back to "Active"
+      }
+    }
+    System.out.printf("Status:          %s\n", status);
     System.out.println("--------------------------");
   }
 
