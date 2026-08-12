@@ -7,6 +7,7 @@ import assignment.client.ui.PrintHelper;
 import assignment.shared.dto.AppointmentView;
 import assignment.shared.dto.LoginResponse;
 import assignment.shared.model.Appointment;
+import assignment.shared.model.Consultation;
 import assignment.shared.model.Doctor;
 import assignment.shared.model.Patient;
 import assignment.shared.model.Schedule;
@@ -245,6 +246,7 @@ public class AppointmentScreen {
         for (Appointment a : notEnded) {
           Patient p = client.getPatientByIdForDoctor(a.getPatientId());
           Schedule s = client.getScheduleByIdForDoctor(a.getScheduleId());
+          Consultation existingConsultation = client.getConsultationByAppointmentId(a.getAppointmentId());
           String patientName = p != null ? p.getFirstName() + " " + p.getLastName() : "Unknown";
           String timeSlot = s != null ? s.getStartTime() + " - " + s.getEndTime() : "Unknown";
           views.add(
@@ -254,7 +256,7 @@ public class AppointmentScreen {
                   "",
                   patientName,
                   timeSlot,
-                  "Active"));
+                  existingConsultation != null ? "Completed" : "Active"));
         }
 
         String input =
@@ -284,8 +286,21 @@ public class AppointmentScreen {
 
         displayAppointmentDetail(client, selected);
 
+        Consultation existingConsultation =
+            client.getConsultationByAppointmentId(selected.getAppointmentId());
+        boolean hasConsultation = existingConsultation != null;
+
         System.out.println("\nOptions:");
-        Helper.printOption(1, "Initiate Consultation", Helper.Theme.BLUE);
+        int nextOption = 1;
+        Integer initiateOption = null;
+        if (!hasConsultation) {
+          Helper.printOption(nextOption, "Initiate Consultation", Helper.Theme.BLUE);
+          initiateOption = nextOption++;
+        } else {
+          Helper.printLine(
+              "Consultation already recorded for this appointment.", Helper.Theme.CYAN);
+        }
+
         Schedule s = client.getScheduleByIdForDoctor(selected.getScheduleId());
         boolean canCancel = false;
         if (s != null) {
@@ -296,15 +311,18 @@ public class AppointmentScreen {
           }
         }
 
+        Integer cancelOption = null;
         if (canCancel) {
-          Helper.printOption(2, "Cancel Appointment", Helper.Theme.RED);
+          Helper.printOption(nextOption, "Cancel Appointment", Helper.Theme.RED);
+          cancelOption = nextOption++;
         }
-        Helper.printOption(3, "Back", Helper.Theme.GREEN);
+        int backOption = nextOption;
+        Helper.printOption(backOption, "Back", Helper.Theme.GREEN);
 
         int choice = InputHandler.readInt("Select an option: ");
-        if (choice == 1) {
+        if (initiateOption != null && choice == initiateOption) {
           ConsultationScreen.initiateConsultation(client, selected.getAppointmentId());
-        } else if (choice == 2 && canCancel) {
+        } else if (cancelOption != null && choice == cancelOption) {
           boolean confirm =
               InputHandler.readYesNo("Are you sure you want to cancel this appointment?");
           if (confirm) {
@@ -316,7 +334,7 @@ public class AppointmentScreen {
               Helper.printLine("Failed to cancel appointment.", Helper.Theme.RED);
             }
           }
-        } else if (choice == 3) {
+        } else if (choice == backOption) {
           // just go back
         } else {
           System.out.println("Invalid option.");
