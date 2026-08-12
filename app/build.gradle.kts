@@ -55,7 +55,7 @@ java {
     }
 }
 
-fun getEnvOrProperty(key: String, defaultValue: String): String {
+fun getEnvOrProperty(key: String, defaultValue: String? = null): String {
     val envVal = System.getenv(key)
     if (!envVal.isNullOrEmpty()) {
         return envVal
@@ -75,21 +75,21 @@ fun getEnvOrProperty(key: String, defaultValue: String): String {
             // Ignore
         }
     }
-    return defaultValue
+    return defaultValue ?: throw GradleException("Missing required environment variable or .env property: $key")
 }
 
 fun ProcessForkOptions.setupEnv() {
-    val serverHost = getEnvOrProperty("SERVER_HOST", "localhost")
-    val dbHost = getEnvOrProperty("DB_HOST", "localhost")
-    val registryPort = getEnvOrProperty("SERVER_REGISTRY_PORT", "1099")
-    val dbUser = getEnvOrProperty("DB_USER", "User")
-    val dbPassword = getEnvOrProperty("DB_PASSWORD", "Password")
+    val serverHost = getEnvOrProperty("SERVER_HOST")
+    val dbHost = getEnvOrProperty("DB_HOST")
+    val registryPort = getEnvOrProperty("SERVER_REGISTRY_PORT")
+    val dbUser = getEnvOrProperty("DB_USER")
+    val dbPassword = getEnvOrProperty("DB_PASSWORD")
     val dbUrl = getEnvOrProperty("DB_URL", "jdbc:derby://$dbHost:1527/appdb;create=true")
 
-    val sslKeystorePath = File(rootDir, getEnvOrProperty("SSL_KEYSTORE_PATH", "./ssl/server/serverkeystore.jks")).absolutePath
-    val sslKeystorePassword = getEnvOrProperty("SSL_KEYSTORE_PASSWORD", "123456")
-    val sslTruststorePath = File(rootDir, getEnvOrProperty("SSL_TRUSTSTORE_PATH", "./ssl/client/clienttruststore.jks")).absolutePath
-    val sslTruststorePassword = getEnvOrProperty("SSL_TRUSTSTORE_PASSWORD", "123456")
+    val sslKeystorePath = File(rootDir, getEnvOrProperty("SSL_KEYSTORE_PATH")).absolutePath
+    val sslKeystorePassword = getEnvOrProperty("SSL_KEYSTORE_PASSWORD")
+    val sslTruststorePath = File(rootDir, getEnvOrProperty("SSL_TRUSTSTORE_PATH")).absolutePath
+    val sslTruststorePassword = getEnvOrProperty("SSL_TRUSTSTORE_PASSWORD")
 
     environment("SERVER_HOST", serverHost)
     environment("DB_HOST", dbHost)
@@ -109,7 +109,7 @@ tasks.register<JavaExec>("startDerbyServer") {
     description = "Starts the Apache Derby Network Server."
     classpath = sourceSets.main.get().runtimeClasspath
     mainClass.set("org.apache.derby.drda.NetworkServerControl")
-    val dbHost = getEnvOrProperty("DB_HOST", "localhost")
+    val dbHost = getEnvOrProperty("DB_HOST")
     args("start", "-h", dbHost, "-p", "1527")
     setupEnv()
 }
@@ -120,7 +120,7 @@ tasks.register<JavaExec>("stopDerbyServer") {
     description = "Stops the Apache Derby Network Server."
     classpath = sourceSets.main.get().runtimeClasspath
     mainClass.set("org.apache.derby.drda.NetworkServerControl")
-    val dbHost = getEnvOrProperty("DB_HOST", "localhost")
+    val dbHost = getEnvOrProperty("DB_HOST")
     args("shutdown", "-h", dbHost, "-p", "1527")
     setupEnv()
 }
