@@ -65,8 +65,9 @@ public class ManageScheduleServiceImplementation extends UnicastRemoteObject
   public boolean deleteSchedule(String token, int scheduleId) throws RemoteException {
     AuthorizationManager.requirePermissions(token, "deleteSchedule");
     try {
-      if (ScheduleRepository.countLinkedAppointments(scheduleId) > 0) {
-        throw new RemoteException("CANNOT_DELETE: Patients have already booked this time slot.");
+      if (ScheduleRepository.countActiveUpcomingAppointments(scheduleId) > 0) {
+        throw new RemoteException(
+            "CANNOT_DELETE: A patient has an upcoming appointment booked in this time slot.");
       }
       return ScheduleRepository.deleteSchedule(scheduleId);
     } catch (SQLException e) {

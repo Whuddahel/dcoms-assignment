@@ -69,6 +69,7 @@ CREATE TABLE Schedule (
     day        VARCHAR(20) NOT NULL,
     startTime  TIME        NOT NULL,
     endTime    TIME        NOT NULL,
+    deleted    BOOLEAN     NOT NULL DEFAULT FALSE,
     FOREIGN KEY (doctorId) REFERENCES Doctor(doctorId)
 );
 

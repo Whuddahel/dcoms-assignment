@@ -25,7 +25,7 @@ public class ScheduleRepository {
 
   public static List<Schedule> getSchedulesByDoctorId(int doctorId) throws SQLException {
     String sql =
-        "SELECT scheduleId, doctorId, day, startTime, endTime FROM Schedule WHERE doctorId = ?";
+        "SELECT scheduleId, doctorId, day, startTime, endTime FROM Schedule WHERE doctorId = ? AND deleted = false";
     List<Schedule> list = new ArrayList<>();
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -45,8 +45,11 @@ public class ScheduleRepository {
     return list;
   }
 
+  // Soft delete: appointments/consultations may still reference this scheduleId
+  // (the FK has no ON DELETE CASCADE), so a hard DELETE would fail once the slot
+  // has any booking history, even cancelled or past ones.
   public static boolean deleteSchedule(int scheduleId) throws SQLException {
-    String sql = "DELETE FROM Schedule WHERE scheduleId = ?";
+    String sql = "UPDATE Schedule SET deleted = true WHERE scheduleId = ?";
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
       ps.setInt(1, scheduleId);
@@ -54,10 +57,11 @@ public class ScheduleRepository {
     }
   }
 
-  // This to help make sure no patient appointments exist within the schedule
-  // before cancel
-  public static int countLinkedAppointments(int scheduleId) throws SQLException {
-    String sql = "SELECT COUNT(*) FROM Appointment WHERE scheduleId = ?";
+  // Only counts appointments that still need this slot: not cancelled, and not yet happened.
+  // Past or cancelled history no longer blocks deletion.
+  public static int countActiveUpcomingAppointments(int scheduleId) throws SQLException {
+    String sql =
+        "SELECT COUNT(*) FROM Appointment WHERE scheduleId = ? AND cancelledByUserId IS NULL AND appointmentDate >= CURRENT_DATE";
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
       ps.setInt(1, scheduleId);
