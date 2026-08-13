@@ -225,14 +225,15 @@ public class AppointmentScreen {
         LocalDateTime now = LocalDateTime.now();
 
         for (Appointment a : appointments) {
-          Schedule s = client.getScheduleByIdForDoctor(a.getScheduleId());
-          if (s != null) {
-            LocalDateTime endDateTime =
-                a.getAppointmentDate().toLocalDate().atTime(s.getEndTime().toLocalTime());
-            if (endDateTime.isAfter(now)) {
-              notEnded.add(a);
-            }
-          }
+//          Schedule s = client.getScheduleByIdForDoctor(a.getScheduleId());
+//          if (s != null) {
+//            LocalDateTime endDateTime =
+//                a.getAppointmentDate().toLocalDate().atTime(s.getEndTime().toLocalTime());
+//            if (endDateTime.isAfter(now)) {
+//              notEnded.add(a);
+//            }
+//          }
+          notEnded.add(a);
         }
 
         if (notEnded.isEmpty()) {
