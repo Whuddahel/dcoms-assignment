@@ -4,7 +4,7 @@ CREATE TABLE Users (
     firstName    VARCHAR(100) NOT NULL,
     lastName     VARCHAR(100) NOT NULL,
     userRole     VARCHAR(20) NOT NULL CHECK (userRole IN ('admin', 'doctor', 'receptionist', 'patient')),
-    icPassportNo VARCHAR(50)  NOT NULL,
+    icPassportNo VARCHAR(50)  NOT NULL UNIQUE,
     email        VARCHAR(150) NOT NULL UNIQUE,
     password     VARCHAR(255) NOT NULL,
     createdAt    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -66,11 +66,12 @@ CREATE INDEX idx_patient_medicalRecordId ON Patient(medicalRecordId);
 CREATE TABLE Schedule (
     scheduleId INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     doctorId   INT         NOT NULL,
-    day        VARCHAR(20) NOT NULL,
+    day        VARCHAR(20) NOT NULL CHECK (UPPER(day) IN ('MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY')),
     startTime  TIME        NOT NULL,
     endTime    TIME        NOT NULL,
     deleted    BOOLEAN     NOT NULL DEFAULT FALSE,
-    FOREIGN KEY (doctorId) REFERENCES Doctor(doctorId)
+    FOREIGN KEY (doctorId) REFERENCES Doctor(doctorId),
+    CONSTRAINT chk_schedule_times CHECK (startTime < endTime)
 );
 
 CREATE INDEX idx_schedule_doctorId ON Schedule(doctorId);
@@ -88,7 +89,8 @@ CREATE TABLE Appointment (
     cancelledByUserId     INT DEFAULT NULL,
     FOREIGN KEY (doctorId)        REFERENCES Doctor(doctorId),
     FOREIGN KEY (patientId)       REFERENCES Patient(patientId),
-    FOREIGN KEY (scheduleId)      REFERENCES Schedule(scheduleId)
+    FOREIGN KEY (scheduleId)      REFERENCES Schedule(scheduleId),
+    FOREIGN KEY (cancelledByUserId) REFERENCES Users(userId)
 );
 
 CREATE INDEX idx_appointment_doctorId        ON Appointment(doctorId);
@@ -104,7 +106,7 @@ CREATE TABLE Consultation (
     consultationId INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     appointmentId  INT           NOT NULL UNIQUE,
     content        CLOB          NOT NULL,
-    fee            DECIMAL(10,2) NOT NULL,
+    fee            DECIMAL(10,2) NOT NULL CHECK (fee >= 0),
     createdAt      TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (appointmentId) REFERENCES Appointment(appointmentId)
 );

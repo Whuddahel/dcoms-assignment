@@ -12,22 +12,59 @@ import java.util.List;
 public class AppointmentRepository {
 
   public static boolean addAppointment(Appointment app) throws SQLException {
-    String sql =
+    String lockScheduleSql =
+        "SELECT scheduleId FROM Schedule WHERE scheduleId = ? AND deleted = false FOR UPDATE";
+    String checkDuplicateSql =
+        "SELECT COUNT(*) FROM Appointment WHERE doctorId = ? AND scheduleId = ? AND appointmentDate = ? AND cancelledByUserId IS NULL";
+    String insertSql =
         "INSERT INTO Appointment (doctorId, patientId, scheduleId, appointmentDate, cancelledByUserId) VALUES (?, ?, ?, ?, ?)";
 
-    try (Connection conn = DatabaseManager.getConnection();
-        PreparedStatement ps = conn.prepareStatement(sql)) {
-      ps.setInt(1, app.getDoctorId());
-      ps.setInt(2, app.getPatientId());
-      ps.setInt(3, app.getScheduleId());
-      ps.setDate(4, app.getAppointmentDate());
-      if (app.getcancelledByUserId() != null) {
-        ps.setInt(5, app.getcancelledByUserId());
-      } else {
-        ps.setNull(5, java.sql.Types.INTEGER);
+    try (Connection conn = DatabaseManager.getConnection()) {
+      conn.setAutoCommit(false);
+      try {
+        // 1. Lock the schedule row to prevent concurrent bookings/deletions on this slot
+        try (PreparedStatement psLock = conn.prepareStatement(lockScheduleSql)) {
+          psLock.setInt(1, app.getScheduleId());
+          try (ResultSet rsLock = psLock.executeQuery()) {
+            if (!rsLock.next()) {
+              conn.rollback();
+              return false; // Schedule slot deleted or invalid
+            }
+          }
+        }
+
+        // 2. Check if active appointment already exists for this slot & date
+        try (PreparedStatement psCheck = conn.prepareStatement(checkDuplicateSql)) {
+          psCheck.setInt(1, app.getDoctorId());
+          psCheck.setInt(2, app.getScheduleId());
+          psCheck.setDate(3, app.getAppointmentDate());
+          try (ResultSet rsCheck = psCheck.executeQuery()) {
+            if (rsCheck.next() && rsCheck.getInt(1) > 0) {
+              conn.rollback();
+              return false; // Slot already booked
+            }
+          }
+        }
+
+        // 3. Insert appointment
+        try (PreparedStatement psInsert = conn.prepareStatement(insertSql)) {
+          psInsert.setInt(1, app.getDoctorId());
+          psInsert.setInt(2, app.getPatientId());
+          psInsert.setInt(3, app.getScheduleId());
+          psInsert.setDate(4, app.getAppointmentDate());
+          if (app.getcancelledByUserId() != null) {
+            psInsert.setInt(5, app.getcancelledByUserId());
+          } else {
+            psInsert.setNull(5, java.sql.Types.INTEGER);
+          }
+          int rows = psInsert.executeUpdate();
+          conn.commit();
+          return rows > 0;
+        }
+      } catch (SQLException e) {
+        conn.rollback();
+        throw e;
       }
-      int rows = ps.executeUpdate();
-      return rows > 0;
     }
   }
 
@@ -220,7 +257,8 @@ public class AppointmentRepository {
 
   public static boolean cancelAppointment(int appointmentId, int cancelledByUserId)
       throws SQLException {
-    String sql = "UPDATE Appointment SET cancelledByUserId = ? WHERE appointmentId = ?";
+    String sql =
+        "UPDATE Appointment SET cancelledByUserId = ? WHERE appointmentId = ? AND cancelledByUserId IS NULL";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
