@@ -1,17 +1,20 @@
 package assignment.server.services;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class EditUserServiceImplementationTest {
 
-  @Test
-  void editUser() {}
+    @Test
+    void editUser() {
+    }
 
-  @Test
-  void deleteUser() {}
+    @Test
+    void deleteUser() {
+    }
 
-  @Test
-  void getAllUsers() {}
+    @Test
+    void getAllUsers() {
+    }
 }
