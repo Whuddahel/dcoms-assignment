@@ -1,20 +1,17 @@
 package assignment.server.services;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
 
 class ReportServiceImplementationTest {
 
-    @Test
-    void getMonthlyAppointmentReport() {
-    }
+  @Test
+  void getMonthlyAppointmentReport() {}
 
-    @Test
-    void getDoctorConsultationReport() {
-    }
+  @Test
+  void getDoctorConsultationReport() {}
 
-    @Test
-    void getPatientVisitSummaryReport() {
-    }
+  @Test
+  void getPatientVisitSummaryReport() {}
 }

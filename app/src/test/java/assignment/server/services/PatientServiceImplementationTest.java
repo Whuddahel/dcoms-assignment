@@ -1,56 +1,44 @@
 package assignment.server.services;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
 
 class PatientServiceImplementationTest {
 
-    @Test
-    void getPatientByUserId() {
-    }
+  @Test
+  void getPatientByUserId() {}
 
-    @Test
-    void updatePatientProfile() {
-    }
+  @Test
+  void updatePatientProfile() {}
 
-    @Test
-    void getUpcomingAppointments() {
-    }
+  @Test
+  void getUpcomingAppointments() {}
 
-    @Test
-    void getPastAppointments() {
-    }
+  @Test
+  void getPastAppointments() {}
 
-    @Test
-    void cancelAppointment() {
-    }
+  @Test
+  void cancelAppointment() {}
 
-    @Test
-    void bookAppointment() {
-    }
+  @Test
+  void bookAppointment() {}
 
-    @Test
-    void getAllDoctors() {
-    }
+  @Test
+  void getAllDoctors() {}
 
-    @Test
-    void getSchedulesByDoctorId() {
-    }
+  @Test
+  void getSchedulesByDoctorId() {}
 
-    @Test
-    void getAppointmentsByDoctorAndDate() {
-    }
+  @Test
+  void getAppointmentsByDoctorAndDate() {}
 
-    @Test
-    void getConsultationsByPatient() {
-    }
+  @Test
+  void getConsultationsByPatient() {}
 
-    @Test
-    void getDoctorById() {
-    }
+  @Test
+  void getDoctorById() {}
 
-    @Test
-    void getScheduleById() {
-    }
+  @Test
+  void getScheduleById() {}
 }
