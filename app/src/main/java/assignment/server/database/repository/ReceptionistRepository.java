@@ -86,7 +86,7 @@ public class ReceptionistRepository {
 
   public static boolean updateReceptionist(Receptionist receptionist) throws SQLException {
     String sql =
-        "UPDATE Users SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? WHERE userId = ?";
+        "UPDATE Users SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ? WHERE userId = ?";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -95,8 +95,7 @@ public class ReceptionistRepository {
       ps.setString(3, receptionist.getUserRole());
       ps.setString(4, receptionist.getIcPassportNo());
       ps.setString(5, receptionist.getEmail());
-      ps.setString(6, receptionist.getPasswordHash());
-      ps.setInt(7, receptionist.getUserId());
+      ps.setInt(6, receptionist.getUserId());
       int rows = ps.executeUpdate();
       return rows > 0;
     }

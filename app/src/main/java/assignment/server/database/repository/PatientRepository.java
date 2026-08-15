@@ -90,7 +90,7 @@ public class PatientRepository {
 
   public static boolean updatePatient(Patient patient) throws SQLException {
     String updateUserSql =
-        "UPDATE Users SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? WHERE userId = ?";
+        "UPDATE Users SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ? WHERE userId = ?";
     String updatePatSql = "UPDATE Patient SET contactNumber = ? WHERE patientId = ?";
 
     try (Connection conn = DatabaseManager.getConnection()) {
@@ -102,8 +102,7 @@ public class PatientRepository {
           psUser.setString(3, patient.getUserRole());
           psUser.setString(4, patient.getIcPassportNo());
           psUser.setString(5, patient.getEmail());
-          psUser.setString(6, patient.getPasswordHash());
-          psUser.setInt(7, patient.getUserId());
+          psUser.setInt(6, patient.getUserId());
           psUser.executeUpdate();
         }
 

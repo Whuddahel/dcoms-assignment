@@ -49,12 +49,18 @@ public class ServiceManager {
   private final DoctorService doctorService;
 
   public ServiceManager() throws RemoteException {
-    String serverHost = System.getenv("SERVER_HOST");
+    String serverHost = System.getProperty("SERVER_HOST");
+    if (serverHost == null || serverHost.trim().isEmpty()) {
+      serverHost = System.getenv("SERVER_HOST");
+    }
     if (serverHost == null || serverHost.trim().isEmpty()) {
       serverHost = "localhost";
     }
 
-    String portStr = System.getenv("SERVER_REGISTRY_PORT");
+    String portStr = System.getProperty("SERVER_REGISTRY_PORT");
+    if (portStr == null || portStr.trim().isEmpty()) {
+      portStr = System.getenv("SERVER_REGISTRY_PORT");
+    }
     int port = 1099;
     if (portStr != null && !portStr.trim().isEmpty()) {
       try {

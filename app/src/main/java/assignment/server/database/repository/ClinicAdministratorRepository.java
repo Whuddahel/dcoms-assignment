@@ -86,7 +86,7 @@ public class ClinicAdministratorRepository {
 
   public static boolean updateClinicAdministrator(ClinicAdministrator admin) throws SQLException {
     String sql =
-        "UPDATE Users SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ?, password = ? WHERE userId = ?";
+        "UPDATE Users SET firstName = ?, lastName = ?, userRole = ?, icPassportNo = ?, email = ? WHERE userId = ?";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -95,8 +95,7 @@ public class ClinicAdministratorRepository {
       ps.setString(3, admin.getUserRole());
       ps.setString(4, admin.getIcPassportNo());
       ps.setString(5, admin.getEmail());
-      ps.setString(6, admin.getPasswordHash());
-      ps.setInt(7, admin.getUserId());
+      ps.setInt(6, admin.getUserId());
       int rows = ps.executeUpdate();
       return rows > 0;
     }

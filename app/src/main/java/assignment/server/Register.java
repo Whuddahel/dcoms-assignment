@@ -19,7 +19,10 @@ public class Register {
 
   public static void start() {
     try {
-      String portStr = System.getenv("SERVER_REGISTRY_PORT");
+      String portStr = System.getProperty("SERVER_REGISTRY_PORT");
+      if (portStr == null || portStr.isEmpty()) {
+        portStr = System.getenv("SERVER_REGISTRY_PORT");
+      }
       if (portStr == null || portStr.isEmpty()) {
         throw new IllegalStateException("SERVER_REGISTRY_PORT environment variable is not set.");
       }
