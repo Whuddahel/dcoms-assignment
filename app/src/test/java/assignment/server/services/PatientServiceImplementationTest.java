@@ -1,5 +1,8 @@
 package assignment.server.services;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import assignment.server.auth.Session;
 import assignment.server.auth.SessionManager;
 import assignment.server.database.repository.AppointmentRepository;
@@ -23,9 +26,6 @@ import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 class PatientServiceImplementationTest {
 
@@ -121,8 +121,7 @@ class PatientServiceImplementationTest {
       PatientServiceImplementation service = new PatientServiceImplementation();
 
       RemoteException ex =
-          assertThrows(
-              RemoteException.class, () -> service.updatePatientProfile(TOKEN, patient));
+          assertThrows(RemoteException.class, () -> service.updatePatientProfile(TOKEN, patient));
       assertTrue(ex.getMessage().contains("DB_ERROR"));
     }
   }
@@ -135,7 +134,8 @@ class PatientServiceImplementationTest {
   void getUpcomingAppointments_filtersOutPastAndCancelled() throws Exception {
     try (MockedStatic<SessionManager> sessionMock = mockStatic(SessionManager.class);
         MockedStatic<PatientRepository> patientRepoMock = mockStatic(PatientRepository.class);
-        MockedStatic<AppointmentRepository> apptRepoMock = mockStatic(AppointmentRepository.class)) {
+        MockedStatic<AppointmentRepository> apptRepoMock =
+            mockStatic(AppointmentRepository.class)) {
 
       sessionMock
           .when(() -> SessionManager.getSession(TOKEN))
@@ -154,8 +154,10 @@ class PatientServiceImplementationTest {
       Timestamp now = new Timestamp(System.currentTimeMillis());
 
       Appointment futureActive = new Appointment(1, 10, 1, 20, tomorrow, now, null); // included
-      Appointment pastActive = new Appointment(3, 10, 1, 22, yesterday, now, null); // excluded (before today)
-      Appointment futureCancelled = new Appointment(4, 10, 1, 23, tomorrow, now, 99); // excluded (cancelled)
+      Appointment pastActive =
+          new Appointment(3, 10, 1, 22, yesterday, now, null); // excluded (before today)
+      Appointment futureCancelled =
+          new Appointment(4, 10, 1, 23, tomorrow, now, 99); // excluded (cancelled)
 
       apptRepoMock
           .when(() -> AppointmentRepository.getAppointmentsByPatientId(1))
@@ -189,7 +191,8 @@ class PatientServiceImplementationTest {
   void getPastAppointments_includesPastAndCancelled_excludesFutureActive() throws Exception {
     try (MockedStatic<SessionManager> sessionMock = mockStatic(SessionManager.class);
         MockedStatic<PatientRepository> patientRepoMock = mockStatic(PatientRepository.class);
-        MockedStatic<AppointmentRepository> apptRepoMock = mockStatic(AppointmentRepository.class)) {
+        MockedStatic<AppointmentRepository> apptRepoMock =
+            mockStatic(AppointmentRepository.class)) {
 
       sessionMock
           .when(() -> SessionManager.getSession(TOKEN))
@@ -204,8 +207,10 @@ class PatientServiceImplementationTest {
       Date yesterday = Date.valueOf(LocalDate.now().minusDays(1));
       Timestamp now = new Timestamp(System.currentTimeMillis());
 
-      Appointment pastActive = new Appointment(1, 10, 1, 20, yesterday, now, null); // included (before today)
-      Appointment futureCancelled = new Appointment(2, 10, 1, 21, tomorrow, now, 99); // included (cancelled)
+      Appointment pastActive =
+          new Appointment(1, 10, 1, 20, yesterday, now, null); // included (before today)
+      Appointment futureCancelled =
+          new Appointment(2, 10, 1, 21, tomorrow, now, 99); // included (cancelled)
       Appointment futureActive = new Appointment(3, 10, 1, 22, tomorrow, now, null); // excluded
 
       apptRepoMock
@@ -239,7 +244,8 @@ class PatientServiceImplementationTest {
   @Test
   void cancelAppointment_success() throws Exception {
     try (MockedStatic<SessionManager> sessionMock = mockStatic(SessionManager.class);
-        MockedStatic<AppointmentRepository> apptRepoMock = mockStatic(AppointmentRepository.class)) {
+        MockedStatic<AppointmentRepository> apptRepoMock =
+            mockStatic(AppointmentRepository.class)) {
 
       sessionMock
           .when(() -> SessionManager.getSession(TOKEN))
@@ -256,7 +262,8 @@ class PatientServiceImplementationTest {
   @Test
   void cancelAppointment_dbError() throws Exception {
     try (MockedStatic<SessionManager> sessionMock = mockStatic(SessionManager.class);
-        MockedStatic<AppointmentRepository> apptRepoMock = mockStatic(AppointmentRepository.class)) {
+        MockedStatic<AppointmentRepository> apptRepoMock =
+            mockStatic(AppointmentRepository.class)) {
 
       sessionMock
           .when(() -> SessionManager.getSession(TOKEN))
@@ -276,7 +283,8 @@ class PatientServiceImplementationTest {
   @Test
   void bookAppointment_success() throws Exception {
     try (MockedStatic<SessionManager> sessionMock = mockStatic(SessionManager.class);
-        MockedStatic<AppointmentRepository> apptRepoMock = mockStatic(AppointmentRepository.class)) {
+        MockedStatic<AppointmentRepository> apptRepoMock =
+            mockStatic(AppointmentRepository.class)) {
 
       sessionMock
           .when(() -> SessionManager.getSession(TOKEN))
@@ -296,7 +304,8 @@ class PatientServiceImplementationTest {
   @Test
   void bookAppointment_dbError() throws Exception {
     try (MockedStatic<SessionManager> sessionMock = mockStatic(SessionManager.class);
-        MockedStatic<AppointmentRepository> apptRepoMock = mockStatic(AppointmentRepository.class)) {
+        MockedStatic<AppointmentRepository> apptRepoMock =
+            mockStatic(AppointmentRepository.class)) {
 
       sessionMock
           .when(() -> SessionManager.getSession(TOKEN))
@@ -332,8 +341,17 @@ class PatientServiceImplementationTest {
       List<Doctor> expected =
           List.of(
               new Doctor(
-                  1, 2, "John", "Doe", "doctor", "IC2", "john@test.com", null, "GP",
-                  new Timestamp(System.currentTimeMillis()), false));
+                  1,
+                  2,
+                  "John",
+                  "Doe",
+                  "doctor",
+                  "IC2",
+                  "john@test.com",
+                  null,
+                  "GP",
+                  new Timestamp(System.currentTimeMillis()),
+                  false));
       doctorRepoMock.when(DoctorRepository::getAllDoctors).thenReturn(expected);
 
       PatientServiceImplementation service = new PatientServiceImplementation();
@@ -369,7 +387,8 @@ class PatientServiceImplementationTest {
   @Test
   void getAppointmentsByDoctorAndDate_success() throws Exception {
     try (MockedStatic<SessionManager> sessionMock = mockStatic(SessionManager.class);
-        MockedStatic<AppointmentRepository> apptRepoMock = mockStatic(AppointmentRepository.class)) {
+        MockedStatic<AppointmentRepository> apptRepoMock =
+            mockStatic(AppointmentRepository.class)) {
 
       sessionMock
           .when(() -> SessionManager.getSession(TOKEN))
@@ -377,7 +396,8 @@ class PatientServiceImplementationTest {
 
       Date date = Date.valueOf(LocalDate.now().plusDays(1));
       List<Appointment> expected =
-          List.of(new Appointment(1, 10, 1, 20, date, new Timestamp(System.currentTimeMillis()), null));
+          List.of(
+              new Appointment(1, 10, 1, 20, date, new Timestamp(System.currentTimeMillis()), null));
       apptRepoMock
           .when(() -> AppointmentRepository.getAppointmentsByDoctorAndDate(10, date))
           .thenReturn(expected);
@@ -408,7 +428,8 @@ class PatientServiceImplementationTest {
       patientRepoMock.when(() -> PatientRepository.getPatientByUserId(5)).thenReturn(patient);
 
       List<Consultation> expected =
-          List.of(new Consultation(1, 30, "Notes", 50.0, new Timestamp(System.currentTimeMillis())));
+          List.of(
+              new Consultation(1, 30, "Notes", 50.0, new Timestamp(System.currentTimeMillis())));
       consultRepoMock
           .when(() -> ConsultationRepository.getConsultationsByPatientId(1))
           .thenReturn(expected);
@@ -457,8 +478,17 @@ class PatientServiceImplementationTest {
 
       Doctor expected =
           new Doctor(
-              1, 2, "John", "Doe", "doctor", "IC2", "john@test.com", null, "GP",
-              new Timestamp(System.currentTimeMillis()), false);
+              1,
+              2,
+              "John",
+              "Doe",
+              "doctor",
+              "IC2",
+              "john@test.com",
+              null,
+              "GP",
+              new Timestamp(System.currentTimeMillis()),
+              false);
       doctorRepoMock.when(() -> DoctorRepository.getDoctorById(1)).thenReturn(expected);
 
       PatientServiceImplementation service = new PatientServiceImplementation();

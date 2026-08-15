@@ -1,5 +1,8 @@
 package assignment.server.services;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import assignment.server.auth.Session;
 import assignment.server.auth.SessionManager;
 import assignment.server.database.repository.DoctorRepository;
@@ -14,9 +17,6 @@ import java.sql.Timestamp;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 class ManageScheduleServiceImplementationTest {
 
@@ -59,7 +59,8 @@ class ManageScheduleServiceImplementationTest {
       boolean result = service.addSchedule(TOKEN, submitted);
 
       assertTrue(result);
-      // The server must not trust the client-submitted doctorId -- it re-resolves it from the session
+      // The server must not trust the client-submitted doctorId -- it re-resolves it from the
+      // session
       scheduleRepoMock.verify(
           () ->
               ScheduleRepository.addSchedule(

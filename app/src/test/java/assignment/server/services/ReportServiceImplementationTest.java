@@ -1,5 +1,8 @@
 package assignment.server.services;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import assignment.server.auth.Session;
 import assignment.server.auth.SessionManager;
 import assignment.server.database.repository.ReportRepository;
@@ -15,9 +18,6 @@ import java.sql.Timestamp;
 import java.util.Collections;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 class ReportServiceImplementationTest {
 
