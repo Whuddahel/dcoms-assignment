@@ -18,7 +18,15 @@ import java.util.Scanner;
  */
 public final class InputHandler {
 
-  private static final Scanner scanner = new Scanner(System.in);
+  private static Scanner scanner = new Scanner(System.in);
+
+  /**
+   * Overrides the scanner instance (used by automated tests to redirect input streams). Pass {@code
+   * null} to reset back to standard {@code System.in}.
+   */
+  public static void setScanner(Scanner newScanner) {
+    scanner = newScanner != null ? newScanner : new Scanner(System.in);
+  }
 
   // Prevent instantiation — all methods are static.
   private InputHandler() {}
