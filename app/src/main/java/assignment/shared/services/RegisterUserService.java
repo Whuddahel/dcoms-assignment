@@ -1,4 +1,4 @@
-package assignment.shared.interfaces;
+package assignment.shared.services;
 
 import assignment.shared.model.User;
 import java.rmi.Remote;
