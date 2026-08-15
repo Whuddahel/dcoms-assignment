@@ -1,5 +1,8 @@
 package assignment.server.services;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import assignment.server.auth.Session;
 import assignment.server.auth.SessionManager;
 import assignment.server.database.repository.ClinicAdministratorRepository;
@@ -19,9 +22,6 @@ import java.sql.Timestamp;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 class EditUserServiceImplementationTest {
 
@@ -57,8 +57,17 @@ class EditUserServiceImplementationTest {
 
       Doctor doctor =
           new Doctor(
-              1, 2, "John", "Doe", "doctor", "IC2", "john@test.com", "hash", "GP",
-              new Timestamp(System.currentTimeMillis()), false);
+              1,
+              2,
+              "John",
+              "Doe",
+              "doctor",
+              "IC2",
+              "john@test.com",
+              "hash",
+              "GP",
+              new Timestamp(System.currentTimeMillis()),
+              false);
       doctorRepoMock.when(() -> DoctorRepository.updateDoctor(doctor)).thenReturn(true);
 
       EditUserServiceImplementation service = new EditUserServiceImplementation();
@@ -79,8 +88,18 @@ class EditUserServiceImplementationTest {
 
       Patient patient =
           new Patient(
-              1, 2, "John", "Doe", "patient", "IC2", "john@test.com", "hash", 100, "0123456789",
-              new Timestamp(System.currentTimeMillis()), false);
+              1,
+              2,
+              "John",
+              "Doe",
+              "patient",
+              "IC2",
+              "john@test.com",
+              "hash",
+              100,
+              "0123456789",
+              new Timestamp(System.currentTimeMillis()),
+              false);
       patientRepoMock.when(() -> PatientRepository.updatePatient(patient)).thenReturn(true);
 
       EditUserServiceImplementation service = new EditUserServiceImplementation();
@@ -102,8 +121,16 @@ class EditUserServiceImplementationTest {
 
       ClinicAdministrator admin =
           new ClinicAdministrator(
-              1, 2, "John", "Doe", "admin", "IC2", "john@test.com", "hash",
-              new Timestamp(System.currentTimeMillis()), false);
+              1,
+              2,
+              "John",
+              "Doe",
+              "admin",
+              "IC2",
+              "john@test.com",
+              "hash",
+              new Timestamp(System.currentTimeMillis()),
+              false);
       adminRepoMock
           .when(() -> ClinicAdministratorRepository.updateClinicAdministrator(admin))
           .thenReturn(true);
@@ -127,8 +154,16 @@ class EditUserServiceImplementationTest {
 
       Receptionist receptionist =
           new Receptionist(
-              1, 2, "John", "Doe", "receptionist", "IC2", "john@test.com", "hash",
-              new Timestamp(System.currentTimeMillis()), false);
+              1,
+              2,
+              "John",
+              "Doe",
+              "receptionist",
+              "IC2",
+              "john@test.com",
+              "hash",
+              new Timestamp(System.currentTimeMillis()),
+              false);
       receptionistRepoMock
           .when(() -> ReceptionistRepository.updateReceptionist(receptionist))
           .thenReturn(true);
@@ -197,8 +232,17 @@ class EditUserServiceImplementationTest {
 
       Doctor doctor =
           new Doctor(
-              1, 2, "John", "Doe", "doctor", "IC2", "john@test.com", "hash", "GP",
-              new Timestamp(System.currentTimeMillis()), false);
+              1,
+              2,
+              "John",
+              "Doe",
+              "doctor",
+              "IC2",
+              "john@test.com",
+              "hash",
+              "GP",
+              new Timestamp(System.currentTimeMillis()),
+              false);
       doctorRepoMock
           .when(() -> DoctorRepository.updateDoctor(doctor))
           .thenThrow(new SQLException());
@@ -226,8 +270,17 @@ class EditUserServiceImplementationTest {
 
       Doctor doctor =
           new Doctor(
-              5, 2, "John", "Doe", "doctor", "IC2", "john@test.com", "hash", "GP",
-              new Timestamp(System.currentTimeMillis()), false);
+              5,
+              2,
+              "John",
+              "Doe",
+              "doctor",
+              "IC2",
+              "john@test.com",
+              "hash",
+              "GP",
+              new Timestamp(System.currentTimeMillis()),
+              false);
       doctorRepoMock.when(() -> DoctorRepository.deleteDoctor(5)).thenReturn(true);
 
       EditUserServiceImplementation service = new EditUserServiceImplementation();
@@ -248,8 +301,18 @@ class EditUserServiceImplementationTest {
 
       Patient patient =
           new Patient(
-              5, 2, "John", "Doe", "patient", "IC2", "john@test.com", "hash", 100, "0123456789",
-              new Timestamp(System.currentTimeMillis()), false);
+              5,
+              2,
+              "John",
+              "Doe",
+              "patient",
+              "IC2",
+              "john@test.com",
+              "hash",
+              100,
+              "0123456789",
+              new Timestamp(System.currentTimeMillis()),
+              false);
       patientRepoMock.when(() -> PatientRepository.deletePatient(5)).thenReturn(true);
 
       EditUserServiceImplementation service = new EditUserServiceImplementation();
@@ -271,8 +334,16 @@ class EditUserServiceImplementationTest {
 
       ClinicAdministrator admin =
           new ClinicAdministrator(
-              5, 2, "John", "Doe", "admin", "IC2", "john@test.com", "hash",
-              new Timestamp(System.currentTimeMillis()), false);
+              5,
+              2,
+              "John",
+              "Doe",
+              "admin",
+              "IC2",
+              "john@test.com",
+              "hash",
+              new Timestamp(System.currentTimeMillis()),
+              false);
       adminRepoMock
           .when(() -> ClinicAdministratorRepository.deleteClinicAdministrator(5))
           .thenReturn(true);
@@ -296,8 +367,16 @@ class EditUserServiceImplementationTest {
 
       Receptionist receptionist =
           new Receptionist(
-              5, 2, "John", "Doe", "receptionist", "IC2", "john@test.com", "hash",
-              new Timestamp(System.currentTimeMillis()), false);
+              5,
+              2,
+              "John",
+              "Doe",
+              "receptionist",
+              "IC2",
+              "john@test.com",
+              "hash",
+              new Timestamp(System.currentTimeMillis()),
+              false);
       receptionistRepoMock
           .when(() -> ReceptionistRepository.deleteReceptionist(5))
           .thenReturn(true);
@@ -334,8 +413,17 @@ class EditUserServiceImplementationTest {
 
       Doctor doctor =
           new Doctor(
-              5, 2, "John", "Doe", "doctor", "IC2", "john@test.com", "hash", "GP",
-              new Timestamp(System.currentTimeMillis()), false);
+              5,
+              2,
+              "John",
+              "Doe",
+              "doctor",
+              "IC2",
+              "john@test.com",
+              "hash",
+              "GP",
+              new Timestamp(System.currentTimeMillis()),
+              false);
       doctorRepoMock.when(() -> DoctorRepository.deleteDoctor(5)).thenThrow(new SQLException());
 
       EditUserServiceImplementation service = new EditUserServiceImplementation();
@@ -411,8 +499,17 @@ class EditUserServiceImplementationTest {
 
       Doctor doctor =
           new Doctor(
-              1, 2, "John", "Doe", "doctor", "IC2", "john@test.com", "hash", "GP",
-              new Timestamp(System.currentTimeMillis()), false);
+              1,
+              2,
+              "John",
+              "Doe",
+              "doctor",
+              "IC2",
+              "john@test.com",
+              "hash",
+              "GP",
+              new Timestamp(System.currentTimeMillis()),
+              false);
       EditUserServiceImplementation service = new EditUserServiceImplementation();
 
       RemoteException ex =

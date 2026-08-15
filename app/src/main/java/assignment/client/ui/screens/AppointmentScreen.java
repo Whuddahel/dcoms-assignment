@@ -225,14 +225,15 @@ public class AppointmentScreen {
         LocalDateTime now = LocalDateTime.now();
 
         for (Appointment a : appointments) {
-//          Schedule s = client.getScheduleByIdForDoctor(a.getScheduleId());
-//          if (s != null) {
-//            LocalDateTime endDateTime =
-//                a.getAppointmentDate().toLocalDate().atTime(s.getEndTime().toLocalTime());
-//            if (endDateTime.isAfter(now)) {
-//              notEnded.add(a);
-//            }
-//          }
+          //          Schedule s = client.getScheduleByIdForDoctor(a.getScheduleId());
+          //          if (s != null) {
+          //            LocalDateTime endDateTime =
+          //
+          // a.getAppointmentDate().toLocalDate().atTime(s.getEndTime().toLocalTime());
+          //            if (endDateTime.isAfter(now)) {
+          //              notEnded.add(a);
+          //            }
+          //          }
           notEnded.add(a);
         }
 
@@ -247,7 +248,8 @@ public class AppointmentScreen {
         for (Appointment a : notEnded) {
           Patient p = client.getPatientByIdForDoctor(a.getPatientId());
           Schedule s = client.getScheduleByIdForDoctor(a.getScheduleId());
-          Consultation existingConsultation = client.getConsultationByAppointmentId(a.getAppointmentId());
+          Consultation existingConsultation =
+              client.getConsultationByAppointmentId(a.getAppointmentId());
           String patientName = p != null ? p.getFirstName() + " " + p.getLastName() : "Unknown";
           String timeSlot = s != null ? s.getStartTime() + " - " + s.getEndTime() : "Unknown";
           views.add(

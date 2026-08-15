@@ -1,5 +1,8 @@
 package assignment.server.services;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import assignment.server.auth.Session;
 import assignment.server.auth.SessionManager;
 import assignment.server.database.repository.ConsultationRepository;
@@ -12,9 +15,6 @@ import java.sql.Timestamp;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 class ManageConsultationServiceImplementationTest {
 
@@ -50,7 +50,8 @@ class ManageConsultationServiceImplementationTest {
           .when(() -> ConsultationRepository.addConsultation(consultation))
           .thenReturn(true);
 
-      ManageConsultationServiceImplementation service = new ManageConsultationServiceImplementation();
+      ManageConsultationServiceImplementation service =
+          new ManageConsultationServiceImplementation();
       boolean result = service.addConsultation(TOKEN, consultation);
 
       assertTrue(result);
@@ -74,11 +75,11 @@ class ManageConsultationServiceImplementationTest {
           .when(() -> ConsultationRepository.addConsultation(consultation))
           .thenThrow(new SQLException("duplicate key value violates unique constraint"));
 
-      ManageConsultationServiceImplementation service = new ManageConsultationServiceImplementation();
+      ManageConsultationServiceImplementation service =
+          new ManageConsultationServiceImplementation();
 
       RemoteException ex =
-          assertThrows(
-              RemoteException.class, () -> service.addConsultation(TOKEN, consultation));
+          assertThrows(RemoteException.class, () -> service.addConsultation(TOKEN, consultation));
       // NOTE: ConsultationScreen (client) checks the message for "DUPLICATE_ERROR" to show a
       // friendly "already recorded" hint, but the server only ever sends this generic DB_ERROR
       // text regardless of cause -- that client-side check can never actually match today.
@@ -97,10 +98,12 @@ class ManageConsultationServiceImplementationTest {
           .thenReturn(sessionWithRole(Role.DOCTOR));
 
       List<Consultation> expected =
-          List.of(new Consultation(1, 30, "Notes", 50.0, new Timestamp(System.currentTimeMillis())));
+          List.of(
+              new Consultation(1, 30, "Notes", 50.0, new Timestamp(System.currentTimeMillis())));
       consultRepoMock.when(ConsultationRepository::getAllConsultations).thenReturn(expected);
 
-      ManageConsultationServiceImplementation service = new ManageConsultationServiceImplementation();
+      ManageConsultationServiceImplementation service =
+          new ManageConsultationServiceImplementation();
       List<Consultation> result = service.getAllConsultations(TOKEN);
 
       assertEquals(expected, result);
@@ -116,9 +119,12 @@ class ManageConsultationServiceImplementationTest {
       sessionMock
           .when(() -> SessionManager.getSession(TOKEN))
           .thenReturn(sessionWithRole(Role.DOCTOR));
-      consultRepoMock.when(ConsultationRepository::getAllConsultations).thenThrow(new SQLException());
+      consultRepoMock
+          .when(ConsultationRepository::getAllConsultations)
+          .thenThrow(new SQLException());
 
-      ManageConsultationServiceImplementation service = new ManageConsultationServiceImplementation();
+      ManageConsultationServiceImplementation service =
+          new ManageConsultationServiceImplementation();
 
       RemoteException ex =
           assertThrows(RemoteException.class, () -> service.getAllConsultations(TOKEN));
@@ -137,12 +143,14 @@ class ManageConsultationServiceImplementationTest {
           .thenReturn(sessionWithRole(Role.DOCTOR));
 
       Consultation updated =
-          new Consultation(1, 30, "Revised notes.", 50.0, new Timestamp(System.currentTimeMillis()));
+          new Consultation(
+              1, 30, "Revised notes.", 50.0, new Timestamp(System.currentTimeMillis()));
       consultRepoMock
           .when(() -> ConsultationRepository.updateConsultation(updated))
           .thenReturn(true);
 
-      ManageConsultationServiceImplementation service = new ManageConsultationServiceImplementation();
+      ManageConsultationServiceImplementation service =
+          new ManageConsultationServiceImplementation();
       boolean result = service.updateConsultation(TOKEN, updated);
 
       assertTrue(result);
@@ -160,12 +168,14 @@ class ManageConsultationServiceImplementationTest {
           .thenReturn(sessionWithRole(Role.DOCTOR));
 
       Consultation updated =
-          new Consultation(1, 30, "Revised notes.", 50.0, new Timestamp(System.currentTimeMillis()));
+          new Consultation(
+              1, 30, "Revised notes.", 50.0, new Timestamp(System.currentTimeMillis()));
       consultRepoMock
           .when(() -> ConsultationRepository.updateConsultation(updated))
           .thenThrow(new SQLException());
 
-      ManageConsultationServiceImplementation service = new ManageConsultationServiceImplementation();
+      ManageConsultationServiceImplementation service =
+          new ManageConsultationServiceImplementation();
 
       RemoteException ex =
           assertThrows(RemoteException.class, () -> service.updateConsultation(TOKEN, updated));
@@ -182,11 +192,11 @@ class ManageConsultationServiceImplementationTest {
           .thenReturn(sessionWithRole(Role.PATIENT));
 
       Consultation consultation = new Consultation(30, "Notes", 50.0);
-      ManageConsultationServiceImplementation service = new ManageConsultationServiceImplementation();
+      ManageConsultationServiceImplementation service =
+          new ManageConsultationServiceImplementation();
 
       RemoteException ex =
-          assertThrows(
-              RemoteException.class, () -> service.addConsultation(TOKEN, consultation));
+          assertThrows(RemoteException.class, () -> service.addConsultation(TOKEN, consultation));
       assertEquals("ACCESS_DENIED", ex.getMessage());
     }
   }
@@ -196,7 +206,8 @@ class ManageConsultationServiceImplementationTest {
     try (MockedStatic<SessionManager> sessionMock = mockStatic(SessionManager.class)) {
       sessionMock.when(() -> SessionManager.getSession(TOKEN)).thenReturn(null);
 
-      ManageConsultationServiceImplementation service = new ManageConsultationServiceImplementation();
+      ManageConsultationServiceImplementation service =
+          new ManageConsultationServiceImplementation();
 
       RemoteException ex =
           assertThrows(RemoteException.class, () -> service.getAllConsultations(TOKEN));

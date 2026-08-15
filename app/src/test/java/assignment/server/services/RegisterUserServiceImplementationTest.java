@@ -1,5 +1,8 @@
 package assignment.server.services;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import assignment.server.auth.Session;
 import assignment.server.auth.SessionManager;
 import assignment.server.database.repository.ClinicAdministratorRepository;
@@ -17,9 +20,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 class RegisterUserServiceImplementationTest {
 
@@ -49,8 +49,7 @@ class RegisterUserServiceImplementationTest {
           .when(() -> SessionManager.getSession(TOKEN))
           .thenReturn(sessionWithRole(Role.RECEPTIONIST));
 
-      Doctor doctor =
-          new Doctor("John", "Doe", "doctor", "IC2", "john@test.com", "hash", "GP");
+      Doctor doctor = new Doctor("John", "Doe", "doctor", "IC2", "john@test.com", "hash", "GP");
       doctorRepoMock.when(() -> DoctorRepository.addDoctor(doctor)).thenReturn(true);
 
       RegisterUserServiceImplementation service = new RegisterUserServiceImplementation();
@@ -70,8 +69,7 @@ class RegisterUserServiceImplementationTest {
           .thenReturn(sessionWithRole(Role.RECEPTIONIST));
 
       Patient patient =
-          new Patient(
-              "John", "Doe", "patient", "IC2", "john@test.com", "hash", 100, "0123456789");
+          new Patient("John", "Doe", "patient", "IC2", "john@test.com", "hash", 100, "0123456789");
       patientRepoMock.when(() -> PatientRepository.addPatient(patient)).thenReturn(true);
 
       RegisterUserServiceImplementation service = new RegisterUserServiceImplementation();
@@ -181,11 +179,8 @@ class RegisterUserServiceImplementationTest {
           .when(() -> SessionManager.getSession(TOKEN))
           .thenReturn(sessionWithRole(Role.RECEPTIONIST));
 
-      Doctor doctor =
-          new Doctor("John", "Doe", "doctor", "IC2", "john@test.com", "hash", "GP");
-      doctorRepoMock
-          .when(() -> DoctorRepository.addDoctor(doctor))
-          .thenThrow(new SQLException());
+      Doctor doctor = new Doctor("John", "Doe", "doctor", "IC2", "john@test.com", "hash", "GP");
+      doctorRepoMock.when(() -> DoctorRepository.addDoctor(doctor)).thenThrow(new SQLException());
 
       RegisterUserServiceImplementation service = new RegisterUserServiceImplementation();
 
@@ -203,8 +198,7 @@ class RegisterUserServiceImplementationTest {
           .when(() -> SessionManager.getSession(TOKEN))
           .thenReturn(sessionWithRole(Role.PATIENT));
 
-      Doctor doctor =
-          new Doctor("John", "Doe", "doctor", "IC2", "john@test.com", "hash", "GP");
+      Doctor doctor = new Doctor("John", "Doe", "doctor", "IC2", "john@test.com", "hash", "GP");
       RegisterUserServiceImplementation service = new RegisterUserServiceImplementation();
 
       RemoteException ex =
@@ -218,8 +212,7 @@ class RegisterUserServiceImplementationTest {
     try (MockedStatic<SessionManager> sessionMock = mockStatic(SessionManager.class)) {
       sessionMock.when(() -> SessionManager.getSession(TOKEN)).thenReturn(null);
 
-      Doctor doctor =
-          new Doctor("John", "Doe", "doctor", "IC2", "john@test.com", "hash", "GP");
+      Doctor doctor = new Doctor("John", "Doe", "doctor", "IC2", "john@test.com", "hash", "GP");
       RegisterUserServiceImplementation service = new RegisterUserServiceImplementation();
 
       RemoteException ex =
