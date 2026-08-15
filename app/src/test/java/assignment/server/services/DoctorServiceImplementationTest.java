@@ -1,5 +1,8 @@
 package assignment.server.services;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import assignment.server.auth.Session;
 import assignment.server.auth.SessionManager;
 import assignment.server.database.repository.AppointmentRepository;
@@ -21,9 +24,6 @@ import java.sql.Timestamp;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 class DoctorServiceImplementationTest {
 
@@ -48,7 +48,8 @@ class DoctorServiceImplementationTest {
   void getUpcomingAppointmentsByDoctorUserId_success() throws Exception {
     try (MockedStatic<SessionManager> sessionMock = mockStatic(SessionManager.class);
         MockedStatic<DoctorRepository> doctorRepoMock = mockStatic(DoctorRepository.class);
-        MockedStatic<AppointmentRepository> apptRepoMock = mockStatic(AppointmentRepository.class)) {
+        MockedStatic<AppointmentRepository> apptRepoMock =
+            mockStatic(AppointmentRepository.class)) {
 
       sessionMock
           .when(() -> SessionManager.getSession(TOKEN))
@@ -91,8 +92,7 @@ class DoctorServiceImplementationTest {
 
       RemoteException ex =
           assertThrows(
-              RemoteException.class,
-              () -> service.getUpcomingAppointmentsByDoctorUserId(TOKEN, 5));
+              RemoteException.class, () -> service.getUpcomingAppointmentsByDoctorUserId(TOKEN, 5));
       assertTrue(ex.getMessage().contains("No doctor found"));
     }
   }
@@ -113,8 +113,7 @@ class DoctorServiceImplementationTest {
 
       RemoteException ex =
           assertThrows(
-              RemoteException.class,
-              () -> service.getUpcomingAppointmentsByDoctorUserId(TOKEN, 5));
+              RemoteException.class, () -> service.getUpcomingAppointmentsByDoctorUserId(TOKEN, 5));
       assertTrue(ex.getMessage().contains("DB_ERROR"));
     }
   }
@@ -161,7 +160,8 @@ class DoctorServiceImplementationTest {
   void getAppointmentsWithConsultationByDoctorAndPatient_success() throws Exception {
     try (MockedStatic<SessionManager> sessionMock = mockStatic(SessionManager.class);
         MockedStatic<DoctorRepository> doctorRepoMock = mockStatic(DoctorRepository.class);
-        MockedStatic<AppointmentRepository> apptRepoMock = mockStatic(AppointmentRepository.class)) {
+        MockedStatic<AppointmentRepository> apptRepoMock =
+            mockStatic(AppointmentRepository.class)) {
 
       sessionMock
           .when(() -> SessionManager.getSession(TOKEN))
@@ -288,7 +288,8 @@ class DoctorServiceImplementationTest {
   @Test
   void cancelAppointment_success() throws Exception {
     try (MockedStatic<SessionManager> sessionMock = mockStatic(SessionManager.class);
-        MockedStatic<AppointmentRepository> apptRepoMock = mockStatic(AppointmentRepository.class)) {
+        MockedStatic<AppointmentRepository> apptRepoMock =
+            mockStatic(AppointmentRepository.class)) {
 
       sessionMock
           .when(() -> SessionManager.getSession(TOKEN))
@@ -305,7 +306,8 @@ class DoctorServiceImplementationTest {
   @Test
   void cancelAppointment_dbError() throws Exception {
     try (MockedStatic<SessionManager> sessionMock = mockStatic(SessionManager.class);
-        MockedStatic<AppointmentRepository> apptRepoMock = mockStatic(AppointmentRepository.class)) {
+        MockedStatic<AppointmentRepository> apptRepoMock =
+            mockStatic(AppointmentRepository.class)) {
 
       sessionMock
           .when(() -> SessionManager.getSession(TOKEN))

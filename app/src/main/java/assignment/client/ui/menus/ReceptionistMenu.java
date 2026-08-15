@@ -14,7 +14,7 @@ public class ReceptionistMenu {
 
       int choice = InputHandler.readInt("Select an option: ");
       if (choice == 1) {
-        System.out.println("an iq too low?");
+        RegisterPatientScreen.display(client);
       } else if (choice == 2) {
         System.out.println("Exiting Receptionist Menu...");
         break;

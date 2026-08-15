@@ -60,12 +60,14 @@ public class ScheduleRepository {
   // Only counts appointments that still need this slot: not cancelled, and not yet happened.
   // Past or cancelled history no longer blocks deletion.
   public static int countActiveUpcomingAppointments(int scheduleId) throws SQLException {
-    String sql = "SELECT COUNT(*) " +
-            "FROM Appointment a " +
-            "LEFT JOIN Consultation c ON a.appointmentId = c.appointmentId " +
-            "WHERE a.scheduleId = ? " +
-            "  AND a.cancelledByUserId IS NULL " +
-//            "  AND a.appointmentDate >= CURRENT_DATE " +
+    String sql =
+        "SELECT COUNT(*) "
+            + "FROM Appointment a "
+            + "LEFT JOIN Consultation c ON a.appointmentId = c.appointmentId "
+            + "WHERE a.scheduleId = ? "
+            + "  AND a.cancelledByUserId IS NULL "
+            +
+            //            "  AND a.appointmentDate >= CURRENT_DATE " +
             "  AND c.appointmentId IS NULL";
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
