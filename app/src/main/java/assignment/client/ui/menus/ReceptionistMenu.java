@@ -3,6 +3,7 @@ package assignment.client.ui.menus;
 import assignment.client.services.ServiceManager;
 import assignment.client.ui.Helper;
 import assignment.client.ui.InputHandler;
+import assignment.client.ui.screens.RegisterPatientScreen;
 import assignment.shared.dto.LoginResponse;
 
 public class ReceptionistMenu {

@@ -51,5 +51,3 @@ public class RegisterPatientScreen {
     }
   }
 }
-
-// add (RegisterPatientScreen.display();
