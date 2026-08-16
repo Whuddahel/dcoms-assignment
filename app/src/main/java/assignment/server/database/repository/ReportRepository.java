@@ -90,7 +90,7 @@ public class ReportRepository {
             + "JOIN Users u ON d.userId = u.userId "
             + "JOIN Appointment a ON d.doctorId = a.doctorId "
             + "JOIN Consultation c ON a.appointmentId = c.appointmentId "
-            + "WHERE a.appointmentDate >= ? AND a.appointmentDate <= ? AND u.deleted = false "
+            + "WHERE a.appointmentDate >= ? AND a.appointmentDate <= ? "
             + "GROUP BY d.doctorId, u.userId, u.firstName, u.lastName "
             + "ORDER BY successfulCount DESC, u.lastName ASC, u.firstName ASC "
             + "FETCH FIRST 10 ROWS ONLY";
@@ -199,7 +199,6 @@ public class ReportRepository {
             + "JOIN Users u ON d.userId = u.userId "
             + "LEFT JOIN Appointment a ON d.doctorId = a.doctorId "
             + "LEFT JOIN Consultation c ON a.appointmentId = c.appointmentId AND c.createdAt >= ? AND c.createdAt <= ? "
-            + "WHERE u.deleted = false "
             + "GROUP BY d.doctorId, u.userId, u.firstName, u.lastName "
             + "ORDER BY consultationsCount DESC, u.lastName ASC, u.firstName ASC";
 
@@ -251,7 +250,7 @@ public class ReportRepository {
     int newPatientsCount = 0;
     String newPatientSql =
         "SELECT COUNT(userId) FROM Users "
-            + "WHERE userRole = 'patient' AND createdAt >= ? AND createdAt <= ? AND deleted = false";
+            + "WHERE userRole = 'patient' AND createdAt >= ? AND createdAt <= ?";
 
     List<PatientVisitSummaryReport.PatientVisitItem> patientVisits = new ArrayList<>();
     String patientsSql =
@@ -261,7 +260,7 @@ public class ReportRepository {
             + "JOIN Users u ON p.userId = u.userId "
             + "JOIN Appointment a ON p.patientId = a.patientId "
             + "JOIN Consultation c ON a.appointmentId = c.appointmentId "
-            + "WHERE c.createdAt >= ? AND c.createdAt <= ? AND u.deleted = false "
+            + "WHERE c.createdAt >= ? AND c.createdAt <= ? "
             + "GROUP BY p.patientId, u.userId, u.firstName, u.lastName, u.createdAt "
             + "ORDER BY consultationsCount DESC, u.lastName ASC, u.firstName ASC";
 

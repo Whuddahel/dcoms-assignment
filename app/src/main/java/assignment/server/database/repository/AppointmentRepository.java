@@ -275,7 +275,8 @@ public class AppointmentRepository {
         "SELECT a.appointmentId, a.doctorId, a.patientId, a.scheduleId, a.appointmentDate, a.createdAt, a.cancelledByUserId "
             + "FROM Appointment a "
             + "JOIN Schedule s ON a.scheduleId = s.scheduleId "
-            + "WHERE a.doctorId = ? AND a.cancelledByUserId IS NULL";
+            + "WHERE a.doctorId = ? AND a.appointmentDate >= CURRENT_DATE "
+            + "ORDER BY a.appointmentDate ASC, s.startTime ASC";
 
     List<Appointment> list = new ArrayList<>();
     try (Connection conn = DatabaseManager.getConnection();
@@ -283,6 +284,8 @@ public class AppointmentRepository {
       ps.setInt(1, doctorId);
       try (ResultSet rs = ps.executeQuery()) {
         while (rs.next()) {
+          int cancelledByUserIdVal = rs.getInt("cancelledByUserId");
+          Integer cancelledByUserId = rs.wasNull() ? null : cancelledByUserIdVal;
           list.add(
               new Appointment(
                   rs.getInt("appointmentId"),
@@ -291,7 +294,7 @@ public class AppointmentRepository {
                   rs.getInt("scheduleId"),
                   rs.getDate("appointmentDate"),
                   rs.getTimestamp("createdAt"),
-                  null)); // cancelledByUserId is null by definition of query
+                  cancelledByUserId));
         }
       }
     }

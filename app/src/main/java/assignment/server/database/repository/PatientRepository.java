@@ -62,7 +62,7 @@ public class PatientRepository {
         "SELECT p.patientId, p.userId, p.medicalRecordId, p.contactNumber, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.createdAt, u.deleted "
             + "FROM Patient p "
             + "JOIN Users u ON p.userId = u.userId "
-            + "WHERE p.patientId = ? AND u.deleted = false";
+            + "WHERE p.patientId = ?";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
