@@ -513,17 +513,21 @@ public class SystemWorkflowTest {
         serviceManager.cancelAppointment(appt2.getAppointmentId(), patient1Session.getUserId()),
         "Patient cancelling Appt 2 should succeed");
 
-    // Verify Appt 2 is no longer in upcoming list
+    // Verify Appt 2 is in upcoming list marked as cancelled
     List<Appointment> upcomingAfterCancel =
         serviceManager.getUpcomingAppointments(patient1Session.getUserId());
-    boolean foundCancelled = false;
+    Appointment cancelledAppt = null;
     for (Appointment a : upcomingAfterCancel) {
       if (a.getAppointmentId() == appt2.getAppointmentId()) {
-        foundCancelled = true;
+        cancelledAppt = a;
         break;
       }
     }
-    assertFalse(foundCancelled, "Cancelled appointment should not appear in upcoming appointments");
+    assertNotNull(
+        cancelledAppt, "Cancelled upcoming appointment should appear in upcoming appointments");
+    assertNotNull(
+        cancelledAppt.getcancelledByUserId(),
+        "Cancelled appointment should have cancelledByUserId set");
 
     // P10: Logout Patient 1
     serviceManager.clearToken();

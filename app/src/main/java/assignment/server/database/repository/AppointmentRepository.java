@@ -13,40 +13,84 @@ public class AppointmentRepository {
 
   public static boolean addAppointment(Appointment app) throws SQLException {
     String lockScheduleSql =
-        "SELECT scheduleId FROM Schedule WHERE scheduleId = ? AND deleted = false FOR UPDATE";
-    String checkDuplicateSql =
-        "SELECT COUNT(*) FROM Appointment WHERE doctorId = ? AND scheduleId = ? AND appointmentDate = ? AND cancelledByUserId IS NULL";
+        "SELECT startTime, endTime FROM Schedule WHERE scheduleId = ? AND deleted = false FOR UPDATE";
+    String checkDoctorConflictSql =
+        "SELECT COUNT(*) FROM Appointment a JOIN Schedule s ON a.scheduleId = s.scheduleId "
+            + "WHERE a.doctorId = ? AND a.appointmentDate = ? AND a.cancelledByUserId IS NULL "
+            + "AND s.startTime < ? AND s.endTime > ?";
+    String checkPatientConflictSql =
+        "SELECT COUNT(*) FROM Appointment a JOIN Schedule s ON a.scheduleId = s.scheduleId "
+            + "WHERE a.patientId = ? AND a.appointmentDate = ? AND a.cancelledByUserId IS NULL "
+            + "AND s.startTime < ? AND s.endTime > ?";
     String insertSql =
         "INSERT INTO Appointment (doctorId, patientId, scheduleId, appointmentDate, cancelledByUserId) VALUES (?, ?, ?, ?, ?)";
 
     try (Connection conn = DatabaseManager.getConnection()) {
       conn.setAutoCommit(false);
       try {
-        // 1. Lock the schedule row to prevent concurrent bookings/deletions on this slot
+        // 1. Lock the schedule row to prevent concurrent bookings/deletions on this slot and
+        // retrieve its times
+        java.sql.Time startTime;
+        java.sql.Time endTime;
         try (PreparedStatement psLock = conn.prepareStatement(lockScheduleSql)) {
           psLock.setInt(1, app.getScheduleId());
           try (ResultSet rsLock = psLock.executeQuery()) {
             if (!rsLock.next()) {
               conn.rollback();
-              return false; // Schedule slot deleted or invalid
+              throw new IllegalStateException(
+                  "The selected schedule slot is no longer available or was removed.");
             }
+            startTime = rsLock.getTime("startTime");
+            endTime = rsLock.getTime("endTime");
           }
         }
 
-        // 2. Check if active appointment already exists for this slot & date
-        try (PreparedStatement psCheck = conn.prepareStatement(checkDuplicateSql)) {
-          psCheck.setInt(1, app.getDoctorId());
-          psCheck.setInt(2, app.getScheduleId());
-          psCheck.setDate(3, app.getAppointmentDate());
-          try (ResultSet rsCheck = psCheck.executeQuery()) {
-            if (rsCheck.next() && rsCheck.getInt(1) > 0) {
+        // 2. Validate against booking past dates or past time slots on today's date
+        java.time.LocalDate apptDate = app.getAppointmentDate().toLocalDate();
+        java.time.LocalDate today = java.time.LocalDate.now();
+        if (apptDate.isBefore(today)) {
+          conn.rollback();
+          throw new IllegalStateException("Cannot book an appointment for a past date.");
+        }
+        if (apptDate.isEqual(today)) {
+          java.time.LocalTime nowTime = java.time.LocalTime.now();
+          if (startTime.toLocalTime().isBefore(nowTime)) {
+            conn.rollback();
+            throw new IllegalStateException("The selected time slot has already passed for today.");
+          }
+        }
+
+        // 3. Check if doctor already has an active overlapping appointment on this date
+        try (PreparedStatement psDoc = conn.prepareStatement(checkDoctorConflictSql)) {
+          psDoc.setInt(1, app.getDoctorId());
+          psDoc.setDate(2, app.getAppointmentDate());
+          psDoc.setTime(3, endTime);
+          psDoc.setTime(4, startTime);
+          try (ResultSet rsDoc = psDoc.executeQuery()) {
+            if (rsDoc.next() && rsDoc.getInt(1) > 0) {
               conn.rollback();
-              return false; // Slot already booked
+              throw new IllegalStateException(
+                  "The doctor already has an appointment booked in an overlapping time slot.");
             }
           }
         }
 
-        // 3. Insert appointment
+        // 4. Check if patient already has an active overlapping appointment on this date
+        try (PreparedStatement psPat = conn.prepareStatement(checkPatientConflictSql)) {
+          psPat.setInt(1, app.getPatientId());
+          psPat.setDate(2, app.getAppointmentDate());
+          psPat.setTime(3, endTime);
+          psPat.setTime(4, startTime);
+          try (ResultSet rsPat = psPat.executeQuery()) {
+            if (rsPat.next() && rsPat.getInt(1) > 0) {
+              conn.rollback();
+              throw new IllegalStateException(
+                  "You already have an active appointment scheduled in an overlapping time slot on this date.");
+            }
+          }
+        }
+
+        // 5. Insert appointment
         try (PreparedStatement psInsert = conn.prepareStatement(insertSql)) {
           psInsert.setInt(1, app.getDoctorId());
           psInsert.setInt(2, app.getPatientId());
@@ -61,7 +105,7 @@ public class AppointmentRepository {
           conn.commit();
           return rows > 0;
         }
-      } catch (SQLException e) {
+      } catch (SQLException | IllegalStateException e) {
         conn.rollback();
         throw e;
       }

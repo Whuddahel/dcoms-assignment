@@ -54,7 +54,7 @@ public class MedicalHistoryScreen {
         viewPatientHistoryDetails(client, session, selectedPatient);
       }
     } catch (Exception e) {
-      System.err.println("Error viewing medical history: " + e.getMessage());
+      Helper.printError("Error viewing medical history", e);
     }
   }
 
@@ -142,7 +142,7 @@ public class MedicalHistoryScreen {
         }
       }
     } catch (Exception e) {
-      System.err.println("Error viewing patient history details: " + e.getMessage());
+      Helper.printError("Error viewing patient history details", e);
     }
   }
 }

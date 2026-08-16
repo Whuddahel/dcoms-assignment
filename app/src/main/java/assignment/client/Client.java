@@ -78,7 +78,7 @@ public class Client {
             try {
               serviceManager.logout();
             } catch (Exception e) {
-              System.err.println("Failed to notify server during logout: " + e.getMessage());
+              Helper.printError("Failed to notify server during logout", e);
             }
             currentContext.clearSession();
             System.out.println("Session closed successfully.");
@@ -92,14 +92,13 @@ public class Client {
           if (e.getMessage() != null && e.getMessage().contains("INVALID_CREDENTIALS")) {
             Helper.printLine("Login Failed: Invalid email or password.", Helper.Theme.RED);
           } else {
-            Helper.printLine(
-                "An authentication error occurred: " + e.getMessage(), Helper.Theme.RED);
+            Helper.printError("Authentication error", e);
           }
         }
       }
 
     } catch (Exception e) {
-      e.printStackTrace();
+      Helper.printError("System error", e);
     }
   }
 }

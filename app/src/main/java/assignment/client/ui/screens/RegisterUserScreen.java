@@ -1,6 +1,7 @@
 package assignment.client.ui.screens;
 
 import assignment.client.services.ServiceManager;
+import assignment.client.ui.Helper;
 import assignment.client.ui.InputHandler;
 import assignment.shared.model.ClinicAdministrator;
 import assignment.shared.model.Doctor;
@@ -88,8 +89,7 @@ public class RegisterUserScreen {
       if (e.getMessage() != null && e.getMessage().contains("EMAIL_ALREADY_EXISTS")) {
         System.out.println("Registration failed: An account with this email already exists.");
       } else {
-        System.err.println("Error calling registerUser: " + e.getMessage());
-        e.printStackTrace();
+        Helper.printError("Error registering user", e);
       }
     }
   }

@@ -44,7 +44,7 @@ public class ConsultationScreen {
       } else if (e.getMessage() != null && e.getMessage().contains("INVALID_ID_ERROR")) {
         System.out.println("Appointment ID " + appointmentId + " does not exist in the system.");
       } else {
-        System.out.println("Operation Cancelled: " + e.getMessage());
+        Helper.printError("Operation Cancelled", e);
       }
     }
   }
@@ -79,7 +79,7 @@ public class ConsultationScreen {
         Helper.printLine("Failed to modify consultation notes.", Helper.Theme.RED);
       }
     } catch (Exception e) {
-      System.err.println("Error modifying consultation: " + e.getMessage());
+      Helper.printError("Error modifying consultation", e);
     }
   }
 
@@ -149,7 +149,7 @@ public class ConsultationScreen {
       System.out.println("-------------");
 
     } catch (Exception e) {
-      System.err.println("Error loading consultation notes: " + e.getMessage());
+      Helper.printError("Error loading consultation notes", e);
     }
   }
 

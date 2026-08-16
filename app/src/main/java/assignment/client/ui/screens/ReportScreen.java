@@ -63,7 +63,7 @@ public class ReportScreen {
 
       InputHandler.readLine("\nPress Enter to return to menu...", true);
     } catch (Exception e) {
-      System.err.println("Error generating report: " + e.getMessage());
+      Helper.printError("Error generating report", e);
     }
   }
 
@@ -147,7 +147,7 @@ public class ReportScreen {
 
       InputHandler.readLine("\nPress Enter to return to menu...", true);
     } catch (Exception e) {
-      System.err.println("Error generating report: " + e.getMessage());
+      Helper.printError("Error generating report", e);
     }
   }
 
@@ -197,7 +197,7 @@ public class ReportScreen {
 
       InputHandler.readLine("\nPress Enter to return to menu...", true);
     } catch (Exception e) {
-      System.err.println("Error generating report: " + e.getMessage());
+      Helper.printError("Error generating report", e);
     }
   }
 

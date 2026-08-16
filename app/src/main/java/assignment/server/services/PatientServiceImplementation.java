@@ -16,6 +16,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,17 +69,16 @@ public class PatientServiceImplementation extends UnicastRemoteObject implements
       List<Appointment> all =
           AppointmentRepository.getAppointmentsByPatientId(patient.getPatientId());
       List<Appointment> upcoming = new ArrayList<>();
-      Date today = new Date(System.currentTimeMillis());
+      LocalDate today = LocalDate.now();
       for (Appointment a : all) {
         boolean hasConsultation =
             ConsultationRepository.getConsultationByAppointmentId(a.getAppointmentId()) != null;
-        // Upcoming = future/current date AND not cancelled AND not yet consulted
-        if (!a.getAppointmentDate().before(today)
-            && a.getcancelledByUserId() == null
-            && !hasConsultation) {
+        // Upcoming = future/current date AND not yet consulted (includes active and cancelled)
+        if (!a.getAppointmentDate().toLocalDate().isBefore(today) && !hasConsultation) {
           upcoming.add(a);
         }
       }
+      upcoming.sort((a, b) -> a.getAppointmentDate().compareTo(b.getAppointmentDate()));
       return upcoming;
     } catch (SQLException e) {
       throw new RemoteException("DB_ERROR: Failed to retrieve upcoming appointments", e);
@@ -96,14 +96,12 @@ public class PatientServiceImplementation extends UnicastRemoteObject implements
       List<Appointment> all =
           AppointmentRepository.getAppointmentsByPatientId(patient.getPatientId());
       List<Appointment> past = new ArrayList<>();
-      Date today = new Date(System.currentTimeMillis());
+      LocalDate today = LocalDate.now();
       for (Appointment a : all) {
         boolean hasConsultation =
             ConsultationRepository.getConsultationByAppointmentId(a.getAppointmentId()) != null;
-        // Past = before today, OR cancelled, OR consultation has already been recorded
-        if (a.getAppointmentDate().before(today)
-            || a.getcancelledByUserId() != null
-            || hasConsultation) {
+        // Past = before today, OR consultation has already been recorded
+        if (a.getAppointmentDate().toLocalDate().isBefore(today) || hasConsultation) {
           past.add(a);
         }
       }
@@ -129,6 +127,8 @@ public class PatientServiceImplementation extends UnicastRemoteObject implements
     AuthorizationManager.requirePermissions(token, "bookAppointment");
     try {
       return AppointmentRepository.addAppointment(appointment);
+    } catch (IllegalStateException | IllegalArgumentException e) {
+      throw new RemoteException(e.getMessage());
     } catch (SQLException e) {
       throw new RemoteException("DB_ERROR: Failed to book appointment", e);
     }

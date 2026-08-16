@@ -1,6 +1,7 @@
 package assignment.client.ui.screens;
 
 import assignment.client.services.ServiceManager;
+import assignment.client.ui.Helper;
 import assignment.client.ui.InputHandler;
 import assignment.client.ui.PrintHelper;
 import assignment.shared.dto.ConsultationView;
@@ -63,7 +64,7 @@ public class ManageConsultationScreen {
       } catch (NumberFormatException e) {
         System.out.println("Invalid selection. Please enter a valid number or 'cancel'.");
       } catch (Exception e) {
-        System.err.println("Error pulling consultations: " + e.getMessage());
+        Helper.printError("Error loading consultations", e);
         break;
       }
     }

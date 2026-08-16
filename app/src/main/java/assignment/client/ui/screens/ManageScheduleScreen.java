@@ -21,7 +21,7 @@ public class ManageScheduleScreen {
           java.util.Collections.sort(schedules);
         }
       } catch (Exception e) {
-        System.err.println("Error pulling schedules: " + e.getMessage());
+        Helper.printError("Error loading schedules", e);
       }
 
       if (schedules == null || schedules.isEmpty()) {
@@ -90,7 +90,7 @@ public class ManageScheduleScreen {
           System.out.println("Failed to delete slot.");
         }
       } catch (Exception e) {
-        System.err.println("Error removing slot: " + e.getMessage());
+        Helper.printError("Error removing slot", e);
       }
     } else if (choice != 1) {
       System.out.println("Invalid choice.");
@@ -154,7 +154,7 @@ public class ManageScheduleScreen {
     } catch (IllegalArgumentException e) {
       System.out.println("Invalid time format! Please use HH:MM:SS format.");
     } catch (Exception e) {
-      System.err.println("Error adding schedule entry: " + e.getMessage());
+      Helper.printError("Error adding schedule slot", e);
     }
   }
 }

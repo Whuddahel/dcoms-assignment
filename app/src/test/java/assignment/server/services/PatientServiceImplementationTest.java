@@ -131,7 +131,7 @@ class PatientServiceImplementationTest {
   // ==========================================
 
   @Test
-  void getUpcomingAppointments_filtersOutPastAndCancelled() throws Exception {
+  void getUpcomingAppointments_filtersOutPastAndConsulted() throws Exception {
     try (MockedStatic<SessionManager> sessionMock = mockStatic(SessionManager.class);
         MockedStatic<PatientRepository> patientRepoMock = mockStatic(PatientRepository.class);
         MockedStatic<ConsultationRepository> consultRepoMock =
@@ -146,11 +146,6 @@ class PatientServiceImplementationTest {
       Patient patient = patientFixture(1, 5);
       patientRepoMock.when(() -> PatientRepository.getPatientByUserId(5)).thenReturn(patient);
 
-      // NOTE: deliberately avoiding a "today" fixture here. The production pivot is
-      // `new Date(System.currentTimeMillis())` (carries current time-of-day), while any
-      // appointment date is midnight-normalized -- so a same-day appointment is judged
-      // "before now" almost all day, every day. That's a real product quirk, not something
-      // to encode as expected behavior in this test; tomorrow/yesterday are unambiguous.
       Date tomorrow = Date.valueOf(LocalDate.now().plusDays(1));
       Date yesterday = Date.valueOf(LocalDate.now().minusDays(1));
       Timestamp now = new Timestamp(System.currentTimeMillis());
@@ -159,16 +154,23 @@ class PatientServiceImplementationTest {
       Appointment pastActive =
           new Appointment(3, 10, 1, 22, yesterday, now, null); // excluded (before today)
       Appointment futureCancelled =
-          new Appointment(4, 10, 1, 23, tomorrow, now, 99); // excluded (cancelled)
+          new Appointment(
+              4, 10, 1, 23, tomorrow, now, 99); // included (today/future, even if cancelled)
+      Appointment futureWithConsultation =
+          new Appointment(5, 10, 1, 24, tomorrow, now, null); // excluded (has consultation)
+
+      consultRepoMock
+          .when(() -> ConsultationRepository.getConsultationByAppointmentId(5))
+          .thenReturn(new Consultation(1, 5, "Notes", 50.0, now));
 
       apptRepoMock
           .when(() -> AppointmentRepository.getAppointmentsByPatientId(1))
-          .thenReturn(List.of(futureActive, pastActive, futureCancelled));
+          .thenReturn(List.of(futureActive, pastActive, futureCancelled, futureWithConsultation));
 
       PatientServiceImplementation service = new PatientServiceImplementation();
       List<Appointment> result = service.getUpcomingAppointments(TOKEN, 5);
 
-      assertEquals(List.of(futureActive), result);
+      assertEquals(List.of(futureActive, futureCancelled), result);
     }
   }
 
@@ -190,7 +192,8 @@ class PatientServiceImplementationTest {
   }
 
   @Test
-  void getPastAppointments_includesPastAndCancelled_excludesFutureActive() throws Exception {
+  void getPastAppointments_includesPastAndConsulted_excludesFutureWithoutConsultation()
+      throws Exception {
     try (MockedStatic<SessionManager> sessionMock = mockStatic(SessionManager.class);
         MockedStatic<PatientRepository> patientRepoMock = mockStatic(PatientRepository.class);
         MockedStatic<ConsultationRepository> consultRepoMock =
@@ -205,8 +208,6 @@ class PatientServiceImplementationTest {
       Patient patient = patientFixture(1, 5);
       patientRepoMock.when(() -> PatientRepository.getPatientByUserId(5)).thenReturn(patient);
 
-      // See NOTE in getUpcomingAppointments_filtersOutPastAndCancelled about avoiding
-      // a "today" fixture -- tomorrow/yesterday are unambiguous regardless of time-of-day.
       Date tomorrow = Date.valueOf(LocalDate.now().plusDays(1));
       Date yesterday = Date.valueOf(LocalDate.now().minusDays(1));
       Timestamp now = new Timestamp(System.currentTimeMillis());
@@ -214,7 +215,7 @@ class PatientServiceImplementationTest {
       Appointment pastActive =
           new Appointment(1, 10, 1, 20, yesterday, now, null); // included (before today)
       Appointment futureCancelled =
-          new Appointment(2, 10, 1, 21, tomorrow, now, 99); // included (cancelled)
+          new Appointment(2, 10, 1, 21, tomorrow, now, 99); // excluded (future, shown in upcoming)
       Appointment futureActive = new Appointment(3, 10, 1, 22, tomorrow, now, null); // excluded
       Appointment futureWithConsultation =
           new Appointment(4, 10, 1, 23, tomorrow, now, null); // included (has consultation)
@@ -230,7 +231,7 @@ class PatientServiceImplementationTest {
       PatientServiceImplementation service = new PatientServiceImplementation();
       List<Appointment> result = service.getPastAppointments(TOKEN, 5);
 
-      assertEquals(List.of(pastActive, futureCancelled, futureWithConsultation), result);
+      assertEquals(List.of(pastActive, futureWithConsultation), result);
     }
   }
 
