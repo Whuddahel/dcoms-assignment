@@ -89,9 +89,9 @@ class AuthServiceImplementationTest {
 
       AuthServiceImplementation service = new AuthServiceImplementation();
 
-      RuntimeException ex =
+      RemoteException ex =
           assertThrows(
-              RuntimeException.class, () -> service.login("john@test.com", "wrongPassword"));
+              RemoteException.class, () -> service.login("john@test.com", "wrongPassword"));
 
       assertEquals("INVALID_CREDENTIALS", ex.getMessage());
     }

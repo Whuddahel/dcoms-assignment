@@ -9,6 +9,7 @@ import assignment.server.database.repository.ClinicAdministratorRepository;
 import assignment.server.database.repository.DoctorRepository;
 import assignment.server.database.repository.PatientRepository;
 import assignment.server.database.repository.ReceptionistRepository;
+import assignment.server.database.repository.UserRepository;
 import assignment.shared.auth.Role;
 import assignment.shared.model.ClinicAdministrator;
 import assignment.shared.model.Doctor;
@@ -43,11 +44,13 @@ class RegisterUserServiceImplementationTest {
   @Test
   void registerUser_doctor_success() throws Exception {
     try (MockedStatic<SessionManager> sessionMock = mockStatic(SessionManager.class);
+        MockedStatic<UserRepository> userRepoMock = mockStatic(UserRepository.class);
         MockedStatic<DoctorRepository> doctorRepoMock = mockStatic(DoctorRepository.class)) {
 
       sessionMock
           .when(() -> SessionManager.getSession(TOKEN))
           .thenReturn(sessionWithRole(Role.RECEPTIONIST));
+      userRepoMock.when(() -> UserRepository.emailExists("john@test.com")).thenReturn(false);
 
       Doctor doctor = new Doctor("John", "Doe", "doctor", "IC2", "john@test.com", "hash", "GP");
       doctorRepoMock.when(() -> DoctorRepository.addDoctor(doctor)).thenReturn(true);
@@ -62,11 +65,13 @@ class RegisterUserServiceImplementationTest {
   @Test
   void registerUser_patient_success() throws Exception {
     try (MockedStatic<SessionManager> sessionMock = mockStatic(SessionManager.class);
+        MockedStatic<UserRepository> userRepoMock = mockStatic(UserRepository.class);
         MockedStatic<PatientRepository> patientRepoMock = mockStatic(PatientRepository.class)) {
 
       sessionMock
           .when(() -> SessionManager.getSession(TOKEN))
           .thenReturn(sessionWithRole(Role.RECEPTIONIST));
+      userRepoMock.when(() -> UserRepository.emailExists("john@test.com")).thenReturn(false);
 
       Patient patient =
           new Patient("John", "Doe", "patient", "IC2", "john@test.com", "hash", 100, "0123456789");
@@ -82,12 +87,14 @@ class RegisterUserServiceImplementationTest {
   @Test
   void registerUser_admin_success() throws Exception {
     try (MockedStatic<SessionManager> sessionMock = mockStatic(SessionManager.class);
+        MockedStatic<UserRepository> userRepoMock = mockStatic(UserRepository.class);
         MockedStatic<ClinicAdministratorRepository> adminRepoMock =
             mockStatic(ClinicAdministratorRepository.class)) {
 
       sessionMock
           .when(() -> SessionManager.getSession(TOKEN))
           .thenReturn(sessionWithRole(Role.RECEPTIONIST));
+      userRepoMock.when(() -> UserRepository.emailExists("john@test.com")).thenReturn(false);
 
       ClinicAdministrator admin =
           new ClinicAdministrator("John", "Doe", "admin", "IC2", "john@test.com", "hash");
@@ -105,12 +112,14 @@ class RegisterUserServiceImplementationTest {
   @Test
   void registerUser_receptionist_success() throws Exception {
     try (MockedStatic<SessionManager> sessionMock = mockStatic(SessionManager.class);
+        MockedStatic<UserRepository> userRepoMock = mockStatic(UserRepository.class);
         MockedStatic<ReceptionistRepository> receptionistRepoMock =
             mockStatic(ReceptionistRepository.class)) {
 
       sessionMock
           .when(() -> SessionManager.getSession(TOKEN))
           .thenReturn(sessionWithRole(Role.RECEPTIONIST));
+      userRepoMock.when(() -> UserRepository.emailExists("john@test.com")).thenReturn(false);
 
       Receptionist receptionist =
           new Receptionist("John", "Doe", "receptionist", "IC2", "john@test.com", "hash");
@@ -141,10 +150,12 @@ class RegisterUserServiceImplementationTest {
 
   @Test
   void registerUser_unknownRole_returnsFalse() throws Exception {
-    try (MockedStatic<SessionManager> sessionMock = mockStatic(SessionManager.class)) {
+    try (MockedStatic<SessionManager> sessionMock = mockStatic(SessionManager.class);
+        MockedStatic<UserRepository> userRepoMock = mockStatic(UserRepository.class)) {
       sessionMock
           .when(() -> SessionManager.getSession(TOKEN))
           .thenReturn(sessionWithRole(Role.RECEPTIONIST));
+      userRepoMock.when(() -> UserRepository.emailExists("john@test.com")).thenReturn(false);
 
       User user =
           new User(
@@ -173,11 +184,13 @@ class RegisterUserServiceImplementationTest {
   @Test
   void registerUser_dbError() throws Exception {
     try (MockedStatic<SessionManager> sessionMock = mockStatic(SessionManager.class);
+        MockedStatic<UserRepository> userRepoMock = mockStatic(UserRepository.class);
         MockedStatic<DoctorRepository> doctorRepoMock = mockStatic(DoctorRepository.class)) {
 
       sessionMock
           .when(() -> SessionManager.getSession(TOKEN))
           .thenReturn(sessionWithRole(Role.RECEPTIONIST));
+      userRepoMock.when(() -> UserRepository.emailExists("john@test.com")).thenReturn(false);
 
       Doctor doctor = new Doctor("John", "Doe", "doctor", "IC2", "john@test.com", "hash", "GP");
       doctorRepoMock.when(() -> DoctorRepository.addDoctor(doctor)).thenThrow(new SQLException());

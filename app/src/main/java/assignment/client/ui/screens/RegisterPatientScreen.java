@@ -46,8 +46,12 @@ public class RegisterPatientScreen {
       }
 
     } catch (Exception e) {
-      System.err.println("Error registering patient: " + e.getMessage());
-      e.printStackTrace();
+      if (e.getMessage() != null && e.getMessage().contains("EMAIL_ALREADY_EXISTS")) {
+        System.out.println("\nRegistration failed: An account with this email already exists.");
+      } else {
+        System.err.println("Error registering patient: " + e.getMessage());
+        e.printStackTrace();
+      }
     }
   }
 }

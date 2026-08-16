@@ -205,15 +205,15 @@ class ManageScheduleServiceImplementationTest {
           .when(() -> SessionManager.getSession(TOKEN))
           .thenReturn(sessionWithRole(Role.DOCTOR));
       scheduleRepoMock
-          .when(() -> ScheduleRepository.countActiveUpcomingAppointments(7))
-          .thenReturn(1);
+          .when(() -> ScheduleRepository.deleteSchedule(7))
+          .thenThrow(
+              new IllegalStateException("CANNOT_DELETE: A patient has an upcoming appointment"));
 
       ManageScheduleServiceImplementation service = new ManageScheduleServiceImplementation();
 
       RemoteException ex =
           assertThrows(RemoteException.class, () -> service.deleteSchedule(TOKEN, 7));
       assertTrue(ex.getMessage().contains("CANNOT_DELETE"));
-      scheduleRepoMock.verify(() -> ScheduleRepository.deleteSchedule(anyInt()), never());
     }
   }
 
@@ -226,7 +226,7 @@ class ManageScheduleServiceImplementationTest {
           .when(() -> SessionManager.getSession(TOKEN))
           .thenReturn(sessionWithRole(Role.DOCTOR));
       scheduleRepoMock
-          .when(() -> ScheduleRepository.countActiveUpcomingAppointments(7))
+          .when(() -> ScheduleRepository.deleteSchedule(7))
           .thenThrow(new SQLException());
 
       ManageScheduleServiceImplementation service = new ManageScheduleServiceImplementation();

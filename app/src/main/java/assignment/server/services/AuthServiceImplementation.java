@@ -1,5 +1,6 @@
 package assignment.server.services;
 
+import assignment.server.auth.Session;
 import assignment.server.auth.SessionManager;
 import assignment.server.database.repository.UserRepository;
 import assignment.shared.dto.LoginResponse;
@@ -27,18 +28,16 @@ public class AuthServiceImplementation extends UnicastRemoteObject implements Au
     try {
       User user = UserRepository.getUserByEmail(email);
       if (user == null) throw new RemoteException(AuthError.INVALID_CREDENTIALS.name());
-      System.out.println(user.getPasswordHash());
-      System.out.println(user.getUsername());
-      System.out.println(user.getRole());
-      System.out.println(email);
-      System.out.println(password);
-
       String storedHash = user.getPasswordHash();
       if (!BCrypt.checkpw(password, storedHash)) {
-        throw new RuntimeException(AuthError.INVALID_CREDENTIALS.name());
+        System.out.printf("\n[LOGIN FAILED] Invalid password for email: %s\n", email);
+        throw new RemoteException(AuthError.INVALID_CREDENTIALS.name());
       }
 
       String token = SessionManager.createSession(user);
+      System.out.printf(
+          "\n[LOGIN SUCCESS] User: %s (%s) | Email: %s\n",
+          user.getUsername(), user.getRole(), user.getEmail());
 
       SessionManager.printSessions();
       return new LoginResponse(
@@ -56,6 +55,13 @@ public class AuthServiceImplementation extends UnicastRemoteObject implements Au
 
   @Override
   public void logout(String token) throws RemoteException {
+    Session session = SessionManager.getSession(token);
+    if (session != null) {
+      System.out.printf(
+          "\n[LOGOUT] User: %s (%s) logged out.\n", session.getUsername(), session.getRole());
+    } else {
+      System.out.println("\n[LOGOUT] Session terminated.");
+    }
     SessionManager.remove(token);
   }
 }

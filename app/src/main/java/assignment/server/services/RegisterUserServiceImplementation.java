@@ -5,6 +5,8 @@ import assignment.server.database.repository.ClinicAdministratorRepository;
 import assignment.server.database.repository.DoctorRepository;
 import assignment.server.database.repository.PatientRepository;
 import assignment.server.database.repository.ReceptionistRepository;
+import assignment.server.database.repository.UserRepository;
+import assignment.shared.error.AuthError;
 import assignment.shared.model.ClinicAdministrator;
 import assignment.shared.model.Doctor;
 import assignment.shared.model.Patient;
@@ -34,6 +36,10 @@ public class RegisterUserServiceImplementation extends UnicastRemoteObject
       return false;
     }
     try {
+      if (UserRepository.emailExists(user.getEmail())) {
+        throw new RemoteException(AuthError.EMAIL_ALREADY_EXISTS.name());
+      }
+
       switch (user.getUserRole().toLowerCase()) {
         case "doctor":
           if (user instanceof Doctor) {

@@ -75,8 +75,12 @@ public class Client {
             }
 
             // logout
+            try {
+              serviceManager.logout();
+            } catch (Exception e) {
+              System.err.println("Failed to notify server during logout: " + e.getMessage());
+            }
             currentContext.clearSession();
-            serviceManager.clearToken();
             System.out.println("Session closed successfully.");
 
           } else {
@@ -85,7 +89,12 @@ public class Client {
           }
 
         } catch (Exception e) {
-          Helper.printLine("An authentication error occurred: " + e.getMessage(), Helper.Theme.RED);
+          if (e.getMessage() != null && e.getMessage().contains("INVALID_CREDENTIALS")) {
+            Helper.printLine("Login Failed: Invalid email or password.", Helper.Theme.RED);
+          } else {
+            Helper.printLine(
+                "An authentication error occurred: " + e.getMessage(), Helper.Theme.RED);
+          }
         }
       }
 
