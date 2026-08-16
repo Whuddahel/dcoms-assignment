@@ -12,14 +12,38 @@ import java.util.List;
 public class ScheduleRepository {
 
   public static boolean addSchedule(Schedule schedule) throws SQLException {
+    String checkSql =
+        "SELECT COUNT(*) FROM Schedule WHERE doctorId = ? AND day = ? AND deleted = false "
+            + "AND startTime < ? AND endTime > ?";
     String sql = "INSERT INTO Schedule (doctorId, day, startTime, endTime) VALUES (?, ?, ?, ?)";
-    try (Connection conn = DatabaseManager.getConnection();
-        PreparedStatement ps = conn.prepareStatement(sql)) {
-      ps.setInt(1, schedule.getDoctorId());
-      ps.setString(2, schedule.getDay());
-      ps.setTime(3, schedule.getStartTime());
-      ps.setTime(4, schedule.getEndTime());
-      return ps.executeUpdate() > 0;
+    try (Connection conn = DatabaseManager.getConnection()) {
+      conn.setAutoCommit(false);
+      try {
+        try (PreparedStatement psCheck = conn.prepareStatement(checkSql)) {
+          psCheck.setInt(1, schedule.getDoctorId());
+          psCheck.setString(2, schedule.getDay());
+          psCheck.setTime(3, schedule.getEndTime());
+          psCheck.setTime(4, schedule.getStartTime());
+          try (ResultSet rs = psCheck.executeQuery()) {
+            if (rs.next() && rs.getInt(1) > 0) {
+              conn.rollback();
+              return false; // Overlapping schedule slot
+            }
+          }
+        }
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+          ps.setInt(1, schedule.getDoctorId());
+          ps.setString(2, schedule.getDay());
+          ps.setTime(3, schedule.getStartTime());
+          ps.setTime(4, schedule.getEndTime());
+          int rows = ps.executeUpdate();
+          conn.commit();
+          return rows > 0;
+        }
+      } catch (SQLException e) {
+        conn.rollback();
+        throw e;
+      }
     }
   }
 
@@ -45,15 +69,53 @@ public class ScheduleRepository {
     return list;
   }
 
-  // Soft delete: appointments/consultations may still reference this scheduleId
-  // (the FK has no ON DELETE CASCADE), so a hard DELETE would fail once the slot
-  // has any booking history, even cancelled or past ones.
+  // Soft delete: atomic with lock and active appointment check
   public static boolean deleteSchedule(int scheduleId) throws SQLException {
-    String sql = "UPDATE Schedule SET deleted = true WHERE scheduleId = ?";
-    try (Connection conn = DatabaseManager.getConnection();
-        PreparedStatement ps = conn.prepareStatement(sql)) {
-      ps.setInt(1, scheduleId);
-      return ps.executeUpdate() > 0;
+    String lockSql =
+        "SELECT scheduleId FROM Schedule WHERE scheduleId = ? AND deleted = false FOR UPDATE";
+    String countSql =
+        "SELECT COUNT(*) "
+            + "FROM Appointment a "
+            + "LEFT JOIN Consultation c ON a.appointmentId = c.appointmentId "
+            + "WHERE a.scheduleId = ? "
+            + "  AND a.cancelledByUserId IS NULL "
+            + "  AND c.appointmentId IS NULL";
+    String updateSql = "UPDATE Schedule SET deleted = true WHERE scheduleId = ?";
+
+    try (Connection conn = DatabaseManager.getConnection()) {
+      conn.setAutoCommit(false);
+      try {
+        try (PreparedStatement psLock = conn.prepareStatement(lockSql)) {
+          psLock.setInt(1, scheduleId);
+          try (ResultSet rsLock = psLock.executeQuery()) {
+            if (!rsLock.next()) {
+              conn.rollback();
+              return false; // Not found or already deleted
+            }
+          }
+        }
+
+        try (PreparedStatement psCount = conn.prepareStatement(countSql)) {
+          psCount.setInt(1, scheduleId);
+          try (ResultSet rsCount = psCount.executeQuery()) {
+            if (rsCount.next() && rsCount.getInt(1) > 0) {
+              conn.rollback();
+              throw new IllegalStateException(
+                  "CANNOT_DELETE: A patient has an upcoming appointment booked in this time slot.");
+            }
+          }
+        }
+
+        try (PreparedStatement psUpdate = conn.prepareStatement(updateSql)) {
+          psUpdate.setInt(1, scheduleId);
+          int rows = psUpdate.executeUpdate();
+          conn.commit();
+          return rows > 0;
+        }
+      } catch (SQLException | IllegalStateException e) {
+        conn.rollback();
+        throw e;
+      }
     }
   }
 

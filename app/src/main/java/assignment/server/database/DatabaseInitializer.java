@@ -16,15 +16,24 @@ public final class DatabaseInitializer {
     try (Connection connection = DatabaseManager.getConnection()) {
       System.out.println("Connected.");
 
-      if (!usersTableExists(connection)) {
-        System.out.println("Executing schema.sql.");
-        executeSqlFile(connection, "db/schema.sql");
-        System.out.println("Executing seed.sql.");
-        executeSqlFile(connection, "db/seed.sql");
-        System.out.println("Database initialized.");
-      } else if (!seedUserExists(connection)) {
-        System.out.println("Seed user not found. Executing seed.sql.");
-        executeSqlFile(connection, "db/seed.sql");
+      connection.setAutoCommit(false);
+      try {
+        if (!usersTableExists(connection)) {
+          System.out.println("Executing schema.sql.");
+          executeSqlFile(connection, "db/schema.sql");
+          System.out.println("Executing seed.sql.");
+          executeSqlFile(connection, "db/seed.sql");
+          System.out.println("Database initialized.");
+        } else if (!seedUserExists(connection)) {
+          System.out.println("Seed user not found. Executing seed.sql.");
+          executeSqlFile(connection, "db/seed.sql");
+        }
+        connection.commit();
+      } catch (Exception e) {
+        connection.rollback();
+        throw e;
+      } finally {
+        connection.setAutoCommit(true);
       }
     }
   }
