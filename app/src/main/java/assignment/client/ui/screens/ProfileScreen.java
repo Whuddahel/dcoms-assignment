@@ -84,7 +84,7 @@ public class ProfileScreen {
         }
       }
     } catch (Exception e) {
-      System.err.println("Error loading profile: " + e.getMessage());
+      Helper.printError("Error loading profile", e);
     }
   }
 
@@ -99,7 +99,7 @@ public class ProfileScreen {
         Helper.printLine("Update failed on server.", Helper.Theme.RED);
       }
     } catch (Exception e) {
-      System.err.println("Error updating profile: " + e.getMessage());
+      Helper.printError("Error updating profile", e);
     }
     return current;
   }

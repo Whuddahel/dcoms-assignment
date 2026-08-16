@@ -5,6 +5,7 @@
 package assignment.client.ui.screens;
 
 import assignment.client.services.ServiceManager;
+import assignment.client.ui.Helper;
 import assignment.client.ui.InputHandler;
 import assignment.shared.model.Patient;
 import org.mindrot.jbcrypt.BCrypt;
@@ -49,8 +50,7 @@ public class RegisterPatientScreen {
       if (e.getMessage() != null && e.getMessage().contains("EMAIL_ALREADY_EXISTS")) {
         System.out.println("\nRegistration failed: An account with this email already exists.");
       } else {
-        System.err.println("Error registering patient: " + e.getMessage());
-        e.printStackTrace();
+        Helper.printError("Error registering patient", e);
       }
     }
   }

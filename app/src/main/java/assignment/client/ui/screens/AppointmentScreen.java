@@ -15,6 +15,7 @@ import java.sql.Date;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -83,6 +84,11 @@ public class AppointmentScreen {
 
         displayAppointmentDetail(client, selected);
 
+        if (selected.getcancelledByUserId() != null) {
+          Helper.printLine("This appointment has already been cancelled.", Helper.Theme.RED);
+          continue;
+        }
+
         boolean wantCancel = InputHandler.readYesNo("Would you like to cancel this appointment?");
         if (wantCancel) {
           boolean confirmCancel =
@@ -101,7 +107,7 @@ public class AppointmentScreen {
         }
       }
     } catch (Exception e) {
-      System.err.println("Error loading appointments: " + e.getMessage());
+      Helper.printError("Error loading appointments", e);
     }
   }
 
@@ -124,7 +130,7 @@ public class AppointmentScreen {
       bookWithDoctor(client, patient, selectedDoctor);
 
     } catch (Exception e) {
-      System.err.println("Error during booking: " + e.getMessage());
+      Helper.printError("Error during booking", e);
     }
   }
 
@@ -206,7 +212,7 @@ public class AppointmentScreen {
       }
 
     } catch (Exception e) {
-      System.err.println("Error loading appointment history: " + e.getMessage());
+      Helper.printError("Error loading appointment history", e);
     }
   }
 
@@ -351,7 +357,7 @@ public class AppointmentScreen {
         }
       }
     } catch (Exception e) {
-      System.err.println("Error viewing appointments: " + e.getMessage());
+      Helper.printError("Error viewing appointments", e);
     }
   }
 
@@ -495,27 +501,60 @@ public class AppointmentScreen {
     List<Appointment> existingAppointments =
         client.getAppointmentsByDoctorAndDate(doctor.getDoctorId(), sqlDate);
 
-    // Determine which schedule slots are already booked
+    // Determine which schedule slots are already booked for this doctor
     Set<Integer> bookedScheduleIds = new HashSet<>();
     for (Appointment a : existingAppointments) {
       bookedScheduleIds.add(a.getScheduleId());
     }
 
-    // Filter to available slots
-    List<Schedule> availableSlots = new ArrayList<>();
-    for (Schedule s : daySlots) {
-      if (!bookedScheduleIds.contains(s.getScheduleId())) {
-        availableSlots.add(s);
+    // Determine existing active appointments of this patient on this date to prevent time conflicts
+    List<Appointment> patientUpcoming = client.getUpcomingAppointments(patient.getUserId());
+    List<Schedule> patientDateSchedules = new ArrayList<>();
+    if (patientUpcoming != null) {
+      for (Appointment pa : patientUpcoming) {
+        if (pa.getAppointmentDate().toLocalDate().isEqual(selectedDate)
+            && pa.getcancelledByUserId() == null) {
+          Schedule ps = client.getScheduleByIdForPatient(pa.getScheduleId());
+          if (ps != null) {
+            patientDateSchedules.add(ps);
+          }
+        }
       }
     }
 
+    boolean isToday = selectedDate.isEqual(LocalDate.now());
+    LocalTime nowTime = LocalTime.now();
+
+    // Filter to available slots
+    List<Schedule> availableSlots = new ArrayList<>();
+    for (Schedule s : daySlots) {
+      if (bookedScheduleIds.contains(s.getScheduleId())) {
+        continue;
+      }
+      if (isToday && s.getStartTime().toLocalTime().isBefore(nowTime)) {
+        continue;
+      }
+      boolean patientConflict = false;
+      for (Schedule ps : patientDateSchedules) {
+        if (s.getStartTime().before(ps.getEndTime()) && s.getEndTime().after(ps.getStartTime())) {
+          patientConflict = true;
+          break;
+        }
+      }
+      if (patientConflict) {
+        continue;
+      }
+      availableSlots.add(s);
+    }
+
     if (availableSlots.isEmpty()) {
-      System.out.println(
+      Helper.printLine(
           "No available slots on "
               + selectedDate
               + " for Dr. "
               + doctor.getFullName()
-              + ". All slots are booked.");
+              + " (slots may be booked, in the past, or conflict with your other appointments).",
+          Helper.Theme.RED);
       return;
     }
 
@@ -560,11 +599,17 @@ public class AppointmentScreen {
     Appointment newAppointment =
         new Appointment(
             doctor.getDoctorId(), patient.getPatientId(), chosenSlot.getScheduleId(), sqlDate);
-    boolean success = client.bookAppointment(newAppointment);
-    if (success) {
-      Helper.printLine("Appointment booked successfully!", Helper.Theme.GREEN);
-    } else {
-      Helper.printLine("Failed to book appointment.", Helper.Theme.RED);
+    try {
+      boolean success = client.bookAppointment(newAppointment);
+      if (success) {
+        Helper.printLine("Appointment booked successfully!", Helper.Theme.GREEN);
+      } else {
+        Helper.printLine(
+            "Failed to book appointment: The selected time slot is no longer available.",
+            Helper.Theme.RED);
+      }
+    } catch (Exception e) {
+      Helper.printError("Failed to book appointment", e);
     }
   }
 

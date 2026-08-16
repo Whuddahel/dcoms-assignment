@@ -1,6 +1,7 @@
 package assignment.client.ui.screens;
 
 import assignment.client.services.ServiceManager;
+import assignment.client.ui.Helper;
 import assignment.client.ui.InputHandler;
 import assignment.client.ui.PrintHelper;
 import assignment.shared.model.ClinicAdministrator;
@@ -135,8 +136,7 @@ public class EditUserScreen {
         }
       }
     } catch (Exception e) {
-      System.err.println("Error calling editUser: " + e.getMessage());
-      e.printStackTrace();
+      Helper.printError("Error managing users", e);
     }
   }
 
@@ -393,7 +393,7 @@ public class EditUserScreen {
         System.out.println("Edit failed on server.");
       }
     } catch (Exception e) {
-      System.err.println("Error: " + e.getMessage());
+      Helper.printError("Error updating user", e);
     }
     return currentUser;
   }
@@ -423,7 +423,7 @@ public class EditUserScreen {
         System.out.println("Delete failed on server.");
       }
     } catch (Exception e) {
-      System.err.println("Error deleting user: " + e.getMessage());
+      Helper.printError("Error deleting user", e);
     }
     return false;
   }

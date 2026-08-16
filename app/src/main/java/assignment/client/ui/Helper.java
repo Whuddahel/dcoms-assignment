@@ -67,4 +67,47 @@ public class Helper {
     String colorCode = getColorCode(color);
     System.out.println(colorCode + content + ANSI_RESET);
   }
+
+  public static String extractUserMessage(Throwable t) {
+    if (t == null) {
+      return "An unexpected error occurred.";
+    }
+    Throwable cause = t;
+    while (cause.getCause() != null && cause.getCause() != cause) {
+      cause = cause.getCause();
+    }
+    String msg = cause.getMessage();
+    if (msg == null || msg.trim().isEmpty()) {
+      msg = t.getMessage();
+    }
+    if (msg == null || msg.trim().isEmpty()) {
+      return "An unexpected error occurred.";
+    }
+
+    int nestedIdx = msg.lastIndexOf("nested exception is:");
+    if (nestedIdx != -1) {
+      msg = msg.substring(nestedIdx + "nested exception is:".length()).trim();
+    }
+    if (msg.contains("Exception: ")) {
+      msg = msg.substring(msg.lastIndexOf("Exception: ") + "Exception: ".length()).trim();
+    }
+    if (msg.startsWith("DB_ERROR:")) {
+      msg = msg.substring("DB_ERROR:".length()).trim();
+    } else if (msg.startsWith("SERVER_ERROR:")) {
+      msg = msg.substring("SERVER_ERROR:".length()).trim();
+    } else if (msg.startsWith("AUTH_ERROR:")) {
+      msg = msg.substring("AUTH_ERROR:".length()).trim();
+    } else if (msg.startsWith("CANNOT_DELETE:")) {
+      msg = msg.substring("CANNOT_DELETE:".length()).trim();
+    }
+
+    return msg.trim();
+  }
+
+  public static void printError(String prefix, Throwable t) {
+    String cleanMsg = extractUserMessage(t);
+    String output =
+        (prefix != null && !prefix.trim().isEmpty()) ? prefix + ": " + cleanMsg : cleanMsg;
+    printLine(output, Theme.RED);
+  }
 }
