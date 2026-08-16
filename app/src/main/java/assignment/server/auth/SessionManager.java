@@ -15,7 +15,12 @@ public class SessionManager {
     return sessions.containsKey(token);
   }
 
+  public static void removeSessionsByUserId(int userId) {
+    sessions.entrySet().removeIf(entry -> entry.getValue().getUserId() == userId);
+  }
+
   public static String createSession(User user) {
+    removeSessionsByUserId(user.getUserId());
     String token = UUID.randomUUID().toString();
     Session session = new Session(user);
     sessions.put(token, session);
@@ -36,18 +41,11 @@ public class SessionManager {
 
   // ! TODO: Remove test method
   public static void printSessions() {
-
-    System.out.println("=== ACTIVE SESSIONS ===");
-
-    if (sessions.isEmpty()) {
-      System.out.println("(none)");
+    System.out.println("[SESSIONS] Active count: " + sessions.size());
+    if (!sessions.isEmpty()) {
+      sessions.forEach(
+          (token, session) ->
+              System.out.println("  - " + session.getUsername() + " (" + session.getRole() + ")"));
     }
-
-    sessions.forEach(
-        (token, session) ->
-            System.out.println(
-                token + " -> " + session.getUsername() + " (" + session.getRole() + ")"));
-
-    System.out.println("=======================");
   }
 }

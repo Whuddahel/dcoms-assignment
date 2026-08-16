@@ -134,6 +134,8 @@ class PatientServiceImplementationTest {
   void getUpcomingAppointments_filtersOutPastAndCancelled() throws Exception {
     try (MockedStatic<SessionManager> sessionMock = mockStatic(SessionManager.class);
         MockedStatic<PatientRepository> patientRepoMock = mockStatic(PatientRepository.class);
+        MockedStatic<ConsultationRepository> consultRepoMock =
+            mockStatic(ConsultationRepository.class);
         MockedStatic<AppointmentRepository> apptRepoMock =
             mockStatic(AppointmentRepository.class)) {
 
@@ -191,6 +193,8 @@ class PatientServiceImplementationTest {
   void getPastAppointments_includesPastAndCancelled_excludesFutureActive() throws Exception {
     try (MockedStatic<SessionManager> sessionMock = mockStatic(SessionManager.class);
         MockedStatic<PatientRepository> patientRepoMock = mockStatic(PatientRepository.class);
+        MockedStatic<ConsultationRepository> consultRepoMock =
+            mockStatic(ConsultationRepository.class);
         MockedStatic<AppointmentRepository> apptRepoMock =
             mockStatic(AppointmentRepository.class)) {
 
@@ -212,15 +216,21 @@ class PatientServiceImplementationTest {
       Appointment futureCancelled =
           new Appointment(2, 10, 1, 21, tomorrow, now, 99); // included (cancelled)
       Appointment futureActive = new Appointment(3, 10, 1, 22, tomorrow, now, null); // excluded
+      Appointment futureWithConsultation =
+          new Appointment(4, 10, 1, 23, tomorrow, now, null); // included (has consultation)
+
+      consultRepoMock
+          .when(() -> ConsultationRepository.getConsultationByAppointmentId(4))
+          .thenReturn(new Consultation(1, 4, "Notes", 50.0, now));
 
       apptRepoMock
           .when(() -> AppointmentRepository.getAppointmentsByPatientId(1))
-          .thenReturn(List.of(pastActive, futureCancelled, futureActive));
+          .thenReturn(List.of(pastActive, futureCancelled, futureActive, futureWithConsultation));
 
       PatientServiceImplementation service = new PatientServiceImplementation();
       List<Appointment> result = service.getPastAppointments(TOKEN, 5);
 
-      assertEquals(List.of(pastActive, futureCancelled), result);
+      assertEquals(List.of(pastActive, futureCancelled, futureWithConsultation), result);
     }
   }
 

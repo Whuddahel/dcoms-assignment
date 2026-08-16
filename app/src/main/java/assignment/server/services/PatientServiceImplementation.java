@@ -70,8 +70,12 @@ public class PatientServiceImplementation extends UnicastRemoteObject implements
       List<Appointment> upcoming = new ArrayList<>();
       Date today = new Date(System.currentTimeMillis());
       for (Appointment a : all) {
-        // Upcoming = future date AND not cancelled
-        if (!a.getAppointmentDate().before(today) && a.getcancelledByUserId() == null) {
+        boolean hasConsultation =
+            ConsultationRepository.getConsultationByAppointmentId(a.getAppointmentId()) != null;
+        // Upcoming = future/current date AND not cancelled AND not yet consulted
+        if (!a.getAppointmentDate().before(today)
+            && a.getcancelledByUserId() == null
+            && !hasConsultation) {
           upcoming.add(a);
         }
       }
@@ -94,8 +98,12 @@ public class PatientServiceImplementation extends UnicastRemoteObject implements
       List<Appointment> past = new ArrayList<>();
       Date today = new Date(System.currentTimeMillis());
       for (Appointment a : all) {
-        // Past = before today, OR cancelled
-        if (a.getAppointmentDate().before(today) || a.getcancelledByUserId() != null) {
+        boolean hasConsultation =
+            ConsultationRepository.getConsultationByAppointmentId(a.getAppointmentId()) != null;
+        // Past = before today, OR cancelled, OR consultation has already been recorded
+        if (a.getAppointmentDate().before(today)
+            || a.getcancelledByUserId() != null
+            || hasConsultation) {
           past.add(a);
         }
       }

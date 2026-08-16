@@ -17,6 +17,18 @@ import java.util.List;
 
 public class UserRepository {
 
+  public static boolean emailExists(String email) throws SQLException {
+    String sql = "SELECT 1 FROM Users WHERE LOWER(email) = ?";
+
+    try (Connection conn = DatabaseManager.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setString(1, email != null ? email.trim().toLowerCase() : "");
+      try (ResultSet rs = ps.executeQuery()) {
+        return rs.next();
+      }
+    }
+  }
+
   public static boolean addUser(User user) throws SQLException {
     String sql =
         "INSERT INTO Users (firstName, lastName, userRole, icPassportNo, email, password, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)";

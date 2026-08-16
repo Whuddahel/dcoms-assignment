@@ -62,9 +62,14 @@ public class AuthorizationManager {
     Permission requiredPermission = endpointPermissions.get(actionName);
 
     if (requiredPermission != null && !session.getRole().hasPermission(requiredPermission)) {
+      System.out.printf(
+          "\n[DENIED] User: %s (%s) -> %s (Missing: %s)\n",
+          session.getUsername(), session.getRole(), actionName, requiredPermission);
       throw new RemoteException(AuthError.ACCESS_DENIED.name());
     }
 
+    System.out.printf(
+        "\n[ACTION] User: %s (%s) -> %s\n", session.getUsername(), session.getRole(), actionName);
     return session;
   }
 
@@ -74,8 +79,12 @@ public class AuthorizationManager {
 
     if (session == null) throw new RemoteException(AuthError.INVALID_SESSION.name());
 
-    if (!session.getRole().hasPermission(permission))
+    if (!session.getRole().hasPermission(permission)) {
+      System.out.printf(
+          "\n[DENIED] User: %s (%s) -> Missing: %s\n",
+          session.getUsername(), session.getRole(), permission);
       throw new RemoteException(AuthError.ACCESS_DENIED.name());
+    }
 
     return session;
   }

@@ -94,6 +94,13 @@ public class ServiceManager {
     return authService.login(username, password);
   }
 
+  public void logout() throws RemoteException {
+    if (this.activeToken != null) {
+      authService.logout(this.activeToken);
+      this.activeToken = null;
+    }
+  }
+
   // ==========================================
   // ManageScheduleService Delegation
   // ==========================================
