@@ -186,7 +186,7 @@ public class ConsultationRepository {
             + "JOIN Users u ON p.userId = u.userId "
             + "JOIN Appointment a ON a.patientId = p.patientId "
             + "JOIN Consultation c ON c.appointmentId = a.appointmentId "
-            + "WHERE a.doctorId = ? AND u.deleted = false";
+            + "WHERE a.doctorId = ?";
 
     List<Patient> list = new ArrayList<>();
     try (Connection conn = DatabaseManager.getConnection();

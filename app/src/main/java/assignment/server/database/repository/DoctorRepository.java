@@ -61,7 +61,7 @@ public class DoctorRepository {
         "SELECT d.doctorId, d.userId, d.Specialization, u.firstName, u.lastName, u.userRole, u.icPassportNo, u.email, u.createdAt, u.deleted "
             + "FROM Doctor d "
             + "JOIN Users u ON d.userId = u.userId "
-            + "WHERE d.doctorId = ? AND u.deleted = false";
+            + "WHERE d.doctorId = ?";
 
     try (Connection conn = DatabaseManager.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {

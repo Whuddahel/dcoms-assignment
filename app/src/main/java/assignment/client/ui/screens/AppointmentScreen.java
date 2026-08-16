@@ -252,6 +252,10 @@ public class AppointmentScreen {
               client.getConsultationByAppointmentId(a.getAppointmentId());
           String patientName = p != null ? p.getFirstName() + " " + p.getLastName() : "Unknown";
           String timeSlot = s != null ? s.getStartTime() + " - " + s.getEndTime() : "Unknown";
+          String status =
+              a.getcancelledByUserId() != null
+                  ? "Cancelled"
+                  : (existingConsultation != null ? "Completed" : "Active");
           views.add(
               new AppointmentView(
                   a.getAppointmentId(),
@@ -259,7 +263,7 @@ public class AppointmentScreen {
                   "",
                   patientName,
                   timeSlot,
-                  existingConsultation != null ? "Completed" : "Active"));
+                  status));
         }
 
         String input =
@@ -292,13 +296,16 @@ public class AppointmentScreen {
         Consultation existingConsultation =
             client.getConsultationByAppointmentId(selected.getAppointmentId());
         boolean hasConsultation = existingConsultation != null;
+        boolean isCancelled = selected.getcancelledByUserId() != null;
 
         System.out.println("\nOptions:");
         int nextOption = 1;
         Integer initiateOption = null;
-        if (!hasConsultation) {
+        if (!hasConsultation && !isCancelled) {
           Helper.printOption(nextOption, "Initiate Consultation", Helper.Theme.BLUE);
           initiateOption = nextOption++;
+        } else if (isCancelled) {
+          Helper.printLine("Appointment has been cancelled.", Helper.Theme.RED);
         } else {
           Helper.printLine(
               "Consultation already recorded for this appointment.", Helper.Theme.CYAN);
@@ -306,7 +313,7 @@ public class AppointmentScreen {
 
         Schedule s = client.getScheduleByIdForDoctor(selected.getScheduleId());
         boolean canCancel = false;
-        if (s != null) {
+        if (s != null && !isCancelled && !hasConsultation) {
           LocalDateTime startDateTime =
               selected.getAppointmentDate().toLocalDate().atTime(s.getStartTime().toLocalTime());
           if (now.isBefore(startDateTime)) {
